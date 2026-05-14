@@ -117,7 +117,7 @@ export default function AssessmentDetail() {
         return <BathroomQuestions data={bath.questions}
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
-      return <BathroomPhotos data={bath.photos} measurements={bath.measurements}
+      return <BathroomPhotos data={bath.photos}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateBathroom({ ...bath, photos: p })} />;
     }
@@ -132,7 +132,7 @@ export default function AssessmentDetail() {
         return <FlooringQuestions data={floor.questions}
           onUpdate={q => updateFlooring({ ...floor, questions: q })} />;
       }
-      return <FlooringPhotos data={floor.photos} measurements={floor.measurements}
+      return <FlooringPhotos data={floor.photos}
         assessmentId={id!} jobId={activeJob.id}
         hasStairs={!!floor.questions.stairNosing}
         onUpdate={p => updateFlooring({ ...floor, photos: p })} />;
@@ -148,7 +148,7 @@ export default function AssessmentDetail() {
         return <LivingRoomQuestions data={lr.questions}
           onUpdate={q => updateLivingRoom({ ...lr, questions: q })} />;
       }
-      return <LivingRoomPhotos data={lr.photos} measurements={lr.measurements}
+      return <LivingRoomPhotos data={lr.photos}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateLivingRoom({ ...lr, photos: p })} />;
     }
@@ -163,7 +163,7 @@ export default function AssessmentDetail() {
         return <BedroomQuestions data={br.questions}
           onUpdate={q => updateBedroom({ ...br, questions: q })} />;
       }
-      return <BedroomPhotos data={br.photos} measurements={br.measurements}
+      return <BedroomPhotos data={br.photos}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateBedroom({ ...br, photos: p })} />;
     }
@@ -178,7 +178,7 @@ export default function AssessmentDetail() {
         return <DeckQuestions data={dk.questions}
           onUpdate={q => updateDeck({ ...dk, questions: q })} />;
       }
-      return <DeckPhotos data={dk.photos} measurements={dk.measurements}
+      return <DeckPhotos data={dk.photos}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateDeck({ ...dk, photos: p })} />;
     }

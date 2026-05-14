@@ -2,7 +2,7 @@ import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { DeckPhotos as DP, DeckMeasurements as DM } from '../../types';
+import type { DeckPhotos as DP } from '../../types';
 
 interface Props {
   data: DP;
