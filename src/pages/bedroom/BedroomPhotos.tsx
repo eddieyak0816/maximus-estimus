@@ -6,7 +6,6 @@ import type { BedroomPhotos as BP, BedroomMeasurements as BM } from '../../types
 
 interface Props {
   data: BP;
-  measurements: BM;
   assessmentId: string;
   jobId: string;
   onUpdate: (d: BP) => void;
@@ -16,7 +15,7 @@ function SecHead({ title }: { title: string }) {
   return <div className="q-sec-head">{title}</div>;
 }
 
-export default function BedroomPhotos({ data, _measurements, assessmentId, jobId, onUpdate }: Props) {
+export default function BedroomPhotos({ data, assessmentId, jobId, onUpdate }: Props) {
   const [activePhotoKey, setActivePhotoKey] = useState<keyof BP | null>(null);
   const u = (key: keyof BP, val: unknown) => onUpdate({ ...data, [key]: val });
 

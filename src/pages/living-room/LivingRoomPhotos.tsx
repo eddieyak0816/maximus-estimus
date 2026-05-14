@@ -6,7 +6,6 @@ import type { LivingRoomPhotos as LP, LivingRoomMeasurements as LM } from '../..
 
 interface Props {
   data: LP;
-  measurements: LM;
   assessmentId: string;
   jobId: string;
   onUpdate: (d: LP) => void;
@@ -16,7 +15,7 @@ function SecHead({ title }: { title: string }) {
   return <div className="q-sec-head">{title}</div>;
 }
 
-export default function LivingRoomPhotos({ data, measurements, assessmentId, jobId, onUpdate }: Props) {
+export default function LivingRoomPhotos({ data, assessmentId, jobId, onUpdate }: Props) {
   const [activePhotoKey, setActivePhotoKey] = useState<keyof LP | null>(null);
   const u = (key: keyof LP, val: unknown) => onUpdate({ ...data, [key]: val });
 

@@ -126,8 +126,8 @@ function DoorCard({ door, index, onUpdate, onRemove }: {
 }
 
 // ── Appliance card ────────────────────────────────────────────────────────────
-function ApplianceCard({ app, _index, onUpdate, onRemove }: {
-  app: ApplianceOnWall; _index: number;
+function ApplianceCard({ app, onUpdate, onRemove }: {
+  app: ApplianceOnWall;
   onUpdate: (v: ApplianceOnWall) => void; onRemove: () => void;
 }) {
   const [open, setOpen] = useState(true);

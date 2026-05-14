@@ -3,7 +3,6 @@ import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
 import type { KitchenPhotos as KP, KitchenMeasurements as KM } from '../../types';
-import { useAssessmentStore } from '../../store/assessmentStore';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 
@@ -33,7 +32,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
   const captured = Object.values(data).filter(v => typeof v === 'string' && v.length > 0).length;
   const pct = totalItems > 0 ? Math.round((captured / totalItems) * 100) : 0;
 
-  async function handlePhotoCapture(photoKey: keyof KP, photoLabel: string, blob: Blob) {
+  async function handlePhotoCapture(photoKey: keyof KP, _photoLabel: string, blob: Blob) {
     try {
       const photoId = await savePhoto(assessmentId, jobId, String(photoKey), blob);
       u(photoKey, photoId);

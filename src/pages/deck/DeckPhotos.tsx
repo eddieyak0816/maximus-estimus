@@ -6,7 +6,6 @@ import type { DeckPhotos as DP, DeckMeasurements as DM } from '../../types';
 
 interface Props {
   data: DP;
-  measurements: DM;
   assessmentId: string;
   jobId: string;
   onUpdate: (d: DP) => void;
@@ -16,7 +15,7 @@ function SecHead({ title }: { title: string }) {
   return <div className="q-sec-head">{title}</div>;
 }
 
-export default function DeckPhotos({ data, _measurements, assessmentId, jobId, onUpdate }: Props) {
+export default function DeckPhotos({ data, assessmentId, jobId, onUpdate }: Props) {
   const [activePhotoKey, setActivePhotoKey] = useState<keyof DP | null>(null);
   const u = (key: keyof DP, val: unknown) => onUpdate({ ...data, [key]: val });
 
