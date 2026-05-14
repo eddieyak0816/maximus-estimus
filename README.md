@@ -76,20 +76,33 @@ src/
 │   ├── JobTypePage.tsx            # Step 2: add jobs (Kitchen/Bath/Floor/Other)
 │   ├── AssessmentDetail.tsx       # Step 3: per-job tabs (Measure/Questions/Photos)
 │   ├── GalleryPage.tsx            # Cabinet style gallery (4 styles, color swatches)
-│   ├── SummaryView.tsx            # (legacy — not wired to current routes)
+│   ├── PriceGuidePage.tsx         # Edit costs, materials, labor, markups
+│   ├── EstimatePage.tsx           # Generate and view job estimates
+│   ├── SummaryView.tsx            # Read-only consolidated job data view
 │   │
 │   ├── kitchen/
-│   │   ├── KitchenMeasurements.tsx  # Full kitchen measurement form
-│   │   ├── KitchenQuestions.tsx     # 19 kitchen questions
-│   │   └── KitchenPhotos.tsx        # Photo checklist (conditional sections)
+│   │   ├── KitchenMeasurements.tsx
+│   │   ├── KitchenQuestions.tsx
+│   │   └── KitchenPhotos.tsx
+│   │
+│   ├── bathroom/
+│   │   ├── BathroomMeasurements.tsx
+│   │   ├── BathroomQuestions.tsx
+│   │   └── BathroomPhotos.tsx
+│   │
+│   ├── flooring/
+│   │   ├── FlooringMeasurements.tsx
+│   │   ├── FlooringQuestions.tsx
+│   │   └── FlooringPhotos.tsx
+│   │
+│   ├── bedroom/                   # (Room template — in progress)
+│   ├── living-room/               # (Room template — in progress)
+│   ├── deck/                      # (Room template — in progress)
+│   │
+│   ├── other/
+│   │   └── OtherTabs.tsx          # Free-text notes for custom job types
 │   │
 │   └── forms/                     # (legacy — unused, safe to delete)
-│       ├── ClientForm.tsx
-│       ├── RoomForm.tsx
-│       ├── CabinetForm.tsx
-│       ├── ApplianceForm.tsx
-│       ├── MaterialsForm.tsx
-│       └── CostForm.tsx
 │
 └── index.css                      # All styles (CSS variables + component classes)
 ```
@@ -100,12 +113,15 @@ src/
 
 | URL | Component | Purpose |
 |---|---|---|
-| `/` | Dashboard | Assessment list |
-| `/new` | NewRedirect (in App.tsx) | Creates a new assessment, redirects to `/assessment/:id/client` |
+| `/` | Dashboard | Assessment list + stats |
+| `/new` | NewRedirect | Creates assessment, redirects to `/assessment/:id/client` |
 | `/assessment/:id/client` | CustomerInfoPage | Client info form |
 | `/assessment/:id/type` | JobTypePage | Add/remove jobs |
-| `/assessment/:id` | AssessmentDetail | Measurements, Questions, Photos per job |
+| `/assessment/:id` | AssessmentDetail | Measurements, Questions, Photos per job (tabbed) |
+| `/assessment/:id/summary` | SummaryView | Read-only consolidated job data + estimate hero |
+| `/assessment/:id/estimate` | EstimatePage | Generate/view/edit job estimates |
 | `/gallery` | GalleryPage | Cabinet style reference |
+| `/price-guide` | PriceGuidePage | Edit costs, materials, labor, markup % |
 
 ---
 
@@ -163,40 +179,64 @@ JobInstance {
 
 ---
 
-## What's Built (Sprint 1 — Complete)
+## What's Built
 
+### ✅ Core Field Workflow (Sprints 1-3 Complete)
 - Dashboard with stat cards, assessment list, status dots, job type tags, delete
 - Create new assessment flow: Customer Info → Job Type Selection → Assessment Detail
-- Customer Info: first/last name, address, phone, email, visit date, notes, team member (dropdown roster + "Other" + manage panel)
-- Job Type Selection: add multiple jobs of any type with custom labels, remove jobs
-- Assessment Detail: job switcher (multi-job), tabbed Measure/Questions/Photos per job
-- Kitchen Measurements: ceiling height, soffit (global + per-wall override), walls A-D (length, windows, doors, outlets, cabinet notes), appliances, plumbing, island, existing cabinets, desk — all with toggles, collapsible sections, and MeasInput components
-- Soffit shortcut button: "= Same as wall length" to copy wall length into soffit width
-- Kitchen Questions: 19 questions with CheckOpt multi-choice, dropdowns, date pickers, notes fields
-- Kitchen Photos: conditional photo checklist (island/desk/cabinets sections only shown when toggles are ON), progress bar
+- Customer Info: first/last name, address, phone, email, visit date, notes, team member (dropdown roster)
+- Job Type Selection: Kitchen, Bathroom, Flooring, Other, + custom labels
+- Multi-job support: each assessment can hold multiple kitchen/bathroom/flooring jobs
+- Full assessment detail forms for Kitchen, Bathroom, Flooring, and Other job types
 - Cabinet Style Gallery: 4 styles with color swatches and customer link input
+- Price Guide: editable cost database by category (labor + material tiers)
+- Basic estimate auto-generation from measurements + price guide
+- Estimate page: customer-facing view + internal cost view (profit margin, markup settings)
 - Status management: draft / in-progress / complete
 - localStorage persistence (storage key: `maximus-estimus-v3`)
-- Global team member roster with per-assessment assignment
+- Global team member roster
+
+### ✅ Real Photo Capture (May 4, 2026)
+- Device camera integration (rear camera on mobile)
+- IndexedDB storage (100MB+ capacity)
+- Photo preview before save
+- Captured photo display in summary view and photo checklists
+- Delete capability for photos
+- Full multi-job support
+
+### ✅ Summary/Report View (May 3, 2026)
+- Read-only consolidated view of all job data
+- Customer info, measurements, answers, photo checklist status
+- Estimate hero with customer-facing total
+- Print-friendly CSS for PDF export
+- Edit links for quick gap-checking
+
+### ✅ UX Polish
+- Full-width header click to collapse/expand sections
+- Collapsible per-wall overrides for ceiling and soffit
+- Collapsible appliance, island, and plumbing sections
+- Wall rename propagation throughout forms
+- Rename walls, see updates everywhere
 
 ---
 
-## What's Next (Sprint 2)
+## What's Next (Priority Order)
 
-- Bathroom assessment (measurements, questions, photos)
-- Flooring assessment (measurements, questions, photos)
-- "Other" job type with free-text name and blank tabs
-- Wire `AssessmentDetail` to show bathroom/flooring forms when job type is Bathroom/Flooring
+- **Room Templates** (PRIORITY 1) — Living Room, Bedroom, Deck with pre-built measurement/question/photo checklists
+- Admin Panel — Manage job types, price guide, team members, cabinet gallery
+- Backend & Cloud Sync — Move from localStorage to Supabase/Firebase
+- PDF Export & Email — Professional job reports
+- Mobile Apps — iOS and Android (React Native or PWA)
 
 ---
 
 ## Known Issues / Quirks
 
-- **Photos are stubs:** `PhotoItem` toggles a boolean (`taken: true/false`) but does not open the camera or store an image. Real camera integration is deferred.
-- **Legacy files:** `src/pages/forms/` and `src/pages/SummaryView.tsx` are unused leftovers from the original prototype. They are safe to delete.
-- **`JobInstance.kitchen`:** Even non-kitchen jobs have a `kitchen` field (it's just unused). When Bathroom/Flooring forms are built, new sibling fields (`bathroom`, `flooring`) should be added to `JobInstance` in `types/index.ts`.
 - **npm on Google Drive:** Running `npm install` directly in the project path fails. Always install in `C:\Users\Eddie\AppData\Local\Temp\maximus-estimus-setup\` and copy `node_modules` across.
-- **Storage key history:** v1 and v2 keys are abandoned. If a user's data ever disappears after a key bump, a migration script exists in the chat history.
+- **Legacy files:** `src/pages/forms/` contains unused components from the original prototype. Safe to delete when ready.
+- **React Hook Form & Zod not wired:** These are in package.json but not yet integrated. All forms are currently plain controlled React components. Wire up during Sprint 4 (Admin Panel).
+- **Storage:** Still using localStorage for Phase 1. Backend (Supabase/Firebase) will be integrated in Sprint 5.
+- **Cloud photo storage:** Photos currently stored in IndexedDB (device only). Will add cloud sync in Sprint 5.
 
 ---
 
