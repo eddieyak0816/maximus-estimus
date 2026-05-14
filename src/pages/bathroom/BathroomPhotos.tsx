@@ -2,13 +2,12 @@ import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { BathroomPhotos as BP, BathroomMeasurements as BM } from '../../types';
+import type { BathroomPhotos as BP } from '../../types';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 
 interface Props {
   data: BP;
-  measurements: BM;
   assessmentId: string;
   jobId: string;
   onUpdate: (d: BP) => void;

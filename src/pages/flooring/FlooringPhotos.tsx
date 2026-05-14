@@ -2,11 +2,10 @@ import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { FlooringPhotos as FP, FlooringMeasurements as FM } from '../../types';
+import type { FlooringPhotos as FP } from '../../types';
 
 interface Props {
   data: FP;
-  measurements: FM;
   assessmentId: string;
   jobId: string;
   hasStairs: boolean;

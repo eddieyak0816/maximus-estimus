@@ -344,7 +344,7 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
               <button className="chip-btn" onClick={addAppliance}>+ Add</button>
             </div>
             {(data.appliances || []).map((app, i) => (
-              <ApplianceCard key={i} app={app} index={i}
+              <ApplianceCard key={i} app={app}
                 onUpdate={v => { const a = [...(data.appliances || [])]; a[i] = v; u('appliances', a); }}
                 onRemove={() => u('appliances', (data.appliances || []).filter((_, x) => x !== i))} />
             ))}
