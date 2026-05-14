@@ -118,6 +118,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
       return <BathroomPhotos data={bath.photos}
+        measurements={bath.measurements}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateBathroom({ ...bath, photos: p })} />;
     }
@@ -133,6 +134,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateFlooring({ ...floor, questions: q })} />;
       }
       return <FlooringPhotos data={floor.photos}
+        measurements={floor.measurements}
         assessmentId={id!} jobId={activeJob.id}
         hasStairs={!!floor.questions.stairNosing}
         onUpdate={p => updateFlooring({ ...floor, photos: p })} />;

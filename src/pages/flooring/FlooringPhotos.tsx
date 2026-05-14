@@ -2,10 +2,11 @@ import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { FlooringPhotos as FP } from '../../types';
+import type { FlooringPhotos as FP, FlooringMeasurements, FlooringRoom } from '../../types';
 
 interface Props {
   data: FP;
+  measurements: FlooringMeasurements;
   assessmentId: string;
   jobId: string;
   hasStairs: boolean;
@@ -30,7 +31,7 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
 
   const u = (key: keyof FP, val: unknown) => onUpdate({ ...data, [key]: val });
 
-  const roomCaptured = rooms.reduce((n, r) => {
+  const roomCaptured = rooms.reduce((n: number, r: FlooringRoom) => {
     const rp = roomPhotos[r.id] || {};
     return n + (rp.overview ? 1 : 0) + (rp.condition ? 1 : 0);
   }, 0);
@@ -99,7 +100,7 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
         </p>
       )}
 
-      {rooms.map(room => {
+      {rooms.map((room: FlooringRoom) => {
         const rp = roomPhotos[room.id] || {};
         return (
           <div key={room.id}>

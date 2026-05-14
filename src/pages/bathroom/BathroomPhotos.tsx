@@ -6,8 +6,11 @@ import type { BathroomPhotos as BP } from '../../types';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 
+import type { BathroomMeasurements } from '../../types';
+
 interface Props {
   data: BP;
+  measurements: BathroomMeasurements;
   assessmentId: string;
   jobId: string;
   onUpdate: (d: BP) => void;
