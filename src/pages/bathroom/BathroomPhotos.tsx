@@ -32,7 +32,7 @@ export default function BathroomPhotos({ data, measurements, assessmentId, jobId
     .length;
   const pct = totalItems > 0 ? Math.round((captured / totalItems) * 100) : 0;
 
-  async function handlePhotoCapture(photoKey: keyof BP, photoLabel: string, blob: Blob) {
+  async function handlePhotoCapture(photoKey: keyof BP, _photoLabel: string, blob: Blob) {
     try {
       const photoId = await savePhoto(assessmentId, jobId, String(photoKey), blob);
       u(photoKey, photoId);

@@ -7,6 +7,9 @@ const JOB_TYPE_COLORS: Record<JobType, string> = {
   Kitchen: '#1F3096',
   Bathroom: '#0d7c66',
   Flooring: '#7c5c0d',
+  'Living Room': '#8b5a2b',
+  Bedroom: '#a9742e',
+  Deck: '#6b8e23',
   Other: '#4a4a4a',
 };
 

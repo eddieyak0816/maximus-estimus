@@ -16,7 +16,7 @@ function SecHead({ title }: { title: string }) {
   return <div className="q-sec-head">{title}</div>;
 }
 
-export default function DeckPhotos({ data, measurements, assessmentId, jobId, onUpdate }: Props) {
+export default function DeckPhotos({ data, _measurements, assessmentId, jobId, onUpdate }: Props) {
   const [activePhotoKey, setActivePhotoKey] = useState<keyof DP | null>(null);
   const u = (key: keyof DP, val: unknown) => onUpdate({ ...data, [key]: val });
 

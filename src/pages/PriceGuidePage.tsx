@@ -31,8 +31,6 @@ interface ItemRowProps {
 }
 
 function ItemRow({ item, onChange, onRemove }: ItemRowProps) {
-  const hasMaterial = item.materialLow !== undefined || item.materialMed !== undefined || item.materialHigh !== undefined;
-
   return (
     <div className="pg-item-row">
       <div className="pg-item-name-col">

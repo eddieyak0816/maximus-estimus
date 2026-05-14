@@ -16,7 +16,7 @@ function SecHead({ title }: { title: string }) {
   return <div className="q-sec-head">{title}</div>;
 }
 
-export default function BedroomPhotos({ data, measurements, assessmentId, jobId, onUpdate }: Props) {
+export default function BedroomPhotos({ data, _measurements, assessmentId, jobId, onUpdate }: Props) {
   const [activePhotoKey, setActivePhotoKey] = useState<keyof BP | null>(null);
   const u = (key: keyof BP, val: unknown) => onUpdate({ ...data, [key]: val });
 
