@@ -9,5 +9,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function() {
+        if (window.location.pathname === '/maximus-estimus/404.html') {
+          const redirectUrl = sessionStorage.getItem('redirect-url');
+          if (redirectUrl) {
+            sessionStorage.removeItem('redirect-url');
+            window.history.replaceState(null, null, redirectUrl);
+          }
+        }
+      })();
+    </script>
   </body>
 </html>

@@ -23,7 +23,7 @@ function NewRedirect() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/maximus-estimus/">
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
