@@ -1,0 +1,656 @@
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useAssessmentStore } from '../store/assessmentStore';
+import { formatCurrency, formatDate, calcArea } from '../utils/calculations';
+import { estimateTotals } from '../utils/estimateEngine';
+import { getPhotoUrl } from '../utils/photoStorage';
+import SectionCard from '../components/SectionCard';
+import StatusBadge from '../components/StatusBadge';
+import type {
+  JobInstance, EstimateData,
+  KitchenMeasurements, KitchenQuestions, KitchenPhotos,
+  BathroomMeasurements, BathroomQuestions, BathroomPhotos,
+  FlooringMeasurements, FlooringQuestions, FlooringPhotos,
+  OtherAssessment, WallData
+} from '../types';
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+function Row({ label, value }: { label: string; value?: string | number | boolean | null }) {
+  if (value === undefined || value === null || value === '' || value === 0) return null;
+  const display = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
+  return (
+    <div className="summary-row">
+      <span className="summary-label">{label}</span>
+      <span className="summary-value">{display}</span>
+    </div>
+  );
+}
+
+function PhotoItem({ label, photoId }: { label: string; photoId?: string }) {
+  const [thumbUrl, setThumbUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!photoId) {
+      setThumbUrl(null);
+      return;
+    }
+
+    let mounted = true;
+    getPhotoUrl(photoId).then(url => {
+      if (mounted) setThumbUrl(url);
+    });
+
+    return () => {
+      mounted = false;
+      if (thumbUrl) URL.revokeObjectURL(thumbUrl);
+    };
+  }, [photoId]);
+
+  const taken = !!photoId;
+  return (
+    <div className={`photo-check-row ${taken ? 'taken' : 'missing'}`}>
+      {thumbUrl ? (
+        <img
+          src={thumbUrl}
+          alt={label}
+          className="photo-check-thumb"
+          style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }}
+        />
+      ) : (
+        <span className="photo-check-icon">{taken ? '✓' : '○'}</span>
+      )}
+      <span className="photo-check-label">{label}</span>
+    </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────
+
+function EstimateHero({ estimate }: { estimate: EstimateData }) {
+  const totals = estimateTotals(estimate.lines);
+  const customerTotal = totals.customerLabor + totals.customerMaterial;
+  if (customerTotal === 0) return null;
+  return (
+    <div className="summary-total-hero" style={{ marginBottom: 20 }}>
+      <div>
+        <div className="summary-total-label">Estimated Customer Total</div>
+        <div className="summary-total-amount">{formatCurrency(customerTotal)}</div>
+      </div>
+      <div style={{ textAlign: 'right', fontSize: 13, color: 'var(--text-muted)' }}>
+        <div>Labor: {formatCurrency(totals.customerLabor)}</div>
+        <div>Materials: {formatCurrency(totals.customerMaterial)}</div>
+        <div style={{ marginTop: 4, color: 'var(--text-secondary)' }}>
+          {estimate.lines.length} line items · {estimate.defaultTier} tier
+          {estimate.isLocked && ' · Locked'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CustomerInfoSection({ client, assessmentId }: { client: any; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}/client`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const clientName = [client.firstName, client.lastName].filter(Boolean).join(' ') || 'Untitled';
+  return (
+    <SectionCard title="Customer Info" action={editBtn}>
+      <Row label="Name" value={clientName} />
+      <Row label="Address" value={client.address} />
+      <Row label="Phone" value={client.phone} />
+      <Row label="Email" value={client.email} />
+      <Row label="Visit Date" value={client.visitDate ? formatDate(client.visitDate) : undefined} />
+      <Row label="Team Member" value={client.teamMember} />
+      <Row label="Notes" value={client.notes} />
+    </SectionCard>
+  );
+}
+
+// ── Kitchen Components ─────────────────────────────────────────────────────
+
+function WallSummary({ wallKey, wall }: { wallKey: string; wall: WallData }) {
+  const wins = (wall.windows || []).filter(w => w.width || w.height);
+  const doors = (wall.doors || []).filter(d => d.width || d.height);
+  const apps = (wall.appliances || []).filter(a => a.name);
+  return (
+    <div className="wall-summary-block">
+      <div className="summary-sub-head">Wall {wallKey}{wall.name ? ` — ${wall.name}` : ''}</div>
+      <Row label="Length" value={wall.length} />
+      {wall.hasUpperCabs && (
+        <>
+          <Row label="Upper Cabs" value="Yes" />
+          <Row label="Upper H" value={wall.upperCabH} />
+          <Row label="Upper D" value={wall.upperCabD} />
+        </>
+      )}
+      {wall.hasBaseCabs && <Row label="Base Cabs" value="Yes" />}
+      {wall.hasTallCab && (
+        <>
+          <Row label="Tall Cabinet" value="Yes" />
+          <Row label="Tall H" value={wall.tallCabH} />
+          <Row label="Tall D" value={wall.tallCabD} />
+        </>
+      )}
+      {wall.hasSink && (
+        <>
+          <Row label="Sink" value="Yes" />
+          <Row label="Sink W" value={wall.sinkW} />
+          <Row label="Sink D" value={wall.sinkD} />
+          <Row label="Disposal" value={wall.disposal} />
+        </>
+      )}
+      {wins.length > 0 && <Row label="Windows" value={String(wins.length)} />}
+      {doors.length > 0 && <Row label="Doors/Openings" value={String(doors.length)} />}
+      {apps.length > 0 && <Row label="Appliances" value={apps.map(a => a.name).join(', ')} />}
+      <Row label="Cabinet Notes" value={wall.cabinetNotes} />
+    </div>
+  );
+}
+
+function KitchenMeasurementsSection({ m, assessmentId }: { m: KitchenMeasurements; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const populatedWalls = (['A', 'B', 'C', 'D'] as const).filter(k => m.walls[k]?.length);
+  return (
+    <SectionCard title="Measurements" action={editBtn}>
+      <Row label="Ceiling Height" value={m.ceilingHeight} />
+      {m.hasSoffit && (
+        <>
+          <Row label="Soffit Height" value={m.soffitH} />
+          <Row label="Soffit Depth" value={m.soffitD} />
+          <Row label="Soffit Width" value={m.soffitW} />
+        </>
+      )}
+      {populatedWalls.map(k => (
+        <WallSummary key={k} wallKey={k} wall={m.walls[k]} />
+      ))}
+      {m.hasIsland && (
+        <>
+          <div className="summary-sub-head">Island</div>
+          <Row label="Length" value={m.iLen} />
+          <Row label="Width" value={m.iW} />
+          <Row label="Cabinet Length" value={m.iCabLen} />
+          <Row label="Status" value={m.iStatus} />
+          <Row label="Sink" value={m.iSink ? 'Yes' : undefined} />
+          <Row label="Cooktop" value={m.iCooktop ? 'Yes' : undefined} />
+          <Row label="Outlets" value={m.iOutlet ? 'Yes' : undefined} />
+          <Row label="Levels" value={m.iHasLevels ? 'Yes' : undefined} />
+        </>
+      )}
+    </SectionCard>
+  );
+}
+
+function KitchenQuestionsSection({ q, assessmentId }: { q: KitchenQuestions; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  return (
+    <SectionCard title="Questions" action={editBtn}>
+      <Row label="Scope" value={q.scope?.join(', ')} />
+      <Row label="Reason" value={q.reason?.join(', ')} />
+      <Row label="Other Reason" value={q.reasonOther} />
+      <Row label="Timeline" value={q.timeline} />
+      <Row label="Target Date" value={q.targetDate} />
+      <Row label="Cabinets" value={q.cabinets?.join(', ')} />
+      <Row label="Cabinet Style" value={q.cabinetStyle} />
+      <Row label="Cabinet Notes" value={q.cabinetNotes} />
+      <Row label="Countertop Notes" value={q.countertopNotes} />
+      <Row label="Backsplash Notes" value={q.backsplashNotes} />
+      <Row label="Backsplash Install" value={q.backsplashInstall} />
+      <Row label="Sink Notes" value={q.sinkNotes} />
+      <Row label="Faucet Notes" value={q.faucetNotes} />
+      <Row label="Appliance Scope" value={q.applianceScope?.join(', ')} />
+      <Row label="Appliances Replacing" value={q.applianceList?.join(', ')} />
+      <Row label="Electrical" value={q.electrical} />
+      <Row label="Plumbing" value={q.plumbing} />
+      <Row label="Permits Required" value={q.permits} />
+      <Row label="Referral" value={q.referral} />
+      <Row label="Referral Name" value={q.referralName} />
+      <Row label="Other Referral" value={q.referralOther} />
+      <Row label="Special Notes" value={q.specialNoteItems?.join(', ')} />
+      <Row label="Special Notes Details" value={q.specialNotes} />
+    </SectionCard>
+  );
+}
+
+function KitchenPhotosSection({ p, m, assessmentId }: { p: KitchenPhotos; m: KitchenMeasurements; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const hasAnyCabinets = Object.values(m.walls).some(w => w.hasUpperCabs || w.hasBaseCabs || w.hasTallCab);
+  const items = [
+    { label: 'Room — from entrance', photoId: p.roomEntrance },
+    { label: 'Room — opposite corner', photoId: p.roomCorner },
+    { label: 'Floor overview', photoId: p.floor },
+    { label: 'Wall A', photoId: p.wallA },
+    { label: 'Wall B', photoId: p.wallB },
+    { label: 'Wall C', photoId: p.wallC },
+    { label: 'Wall D', photoId: p.wallD },
+    ...(m.hasIsland ? [{ label: 'Island', photoId: p.island }] : []),
+    ...(m.hasDesk ? [{ label: 'Desk', photoId: p.desk }] : []),
+    ...(hasAnyCabinets ? [
+      { label: 'Upper cabinets', photoId: p.cabUppers },
+      { label: 'Base cabinets', photoId: p.cabBase },
+      { label: 'Tall cabinet', photoId: p.cabTall },
+    ] : []),
+    { label: 'Problem areas', photoId: p.problemAreas },
+    { label: 'Unusual items', photoId: p.unusual },
+    { label: 'Electrical panel', photoId: p.electricalPanel },
+    { label: 'Catch-all', photoId: p.catchAll },
+  ];
+  const takenCount = items.filter(i => i.photoId).length;
+  return (
+    <SectionCard
+      title="Photos"
+      subtitle={`${takenCount} / ${items.length} captured`}
+      action={editBtn}
+    >
+      <div className="photo-checklist">
+        {items.map(item => (
+          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        ))}
+      </div>
+      <Row label="Catch-all Notes" value={p.catchAllNotes} />
+    </SectionCard>
+  );
+}
+
+// ── Bathroom Components ───────────────────────────────────────────────────
+
+function BathroomMeasurementsSection({ m, assessmentId }: { m: BathroomMeasurements; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const populatedWalls = (['A', 'B', 'C', 'D'] as const).filter(k => m.walls[k]?.length);
+  return (
+    <SectionCard title="Measurements" action={editBtn}>
+      <Row label="Ceiling Height" value={m.ceilingHeight} />
+      {m.hasSoffit && (
+        <>
+          <Row label="Soffit Height" value={m.soffitH} />
+          <Row label="Soffit Depth" value={m.soffitD} />
+          <Row label="Soffit Width" value={m.soffitW} />
+        </>
+      )}
+      {populatedWalls.map(k => (
+        <WallSummary key={k} wallKey={k} wall={m.walls[k]} />
+      ))}
+      {m.hasTub && (
+        <>
+          <div className="summary-sub-head">Tub</div>
+          <Row label="Length" value={m.tubLen} />
+          <Row label="Width" value={m.tubW} />
+          <Row label="Height" value={m.tubH} />
+          <Row label="Location" value={m.tubLoc} />
+          <Row label="Combined Tub/Shower" value={m.tubCombined} />
+        </>
+      )}
+      {m.hasShower && (
+        <>
+          <div className="summary-sub-head">Shower</div>
+          <Row label="Length" value={m.showerLen} />
+          <Row label="Width" value={m.showerW} />
+          <Row label="Height" value={m.showerH} />
+          <Row label="Location" value={m.showerLoc} />
+          <Row label="Ceiling Height" value={m.showerCeilH} />
+          <Row label="Door Width" value={m.showerDoorW} />
+          <Row label="Knee Wall Height" value={m.kneeWallH} />
+          <Row label="Knee Wall Length" value={m.kneeWallLen} />
+        </>
+      )}
+      <div className="summary-sub-head">Vanity</div>
+      <Row label="Wall" value={m.vanityWall} />
+      <Row label="Location" value={m.vanityLoc} />
+      <Row label="Width" value={m.vanityW} />
+      <Row label="Height" value={m.vanityH} />
+      <Row label="Depth" value={m.vanityD} />
+      <Row label="Single or Double" value={m.vanitySinks} />
+      <Row label="Mirror Width" value={m.mirrorW} />
+      <Row label="Mirror Height" value={m.mirrorH} />
+      <div className="summary-sub-head">Toilet</div>
+      <Row label="Location" value={m.toiletLoc} />
+      <Row label="Clearance Left" value={m.toiletClearLeft} />
+      <Row label="Clearance Right" value={m.toiletClearRight} />
+      {m.hasLinenCloset && (
+        <>
+          <div className="summary-sub-head">Linen Closet</div>
+          <Row label="Width" value={m.lcW} />
+          <Row label="Height" value={m.lcH} />
+          <Row label="Depth" value={m.lcD} />
+          <Row label="Location" value={m.lcLoc} />
+        </>
+      )}
+      <div className="summary-sub-head">Extras</div>
+      <Row label="Exhaust Fan Location" value={m.exhaustFanLoc} />
+      <Row label="Towel Bar Locations" value={m.towelBarLocs} />
+      <Row label="Heated Floor" value={m.heatedFloor} />
+      {m.hasLaundry && (
+        <>
+          <Row label="Washer Location" value={m.washerLoc} />
+          <Row label="Washer Width" value={m.washerW} />
+          <Row label="Washer Height" value={m.washerH} />
+          <Row label="Dryer Location" value={m.dryerLoc} />
+          <Row label="Dryer Width" value={m.dryerW} />
+          <Row label="Dryer Height" value={m.dryerH} />
+        </>
+      )}
+    </SectionCard>
+  );
+}
+
+function BathroomQuestionsSection({ q, assessmentId }: { q: BathroomQuestions; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  return (
+    <SectionCard title="Questions" action={editBtn}>
+      <Row label="Scope" value={q.scope?.join(', ')} />
+      <Row label="Timeline" value={q.timeline} />
+      <Row label="Target Date" value={q.targetDate} />
+      <Row label="Tub/Shower Scope" value={q.tubShowerScope?.join(', ')} />
+      <Row label="Vanity Scope" value={q.vanityScope?.join(', ')} />
+      <Row label="Tile Scope" value={q.tileScope?.join(', ')} />
+      <Row label="Grout Notes" value={q.groutNotes} />
+      <Row label="Tile Pattern Notes" value={q.tilePatternNotes} />
+      <Row label="Electrical" value={q.electrical} />
+      <Row label="Plumbing" value={q.plumbing} />
+      <Row label="Permits Required" value={q.permits} />
+      <Row label="Referral" value={q.referral} />
+      <Row label="Referral Name" value={q.referralName} />
+      <Row label="Other Referral" value={q.referralOther} />
+      <Row label="Special Notes" value={q.specialNoteItems?.join(', ')} />
+      <Row label="Special Notes Details" value={q.specialNotes} />
+    </SectionCard>
+  );
+}
+
+function BathroomPhotosSection({ p, m, assessmentId }: { p: BathroomPhotos; m: BathroomMeasurements; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const items = [
+    { label: 'Room — from entrance', photoId: p.roomEntrance },
+    { label: 'Room — opposite corner', photoId: p.roomCorner },
+    { label: 'Floor overview', photoId: p.floor },
+    { label: 'Wall A', photoId: p.wallA },
+    { label: 'Wall B', photoId: p.wallB },
+    { label: 'Wall C', photoId: p.wallC },
+    { label: 'Wall D', photoId: p.wallD },
+    ...(m.hasTub ? [{ label: 'Tub', photoId: p.tub }] : []),
+    ...(m.hasShower ? [
+      { label: 'Shower', photoId: p.shower },
+      { label: 'Shower floor/drain', photoId: p.showerFloor },
+    ] : []),
+    { label: 'Vanity', photoId: p.vanity },
+    { label: 'Toilet area', photoId: p.toilet },
+    ...(m.hasLinenCloset ? [{ label: 'Linen closet', photoId: p.linenCloset }] : []),
+    { label: 'Problem areas', photoId: p.problemAreas },
+    { label: 'Catch-all', photoId: p.catchAll },
+  ];
+  const takenCount = items.filter(i => i.photoId).length;
+  return (
+    <SectionCard
+      title="Photos"
+      subtitle={`${takenCount} / ${items.length} captured`}
+      action={editBtn}
+    >
+      <div className="photo-checklist">
+        {items.map(item => (
+          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        ))}
+      </div>
+      <Row label="Catch-all Notes" value={p.catchAllNotes} />
+    </SectionCard>
+  );
+}
+
+// ── Flooring Components ───────────────────────────────────────────────────
+
+function FlooringMeasurementsSection({ m, assessmentId }: { m: FlooringMeasurements; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const grandTotal = m.rooms.reduce((sum, room) => {
+    if (room.isIrregular) {
+      return sum + (parseFloat(room.sqFtManual || '0') || 0);
+    }
+    const l = parseFloat(room.length || '0') || 0;
+    const w = parseFloat(room.width || '0') || 0;
+    return sum + (l * w);
+  }, 0);
+  return (
+    <SectionCard title="Measurements" action={editBtn}>
+      {m.rooms.length === 0 && (
+        <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>No rooms added.</p>
+      )}
+      {m.rooms.map(room => {
+        const sqFt = room.isIrregular
+          ? parseFloat(room.sqFtManual || '0') || 0
+          : calcArea(room.length || '0', room.width || '0');
+        return (
+          <div key={room.id} className="wall-summary-block">
+            <div className="summary-sub-head">{room.label || 'Room'}</div>
+            {room.isIrregular ? (
+              <>
+                <Row label="Sq Ft (manual)" value={room.sqFtManual} />
+                <Row label="Shape Notes" value={room.shapeNotes} />
+              </>
+            ) : (
+              <>
+                <Row label="Length" value={room.length} />
+                <Row label="Width" value={room.width} />
+                {sqFt > 0 && <Row label="Sq Ft" value={sqFt.toFixed(1)} />}
+              </>
+            )}
+            <Row label="Transition Notes" value={room.transitionNotes} />
+          </div>
+        );
+      })}
+      {m.rooms.length > 1 && grandTotal > 0 && (
+        <div className="summary-row" style={{ borderTop: '2px solid var(--border)', paddingTop: 12, marginTop: 8 }}>
+          <span className="summary-label">Grand Total</span>
+          <span className="summary-value" style={{ fontWeight: 700 }}>{grandTotal.toFixed(1)} sq ft</span>
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function FlooringQuestionsSection({ q, assessmentId }: { q: FlooringQuestions; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  return (
+    <SectionCard title="Questions" action={editBtn}>
+      <Row label="Material" value={q.material?.join(', ')} />
+      <Row label="Remove Existing" value={q.removeExisting} />
+      <Row label="Subfloor Repairs" value={q.subfloorRepairs} />
+      <Row label="Underlayment" value={q.underlayment} />
+      <Row label="Stair Nosing" value={q.stairNosing} />
+      <Row label="Matching Other" value={q.matchingOther} />
+      <Row label="Timeline" value={q.timeline} />
+      <Row label="Target Date" value={q.targetDate} />
+      <Row label="Referral" value={q.referral} />
+      <Row label="Referral Name" value={q.referralName} />
+      <Row label="Other Referral" value={q.referralOther} />
+      <Row label="Special Notes" value={q.specialNoteItems?.join(', ')} />
+      <Row label="Special Notes Details" value={q.specialNotes} />
+    </SectionCard>
+  );
+}
+
+function FlooringPhotosSection({ p, m, q, assessmentId }: { p: FlooringPhotos; m: FlooringMeasurements; q: FlooringQuestions; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  const items = [
+    ...m.rooms.flatMap(room => {
+      const rp = p.roomPhotos[room.id] || {};
+      return [
+        { label: `${room.label} — Overview`, photoId: rp.overview },
+        { label: `${room.label} — Condition`, photoId: rp.condition },
+      ];
+    }),
+    ...(q.stairNosing ? [{ label: 'Stairs', photoId: p.stairs }] : []),
+    { label: 'Catch-all', photoId: p.catchAll },
+  ];
+  const takenCount = items.filter(i => i.photoId).length;
+  return (
+    <SectionCard
+      title="Photos"
+      subtitle={`${takenCount} / ${items.length} captured`}
+      action={editBtn}
+    >
+      <div className="photo-checklist">
+        {items.map(item => (
+          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        ))}
+      </div>
+      <Row label="Catch-all Notes" value={p.catchAllNotes} />
+    </SectionCard>
+  );
+}
+
+// ── Other Section ─────────────────────────────────────────────────────────
+
+function OtherSection({ other, assessmentId }: { other: OtherAssessment; assessmentId: string }) {
+  const editBtn = (
+    <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
+  );
+  return (
+    <SectionCard title="Custom Job Notes" action={editBtn}>
+      {other.measurementNotes && (
+        <>
+          <div className="summary-sub-head">Measurements</div>
+          <p className="general-notes-text">{other.measurementNotes}</p>
+        </>
+      )}
+      {other.questionNotes && (
+        <>
+          <div className="summary-sub-head">Questions</div>
+          <p className="general-notes-text">{other.questionNotes}</p>
+        </>
+      )}
+      {other.photoNotes && (
+        <>
+          <div className="summary-sub-head">Photos</div>
+          <p className="general-notes-text">{other.photoNotes}</p>
+        </>
+      )}
+      {!other.measurementNotes && !other.questionNotes && !other.photoNotes && (
+        <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>No notes added.</p>
+      )}
+    </SectionCard>
+  );
+}
+
+// ── Job Section Dispatcher ────────────────────────────────────────────────
+
+function JobSection({ job, assessmentId }: { job: JobInstance; assessmentId: string }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div className="job-section-divider">
+        <span className="job-section-label">{job.label} — {job.type}</span>
+      </div>
+      {job.type === 'Kitchen' && (
+        <>
+          <KitchenMeasurementsSection m={job.kitchen.measurements} assessmentId={assessmentId} />
+          <KitchenQuestionsSection q={job.kitchen.questions} assessmentId={assessmentId} />
+          <KitchenPhotosSection p={job.kitchen.photos} m={job.kitchen.measurements} assessmentId={assessmentId} />
+        </>
+      )}
+      {job.type === 'Bathroom' && job.bathroom && (
+        <>
+          <BathroomMeasurementsSection m={job.bathroom.measurements} assessmentId={assessmentId} />
+          <BathroomQuestionsSection q={job.bathroom.questions} assessmentId={assessmentId} />
+          <BathroomPhotosSection p={job.bathroom.photos} m={job.bathroom.measurements} assessmentId={assessmentId} />
+        </>
+      )}
+      {job.type === 'Flooring' && job.flooring && (
+        <>
+          <FlooringMeasurementsSection m={job.flooring.measurements} assessmentId={assessmentId} />
+          <FlooringQuestionsSection q={job.flooring.questions} assessmentId={assessmentId} />
+          <FlooringPhotosSection p={job.flooring.photos} m={job.flooring.measurements} q={job.flooring.questions} assessmentId={assessmentId} />
+        </>
+      )}
+      {job.type === 'Other' && job.other && (
+        <OtherSection other={job.other} assessmentId={assessmentId} />
+      )}
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────
+
+export default function SummaryView() {
+  const { id } = useParams<{ id: string }>();
+  const { getAssessment } = useAssessmentStore();
+  const assessment = id ? getAssessment(id) : undefined;
+
+  if (!assessment) {
+    return (
+      <div className="page">
+        <div className="empty-state">
+          <h2>Assessment not found</h2>
+          <Link to="/" className="btn btn-primary">Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { client, jobs, estimate, generalNotes } = assessment;
+  const clientName = [client.firstName, client.lastName].filter(Boolean).join(' ') || 'Untitled';
+
+  return (
+    <div className="page">
+      <div className="breadcrumb-row">
+        <Link to="/" className="breadcrumb-link">Dashboard</Link>
+        <span className="breadcrumb-sep">/</span>
+        <Link to={`/assessment/${id}`} className="breadcrumb-link">{clientName}</Link>
+        <span className="breadcrumb-sep">/</span>
+        <span className="breadcrumb-current">Summary</span>
+      </div>
+
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Summary — {clientName}</h1>
+          {client.address && <p className="page-subtitle">{client.address}</p>}
+          <p className="page-subtitle">
+            Visit {formatDate(client.visitDate)} · Updated {formatDate(assessment.updatedAt)}
+          </p>
+        </div>
+        <StatusBadge status={assessment.status} />
+      </div>
+
+      {estimate && <EstimateHero estimate={estimate} />}
+
+      <CustomerInfoSection client={client} assessmentId={id!} />
+
+      {jobs.length === 0 && (
+        <div className="empty-state">
+          <p>No jobs added to this assessment yet.</p>
+          <Link to={`/assessment/${id}/type`} className="btn btn-primary">Add Jobs</Link>
+        </div>
+      )}
+
+      {jobs.map(job => (
+        <JobSection key={job.id} job={job} assessmentId={id!} />
+      ))}
+
+      {generalNotes && (
+        <SectionCard title="General Notes">
+          <p className="general-notes-text">{generalNotes}</p>
+        </SectionCard>
+      )}
+
+      <div className="summary-actions">
+        <Link to={`/assessment/${id}`} className="btn btn-ghost">Back to Assessment</Link>
+        <Link to={`/assessment/${id}/estimate`} className="btn btn-outline">View Estimate</Link>
+        <button className="btn btn-primary" onClick={() => window.print()}>Print / Save PDF</button>
+      </div>
+    </div>
+  );
+}

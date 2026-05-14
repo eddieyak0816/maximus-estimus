@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maximus Estimus — Test Checklist v2</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --surface: #131d35;
+    --surface2: #1a2645;
+    --border: #243058;
+    --yellow: #F5C42A;
+    --yellow-dim: rgba(245,196,42,0.12);
+    --text: #eef2ff;
+    --muted: #8fa4cc;
+    --dim: #4d6080;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.1);
+    --green-border: rgba(34,197,94,0.3);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --red-border: rgba(248,113,113,0.3);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245,158,11,0.1);
+    --amber-border: rgba(245,158,11,0.3);
+    --blue: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; }
+
+  header {
+    background: #162270;
+    border-bottom: 1px solid rgba(245,196,42,0.25);
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  header h1 { margin: 0; font-size: 22px; color: var(--yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  header span { font-size: 15px; color: var(--muted); }
+
+  .progress-bar-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 57px; z-index: 49;
+  }
+  .progress-track { flex: 1; height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width 0.4s; }
+  .progress-label { font-size: 16px; color: var(--muted); white-space: nowrap; min-width: 110px; text-align: right; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 28px;
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .intro strong { color: var(--text); }
+
+  .section { margin-bottom: 32px; }
+  .section-title {
+    font-size: 14px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.9px; color: var(--yellow);
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-new-badge {
+    display: inline-block;
+    background: rgba(245,196,42,0.15);
+    border: 1px solid rgba(245,196,42,0.4);
+    color: var(--yellow);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 4px;
+    margin-left: 10px; vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  .item.pass  { border-color: var(--green-border); background: linear-gradient(135deg, var(--surface) 0%, rgba(34,197,94,0.05) 100%); }
+  .item.fail  { border-color: var(--red-border);   background: linear-gradient(135deg, var(--surface) 0%, rgba(248,113,113,0.05) 100%); }
+  .item.skip  { border-color: var(--amber-border); background: linear-gradient(135deg, var(--surface) 0%, rgba(245,158,11,0.05) 100%); opacity: 0.7; }
+
+  .item-top { display: flex; align-items: flex-start; gap: 14px; }
+  .item-label { flex: 1; font-size: 17px; color: var(--text); font-weight: 500; line-height: 1.45; }
+  .item-sub   { font-size: 14px; color: var(--dim); margin-top: 4px; font-weight: 400; }
+  .item-btns  { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-pass { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .btn-pass:hover, .btn-pass.active { background: var(--green); color: #000; border-color: var(--green); }
+  .btn-fail { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+  .btn-fail:hover, .btn-fail.active { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-skip { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+  .btn-skip:hover, .btn-skip.active { background: var(--amber); color: #000; border-color: var(--amber); }
+
+  .item-notes {
+    margin-top: 10px;
+    display: none;
+  }
+  .item-notes.visible { display: block; }
+  .notes-toggle-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 14px; font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .notes-toggle-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+  .notes-toggle-btn.open { border-color: var(--yellow); color: var(--yellow); }
+  .notes-label {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--dim);
+    margin-bottom: 6px; display: block;
+  }
+  .item-notes textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .item-notes textarea:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,196,42,0.12); }
+  .item-notes textarea::placeholder { color: var(--dim); }
+
+  .general-notes-section {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+    margin-bottom: 24px;
+  }
+  .general-notes-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .general-notes-sub { font-size: 15px; color: var(--muted); margin-bottom: 16px; }
+  .general-notes-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 14px;
+    font-size: 17px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 160px;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.15s;
+  }
+  .general-notes-textarea:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,196,42,0.12); }
+  .general-notes-textarea::placeholder { color: var(--dim); }
+
+  .export-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+  }
+  .export-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .export-sub { font-size: 16px; color: var(--muted); margin-bottom: 20px; }
+  .export-output {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 14px;
+    font-size: 15px;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    min-height: 200px;
+    outline: none;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .export-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .export-btn {
+    padding: 13px 24px; border-radius: 8px; font-size: 17px;
+    font-weight: 700; cursor: pointer; border: none; font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  .export-btn:hover { opacity: 0.85; }
+  .btn-generate { background: var(--yellow); color: #162270; }
+  .btn-copy { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-reset { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .copy-confirm { font-size: 15px; color: var(--green); align-self: center; display: none; }
+  .copy-confirm.show { display: block; }
+
+  .status-icon { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Maximus Estimus — Test Checklist v2</h1>
+  <span id="globalCount">0 / 0 reviewed</span>
+</header>
+
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0% complete</div>
+</div>
+
+<main>
+
+<div class="intro">
+  <strong>How to use:</strong> Run the app at <code>http://localhost:5173</code>, then go through each item below.
+  Hit <strong style="color:var(--green)">Pass</strong> if it works correctly,
+  <strong style="color:var(--red)">Fail</strong> if something is broken or wrong,
+  or <strong style="color:var(--amber)">Skip</strong> if you couldn't test it.
+  Click <strong>✏️ Add Note</strong> on any item to open a notes field. There's also a <strong>General Notes</strong> section at the bottom for ideas and open-ended feedback. When finished, scroll to the bottom, generate the report, and paste it into the chat.
+  <br/><br/>
+  <strong>v2 — April 26, 2026.</strong> Updated for WallSection UX polish, Island accordions, and Bathroom / Flooring / Other job types. Sections 10–13 are new this round.
+</div>
+
+<!-- ─────────── SECTION 1 ─────────── -->
+<div class="section">
+  <div class="section-title">1 — App Shell &amp; Navigation</div>
+
+  <div class="item" id="item-shell-1">
+    <div class="item-top">
+      <div class="item-label">App loads at localhost:5173 without errors
+        <div class="item-sub">No white screen, no console errors on load</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('shell-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('shell-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('shell-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-shell-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('shell-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-shell-2">
+    <div class="item-top">
+      <div class="item-label">Header shows Maximus Construction logo &amp; brand name
+        <div class="item-sub">Panda logo visible, yellow "MAXIMUS ESTIMUS" text</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('shell-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('shell-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('shell-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-shell-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('shell-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-shell-3">
+    <div class="item-top">
+      <div class="item-label">Dark mode color scheme looks right
+        <div class="item-sub">Navy/dark background, gold accents, readable text</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('shell-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('shell-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('shell-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-shell-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('shell-3',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 2 ─────────── -->
+<div class="section">
+  <div class="section-title">2 — Dashboard</div>
+
+  <div class="item" id="item-dash-1">
+    <div class="item-top">
+      <div class="item-label">Dashboard shows empty state when no assessments exist
+        <div class="item-sub">Clipboard icon, "No assessments yet" message, New Assessment button</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dash-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dash-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dash-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dash-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dash-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dash-2">
+    <div class="item-top">
+      <div class="item-label">Stats row shows correct counts (Total / Drafts / Active / Done)
+        <div class="item-sub">Numbers update as assessments are created and status changes</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dash-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dash-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dash-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dash-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dash-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dash-3">
+    <div class="item-top">
+      <div class="item-label">Assessment cards show: client name, address, job type tags, status, date
+        <div class="item-sub">Status dot (grey/blue/green), colored job type pills, last updated date</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dash-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dash-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dash-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dash-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dash-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dash-4">
+    <div class="item-top">
+      <div class="item-label">Delete button removes an assessment (with confirmation prompt)
+        <div class="item-sub">Clicking Delete shows "cannot be undone" confirm dialog</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dash-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dash-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dash-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dash-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dash-4',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 3 ─────────── -->
+<div class="section">
+  <div class="section-title">3 — New Assessment Flow (Customer Info → Job Type)</div>
+
+  <div class="item" id="item-new-1">
+    <div class="item-top">
+      <div class="item-label">"+ New" button creates an assessment and navigates to Customer Info page</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-new-2">
+    <div class="item-top">
+      <div class="item-label">Customer Info — all fields work and save automatically
+        <div class="item-sub">First name, last name, address, phone, email, team member, visit date, notes</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-new-3">
+    <div class="item-top">
+      <div class="item-label">Customer Info — "Next — Job Type →" button navigates to Job Type page</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-new-4">
+    <div class="item-top">
+      <div class="item-label">Job Type — all 4 types display with icon and description
+        <div class="item-sub">Kitchen 🍳, Bathroom 🚿, Flooring 🪵, Other 🔧</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-new-5">
+    <div class="item-top">
+      <div class="item-label">Job Type — multiple types can be selected; "Other" reveals a text field
+        <div class="item-sub">Each card toggles on/off with a checkmark; "Start Assessment →" is disabled until at least one is selected</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-new-6">
+    <div class="item-top">
+      <div class="item-label">Job Type → "Start Assessment" navigates to the Measurements tab</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('new-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('new-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('new-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-new-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('new-6',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 4 ─────────── -->
+<div class="section">
+  <div class="section-title">4 — Assessment Detail (Header &amp; Status)</div>
+
+  <div class="item" id="item-det-1">
+    <div class="item-top">
+      <div class="item-label">Header shows client name, address, job types, and last-updated date</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('det-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('det-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('det-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-det-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('det-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-det-2">
+    <div class="item-top">
+      <div class="item-label">Status dropdown changes status and reflects on Dashboard
+        <div class="item-sub">Draft → In Progress → Complete; status dot on dashboard card updates</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('det-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('det-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('det-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-det-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('det-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-det-3">
+    <div class="item-top">
+      <div class="item-label">"Edit Info" button navigates back to Customer Info page</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('det-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('det-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('det-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-det-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('det-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-det-4">
+    <div class="item-top">
+      <div class="item-label">Three tabs display: 📏 Measure, 📋 Questions, 📷 Photos — switching works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('det-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('det-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('det-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-det-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('det-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-det-5">
+    <div class="item-top">
+      <div class="item-label">"Mark Complete" button sets status to complete and disables itself</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('det-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('det-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('det-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-det-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('det-5',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 5 ─────────── -->
+<div class="section">
+  <div class="section-title">5 — Kitchen Measurements Tab</div>
+
+  <div class="item" id="item-meas-1">
+    <div class="item-top">
+      <div class="item-label">Main section headers (Room Globals, Walls, Island) — clicking anywhere on the full header row toggles the section
+        <div class="item-sub">Not just the small ▼ arrow — the entire header bar is the click target</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-2">
+    <div class="item-top">
+      <div class="item-label">Room Globals — ceiling height input works; soffit toggle reveals H and D inputs and "Same on all walls?" toggle</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-3">
+    <div class="item-top">
+      <div class="item-label">Wall card — clicking anywhere on the wall header row collapses or expands it
+        <div class="item-sub">The entire header is clickable, not just the ▲▼ button</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-4">
+    <div class="item-top">
+      <div class="item-label">Wall rename — pencil icon opens inline input; Enter/blur saves; new name appears in the SOFFIT and SINK / PLUMBING labels inside the wall
+        <div class="item-sub">e.g. rename Wall A to "Stove Wall" → soffit label reads "SOFFIT — Stove Wall"</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-5">
+    <div class="item-top">
+      <div class="item-label">Window cards — clicking anywhere on the card header collapses/expands; ✕ removes the window
+        <div class="item-sub">Fields: Width, Height, Left/Right Corner, Sill Height, Trim L/R/T/B</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-6">
+    <div class="item-top">
+      <div class="item-label">Door cards — clicking anywhere on the card header collapses/expands; type, dims, swing, and trim fields all work
+        <div class="item-sub">Door vs Opening pill; swing: Left / Right / Both / N/A; trim fields hidden for Openings</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-6',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-7">
+    <div class="item-top">
+      <div class="item-label">Outlets — type (Outlet/Switch), corner (Left/Right), and distance from corner all work</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-7','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-7','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-7','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-7"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-7',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-8">
+    <div class="item-top">
+      <div class="item-label">Appliances — accordion cards: select a type from the dropdown; ▲▼ collapses/expands width, height, depth, corner, and distance fields
+        <div class="item-sub">▲▼ button only appears after an appliance type is selected</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-8','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-8','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-8','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-8"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-8',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-9">
+    <div class="item-top">
+      <div class="item-label">Wall — Soffit override section: when soffit is ON and "Same on all walls?" is OFF, each wall shows a collapsible "SOFFIT — [wall name]" accordion
+        <div class="item-sub">▲▼ hides/shows H, D, W inputs and the "= Same as wall length" shortcut button</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-9','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-9','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-9','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-9"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-9',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-10">
+    <div class="item-top">
+      <div class="item-label">Wall — Sink/Plumbing: enabling the toggle shows a collapsible "SINK / PLUMBING — [wall name]" header; ▲▼ hides/shows all sink fields; sink data is not lost when collapsed
+        <div class="item-sub">Fields include sink type, corner, location, cabinet widths, sink dims, faucet, dishwasher line, ice maker, disposal</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-10','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-10','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-10','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-10"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-10',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-11">
+    <div class="item-top">
+      <div class="item-label">Wall — Existing Cabinets: "Existing Cabinets on this wall" sub-section has a collapsible ▲▼ header; upper / base / tall toggles and dimension inputs work correctly
+        <div class="item-sub">Upper cabs show H+D fields; tall cabs show H+D fields; base cabs are toggle only</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-11','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-11','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-11','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-11"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-11',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-12">
+    <div class="item-top">
+      <div class="item-label">Wall badge turns green ✓ once a wall length is entered; summary line shows win/door/outlet/appl/sink/cabs counts</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-12','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-12','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-12','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-12"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-12',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-13">
+    <div class="item-top">
+      <div class="item-label">Island — "Existing or New?" pill selection appears at the TOP of island content, before Dimensions</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-13','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-13','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-13','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-13"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-13',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-14">
+    <div class="item-top">
+      <div class="item-label">Island — Dimensions, Distance from Walls, and Countertop Overhang each appear as distinct cards (darker background, border) with a collapsible ▲▼ header
+        <div class="item-sub">Each section is visually separated — not all blended on the same background</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-14','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-14','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-14','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-14"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-14',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-meas-15">
+    <div class="item-top">
+      <div class="item-label">Island — Sink, Cooktop, Outlets, Levels: each toggle shows a collapsible yellow "DETAILS" header when enabled; ▲▼ hides/shows the detail fields
+        <div class="item-sub">Data is not lost when collapsed; toggling off the parent removes all data</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('meas-15','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('meas-15','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('meas-15','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-meas-15"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('meas-15',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 6 ─────────── -->
+<div class="section">
+  <div class="section-title">6 — Kitchen Questions Tab (All 19 Questions)</div>
+
+  <div class="item" id="item-q-1">
+    <div class="item-top">
+      <div class="item-label">Q1 Project Scope — checkboxes select/deselect correctly</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-2">
+    <div class="item-top">
+      <div class="item-label">Q2 Reason — radio-style; "Other" reveals a text field</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-3">
+    <div class="item-top">
+      <div class="item-label">Q3 Timeline — "Specific target date" reveals a date picker</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-4">
+    <div class="item-top">
+      <div class="item-label">Q5 Cabinet Style — "Open Gallery →" opens inline gallery; style can be selected
+        <div class="item-sub">Selected style name and swatch appear; "← Back to Questions" returns</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-5">
+    <div class="item-top">
+      <div class="item-label">Q7 Backsplash — notes field works; "Installation needed?" toggle works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-6">
+    <div class="item-top">
+      <div class="item-label">Q10/11 Appliances — selecting "Replacing some/all" or "Install only" reveals appliance list
+        <div class="item-sub">11 appliance types can be checked individually</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-6',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-7">
+    <div class="item-top">
+      <div class="item-label">Q16 Flooring — toggle reveals flooring type checklist</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-7','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-7','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-7','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-7"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-7',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-8">
+    <div class="item-top">
+      <div class="item-label">Q18 Referral — "Referral" shows "who referred you?"; "Other" shows text field</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-8','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-8','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-8','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-8"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-8',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-q-9">
+    <div class="item-top">
+      <div class="item-label">Q19 Special Notes — chips toggle on/off; text area works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('q-9','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('q-9','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('q-9','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-q-9"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('q-9',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 7 ─────────── -->
+<div class="section">
+  <div class="section-title">7 — Kitchen Photos Tab</div>
+
+  <div class="item" id="item-ph-1">
+    <div class="item-top">
+      <div class="item-label">Progress bar shows 0 / N at start; fills as items are tapped
+        <div class="item-sub">Turns green when all items are captured</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('ph-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('ph-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('ph-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-ph-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('ph-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-ph-2">
+    <div class="item-top">
+      <div class="item-label">Tapping a photo item marks it captured and toggles the button</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('ph-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('ph-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('ph-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-ph-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('ph-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-ph-3">
+    <div class="item-top">
+      <div class="item-label">Island photo section only shows when island is enabled in Measurements; Existing Cabinets section only shows when any wall has cabinets enabled
+        <div class="item-sub">Toggle Island on in Measurements → island photo appears; turn it off → it disappears</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('ph-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('ph-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('ph-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-ph-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('ph-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-ph-4">
+    <div class="item-top">
+      <div class="item-label">General catch-all card — "📷 Take Photo" button toggles; notes field appears after capture</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('ph-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('ph-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('ph-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-ph-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('ph-4',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 8 ─────────── -->
+<div class="section">
+  <div class="section-title">8 — Cabinet Gallery Page (/gallery)</div>
+
+  <div class="item" id="item-gal-1">
+    <div class="item-top">
+      <div class="item-label">Gallery page is accessible; 4 styles display: Shaker, Raised Panel, Flat Panel / Slab, Glass Front</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('gal-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('gal-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('gal-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-gal-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('gal-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-gal-2">
+    <div class="item-top">
+      <div class="item-label">Cabinet door mockups render in each style's preview area</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('gal-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('gal-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('gal-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-gal-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('gal-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-gal-3">
+    <div class="item-top">
+      <div class="item-label">Tapping a style opens the detail view with color swatches and link field</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('gal-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('gal-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('gal-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-gal-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('gal-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-gal-4">
+    <div class="item-top">
+      <div class="item-label">"Select" button on gallery card toggles the selected state with a checkmark</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('gal-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('gal-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('gal-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-gal-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('gal-4',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 9 ─────────── -->
+<div class="section">
+  <div class="section-title">9 — Data Persistence &amp; General UX</div>
+
+  <div class="item" id="item-data-1">
+    <div class="item-top">
+      <div class="item-label">All entered data persists after page refresh
+        <div class="item-sub">Enter measurements, refresh browser, confirm data is still there</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('data-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('data-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('data-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-data-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('data-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-data-2">
+    <div class="item-top">
+      <div class="item-label">Multiple assessments can coexist and are all listed on Dashboard</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('data-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('data-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('data-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-data-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('data-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-data-3">
+    <div class="item-top">
+      <div class="item-label">Back buttons throughout the app work correctly (no broken navigation)</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('data-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('data-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('data-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-data-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('data-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-data-4">
+    <div class="item-top">
+      <div class="item-label">Overall visual design — layout, spacing, readability, dark mode feel
+        <div class="item-sub">Does it look professional and easy to use in the field?</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('data-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('data-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('data-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-data-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('data-4',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 10 — NEW ─────────── -->
+<div class="section">
+  <div class="section-title">10 — Bathroom Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-bath-1">
+    <div class="item-top">
+      <div class="item-label">Create a Bathroom job — Measurements tab loads with Room Globals, Walls A-D, Tub, Shower, Vanity &amp; Sink, Toilet, Linen Closet, and Extras sections</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-2">
+    <div class="item-top">
+      <div class="item-label">Bathroom walls use the same WallSection component — all wall UX (rename, windows, doors, outlets, appliances, sink, cabinets) works identically to Kitchen
+        <div class="item-sub">Test rename, add a window, add a door on one wall</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-3">
+    <div class="item-top">
+      <div class="item-label">Tub section — "Enable Tub" shows length, width, height, location, combined tub/shower toggle; "Remove Tub" disables it
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-4">
+    <div class="item-top">
+      <div class="item-label">Shower section — all fields work: length, width, height, location, ceiling height inside shower, door/glass opening width, knee wall H and L</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-5">
+    <div class="item-top">
+      <div class="item-label">Vanity &amp; Sink — wall selector, location, W/H/D, single/double sink, mirror W/H all work</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-6">
+    <div class="item-top">
+      <div class="item-label">Toilet, Linen Closet, and Extras sections all work
+        <div class="item-sub">Linen Closet enable/disable; Extras: exhaust fan, towel bars, heated floor, laundry with washer/dryer fields</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-6',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-7">
+    <div class="item-top">
+      <div class="item-label">Bathroom Questions tab — all 12 questions display and respond correctly
+        <div class="item-sub">Scope, timeline, tub/shower scope, vanity/fixtures, tile, grout, pattern, trades, permits, referral, special notes</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-7','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-7','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-7','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-7"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-7',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-bath-8">
+    <div class="item-top">
+      <div class="item-label">Bathroom Photos tab — progress bar works; Tub, Shower, and Linen Closet photo sections only appear when those features are enabled in Measurements</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('bath-8','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('bath-8','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('bath-8','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-bath-8"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('bath-8',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 11 — NEW ─────────── -->
+<div class="section">
+  <div class="section-title">11 — Flooring Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-floor-1">
+    <div class="item-top">
+      <div class="item-label">Create a Flooring job — Measurements tab shows "Room 1" by default; "+ Add Room" adds more rooms</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-floor-2">
+    <div class="item-top">
+      <div class="item-label">Room card — entering length and width auto-calculates square footage and displays it
+        <div class="item-sub">e.g. 10' × 12' → "120 sq ft (est.)"</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-floor-3">
+    <div class="item-top">
+      <div class="item-label">"Irregular shape" toggle replaces auto sq ft with a manual entry field; shape notes field appears</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-floor-4">
+    <div class="item-top">
+      <div class="item-label">Grand Total card appears when 2 or more rooms exist and shows combined sq ft</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-floor-5">
+    <div class="item-top">
+      <div class="item-label">Flooring Questions tab — all 9 questions work; "Stair nosing needed?" toggle works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-floor-6">
+    <div class="item-top">
+      <div class="item-label">Flooring Photos tab — each room has "Overview" and "Condition" photo items; Stairs section only appears if "Stair nosing needed?" is enabled in Questions</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('floor-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('floor-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('floor-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-floor-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('floor-6',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 12 — NEW ─────────── -->
+<div class="section">
+  <div class="section-title">12 — Other Job Type <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-other-1">
+    <div class="item-top">
+      <div class="item-label">Create an "Other" job with a custom label — label field appears on the Job Type page and the custom name shows in the assessment</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('other-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('other-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('other-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-other-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('other-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-other-2">
+    <div class="item-top">
+      <div class="item-label">All three tabs (Measurements, Questions, Photos) show a free-text notes area for the Other job type</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('other-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('other-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('other-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-other-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('other-2',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── SECTION 13 — NEW ─────────── -->
+<div class="section">
+  <div class="section-title">13 — Multi-Job Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-multi-1">
+    <div class="item-top">
+      <div class="item-label">Create an assessment with 2 or more job types (e.g. Kitchen + Bathroom) — a job switcher tab row appears at the top of the Assessment Detail screen</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('multi-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('multi-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('multi-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-multi-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('multi-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-multi-2">
+    <div class="item-top">
+      <div class="item-label">Switching between job tabs shows the correct form for each job type; data in each job is independent and doesn't bleed across
+        <div class="item-sub">Enter something in Kitchen, switch to Bathroom, switch back — Kitchen data is still there</div>
+      </div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('multi-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('multi-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('multi-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-multi-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('multi-2',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- ─────────── EXPORT ─────────── -->
+<div class="general-notes-section">
+  <div class="general-notes-title">💬 General Notes &amp; Ideas</div>
+  <div class="general-notes-sub">Anything that doesn't fit a specific item — feature ideas, design feedback, things you want to discuss, questions for the next session.</div>
+  <textarea
+    class="general-notes-textarea"
+    id="generalNotes"
+    placeholder="e.g. Can we add a print button? The font on the wall section feels too small. I'd like a way to attach photos to the assessment…"
+    oninput="saveGeneralNotes(this.value)"
+  ></textarea>
+</div>
+
+<div class="export-section">
+  <div class="export-title">📋 Send Results to Claude</div>
+  <div class="export-sub">When you're done testing, click Generate Report, then copy the text and paste it into the chat.</div>
+  <button class="export-btn btn-generate" onclick="generateReport()">Generate Report</button>
+  <br/><br/>
+  <textarea class="export-output" id="exportOutput" readonly placeholder="Click 'Generate Report' above to produce your results…"></textarea>
+  <div class="export-actions">
+    <button class="export-btn btn-copy" onclick="copyReport()">Copy to Clipboard</button>
+    <button class="export-btn btn-reset" onclick="resetAll()">Reset All</button>
+    <span class="copy-confirm" id="copyConfirm">✓ Copied!</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+const STORAGE_KEY = 'me-test-checklist-v2';
+let state = {};
+
+function saveGeneralNotes(value) {
+  state['__general__'] = { note: value };
+  saveState();
+}
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { state = {}; }
+  Object.keys(state).forEach(id => {
+    if (id === '__general__') {
+      const ta = document.getElementById('generalNotes');
+      if (ta && state[id].note) ta.value = state[id].note;
+      return;
+    }
+    if (state[id].status) applyStatus(id, state[id].status, false);
+    if (state[id].note) {
+      const notesDiv = document.getElementById(`notes-${id}`);
+      if (notesDiv) {
+        notesDiv.querySelector('textarea').value = state[id].note;
+        notesDiv.classList.add('visible');
+        const btn = notesDiv.previousElementSibling;
+        if (btn) { btn.classList.add('open'); btn.textContent = '✏️ Close Note'; }
+      }
+    }
+  });
+  updateProgress();
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function setStatus(id, status) {
+  if (!state[id]) state[id] = {};
+  if (state[id].status === status) {
+    state[id].status = null;
+    applyStatus(id, null, true);
+  } else {
+    state[id].status = status;
+    applyStatus(id, status, true);
+  }
+  saveState();
+  updateProgress();
+}
+
+function applyStatus(id, status, animate) {
+  const item = document.getElementById('item-' + id);
+  if (!item) return;
+  item.className = 'item' + (status ? ' ' + status : '');
+  item.querySelectorAll('.btn-pass, .btn-fail, .btn-skip').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  if (status === 'pass') item.querySelector('.btn-pass')?.classList.add('active');
+  if (status === 'fail') item.querySelector('.btn-fail')?.classList.add('active');
+  if (status === 'skip') item.querySelector('.btn-skip')?.classList.add('active');
+  if (status === 'fail' || status === 'skip') showNotes(id);
+}
+
+function showNotes(id) {
+  const notesDiv = document.getElementById(`notes-${id}`);
+  if (notesDiv && !notesDiv.classList.contains('visible')) {
+    notesDiv.classList.add('visible');
+    const btn = notesDiv.previousElementSibling;
+    if (btn) { btn.classList.add('open'); btn.textContent = '✏️ Close Note'; }
+  }
+}
+
+function saveNote(id, value) {
+  if (!state[id]) state[id] = {};
+  state[id].note = value;
+  saveState();
+}
+
+function toggleNotes(btn) {
+  const notesDiv = btn.nextElementSibling;
+  const isOpen = notesDiv.classList.contains('visible');
+  if (isOpen) {
+    notesDiv.classList.remove('visible');
+    btn.classList.remove('open');
+    btn.textContent = '✏️ Add Note';
+  } else {
+    notesDiv.classList.add('visible');
+    btn.classList.add('open');
+    btn.textContent = '✏️ Close Note';
+    notesDiv.querySelector('textarea').focus();
+  }
+}
+
+function getAllItemIds() {
+  return Array.from(document.querySelectorAll('.item')).map(el => el.id.replace('item-', ''));
+}
+
+function updateProgress() {
+  const ids = getAllItemIds();
+  const reviewed = ids.filter(id => state[id]?.status).length;
+  const total = ids.length;
+  const pct = total ? Math.round((reviewed / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '% complete';
+  document.getElementById('globalCount').textContent = `${reviewed} / ${total} reviewed`;
+}
+
+function generateReport() {
+  const ids = getAllItemIds();
+  const now = new Date().toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+
+  const pass  = ids.filter(id => state[id]?.status === 'pass');
+  const fail  = ids.filter(id => state[id]?.status === 'fail');
+  const skip  = ids.filter(id => state[id]?.status === 'skip');
+  const none  = ids.filter(id => !state[id]?.status);
+
+  const getLabel = id => {
+    const el = document.querySelector(`#item-${id} .item-label`);
+    return el ? el.childNodes[0].textContent.trim() : id;
+  };
+
+  let out = `MAXIMUS ESTIMUS — TEST REPORT v2\n`;
+  out += `Generated: ${now}\n`;
+  out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  out += `SUMMARY: ${pass.length} passed · ${fail.length} failed · ${skip.length} skipped · ${none.length} not reviewed\n\n`;
+
+  if (fail.length) {
+    out += `❌ FAILED (${fail.length})\n${'─'.repeat(40)}\n`;
+    fail.forEach(id => {
+      out += `• ${getLabel(id)}\n`;
+      const note = state[id]?.note?.trim();
+      if (note) out += `  NOTE: ${note}\n`;
+    });
+    out += '\n';
+  }
+
+  if (skip.length) {
+    out += `⚠️  SKIPPED (${skip.length})\n${'─'.repeat(40)}\n`;
+    skip.forEach(id => {
+      out += `• ${getLabel(id)}\n`;
+      const note = state[id]?.note?.trim();
+      if (note) out += `  NOTE: ${note}\n`;
+    });
+    out += '\n';
+  }
+
+  const withNotes = pass.filter(id => state[id]?.note?.trim());
+  if (withNotes.length) {
+    out += `✅ PASSED WITH NOTES (${withNotes.length})\n${'─'.repeat(40)}\n`;
+    withNotes.forEach(id => {
+      out += `• ${getLabel(id)}\n`;
+      out += `  NOTE: ${state[id].note.trim()}\n`;
+    });
+    out += '\n';
+  }
+
+  if (none.length) {
+    out += `○ NOT REVIEWED (${none.length})\n${'─'.repeat(40)}\n`;
+    none.forEach(id => out += `• ${getLabel(id)}\n`);
+    out += '\n';
+  }
+
+  const generalNotes = state['__general__']?.note?.trim();
+  if (generalNotes) {
+    out += `💬 GENERAL NOTES\n${'─'.repeat(40)}\n`;
+    out += generalNotes + '\n\n';
+  }
+
+  out += `${'─'.repeat(40)}\n`;
+  out += `Passed: ${pass.length} / ${ids.length} (${Math.round(pass.length/ids.length*100)}%)\n`;
+
+  document.getElementById('exportOutput').value = out;
+}
+
+function copyReport() {
+  const ta = document.getElementById('exportOutput');
+  if (!ta.value) { generateReport(); }
+  ta.select();
+  document.execCommand('copy');
+  const c = document.getElementById('copyConfirm');
+  c.classList.add('show');
+  setTimeout(() => c.classList.remove('show'), 2000);
+}
+
+function resetAll() {
+  if (!confirm('Reset all test results? This cannot be undone.')) return;
+  state = {};
+  saveState();
+  location.reload();
+}
+
+loadState();
+</script>
+</body>
+</html>
