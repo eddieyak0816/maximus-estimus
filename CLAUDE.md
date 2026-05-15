@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 14, 2026 (Evening)  
+> **Last Updated:** May 15, 2026 (Morning)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live. **BLOCKER:** PIN auto-login UX needs fix (see Known Issues)
+> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅
 
 ---
 
@@ -430,20 +430,19 @@ npm run lint       # Run ESLint
 
 ## ⚠️ Known Issues & Quirks
 
-### 🔴 PIN Auto-Login UX Bug (BLOCKER — May 14 Evening)
-**Issue:** "PIN Not Found" error message flashes repeatedly while typing a PIN, even though the intention is silent background checks.
+### ✅ PIN Auto-Login UX Bug (FIXED — May 15, 2026)
+**Issue:** "PIN Not Found" error message was flashing while typing a PIN.
 
-**Status:** Deployed but not working as intended. Code was written to silently check PINs without showing errors, but error messages are still appearing and flashing.
+**Root Cause:** Old error messages from previous attempts weren't being cleared before each auto-check attempt, causing stale errors to persist.
 
-**What to investigate:**
-- The auto-check logic in `src/pages/LoginPage.tsx` useEffect (lines ~26-39) should fail silently, but something is triggering error display
-- Possible causes: error state persisting across attempts, input handler issues, form submission being triggered, stale browser cache
-- Test with both valid and invalid PINs to isolate behavior
-- May need to trace through state changes with console logging to understand when/why error is being set
+**Fix:** Added `setError('')` at the start of the auto-check timer callback in `src/pages/LoginPage.tsx` (commit `40ac7f9`).
 
-**Temporary workaround:** Users can click "Unlock" button instead of relying on auto-login
-
-**Next dev:** Before starting Room Templates, please debug and fix this. It's a critical UX issue that makes the app feel buggy.
+**How it works now:**
+- Auto-check silently clears any old errors before attempting validation
+- If auto-check succeeds → user navigates away
+- If auto-check fails → no error is displayed (silent failure)
+- If user clicks "Unlock" button → error is shown if PIN is invalid
+- No flashing, clean UX
 
 ### Google Drive Path Issue
 - `npm install` from Google Drive path fails (see workaround above)
