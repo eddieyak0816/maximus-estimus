@@ -68,21 +68,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (loading) return;
-    if (pin.length < 4) {
-      setError('Enter at least 4 digits');
-      return;
-    }
+    if (loading || pin.length < 4) return;
 
-    setError('');
     setLoading(true);
 
     try {
       await signIn(pin);
       navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'PIN failed');
-    } finally {
       setLoading(false);
     }
   };
@@ -141,15 +134,12 @@ export default function LoginPage() {
           {pin.length > 0 ? '*'.repeat(pin.length) : '----'}
         </div>
 
-        {error && <div className="pin-error">{error}</div>}
-
         <div className="pin-pad">
           {DIGITS.map(value => (
             <button
               key={value}
               type="button"
               className="pin-key"
-              disabled={loading}
               onClick={() => handlePadPress(value)}
             >
               {value === 'clear' ? 'Clear' : value === 'del' ? 'Del' : value}
