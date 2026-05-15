@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import CheckOpt from '../../components/CheckOpt';
 import Toggle from '../../components/Toggle';
+import { fetchDropdownList, DropdownOption } from '../../utils/dropdownManager';
 import type { FlooringQuestions as FQ } from '../../types';
 
 const SPECIAL_NOTES_ITEMS = [
@@ -21,13 +23,34 @@ export default function FlooringQuestions({ data, onUpdate }: Props) {
   };
   const isSel = (field: keyof FQ, val: string) => ((data[field] as string[]) || []).includes(val);
 
+  const [materials, setMaterials] = useState<DropdownOption[]>([]);
+  const [loadingMaterials, setLoadingMaterials] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const opts = await fetchDropdownList('flooring_materials');
+        setMaterials(opts);
+      } catch (err) {
+        console.error('Failed to load flooring materials:', err);
+      } finally {
+        setLoadingMaterials(false);
+      }
+    })();
+  }, []);
+
   return (
     <div className="assess-tab">
       <SecHead title="1 — Flooring Material" />
       <p className="assess-hint">Select all that apply</p>
-      {['Hardwood', 'Engineered hardwood', 'LVP / Luxury vinyl plank', 'Tile',
-        'Carpet', 'Laminate', 'Concrete / Epoxy', 'Customer to source — we install', 'Undecided'].map(opt =>
-        <CheckOpt key={opt} label={opt} selected={isSel('material', opt)} onToggle={() => toggle('material', opt)} />
+      {loadingMaterials ? (
+        <p style={{ fontSize: 'var(--font-size-sm)', color: '#999' }}>Loading materials...</p>
+      ) : materials.length > 0 ? (
+        materials.map(opt =>
+          <CheckOpt key={opt.value} label={opt.label} selected={isSel('material', opt.value)} onToggle={() => toggle('material', opt.value)} />
+        )
+      ) : (
+        <p style={{ fontSize: 'var(--font-size-sm)', color: '#999' }}>No materials configured yet. Use admin panel to add options.</p>
       )}
 
       <SecHead title="2 — Remove Existing Flooring?" />

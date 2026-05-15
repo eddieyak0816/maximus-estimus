@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MeasInput from '../../components/MeasInput';
 import ChevronIcon from '../../components/ChevronIcon';
+import DropdownSelect from '../../components/DropdownSelect';
 import type { FlooringMeasurements as FM, FlooringRoom, FlooringPart } from '../../types';
 
 interface Props {
@@ -308,13 +309,15 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                       </div>
                       {isTransExpanded && (
                         <>
-                          <input
-                            className="input input-sm"
-                            placeholder="e.g. Doorway to hallway"
-                            value={trans.location || ''}
-                            onChange={e => updateTransition(room.id, trans.id, { location: e.target.value })}
-                            style={{ marginBottom: 8 }}
-                          />
+                          <div style={{ marginBottom: 8 }}>
+                            <DropdownSelect
+                              listName="transition_locations"
+                              value={trans.location}
+                              onChange={(val) => updateTransition(room.id, trans.id, { location: val })}
+                              placeholder="Select transition type…"
+                              allowCustom={true}
+                            />
+                          </div>
                           <MeasInput label="Length" value={trans.length} onChange={v => updateTransition(room.id, trans.id, { length: v })} />
                           <input
                             className="input input-sm"

@@ -59,6 +59,7 @@ export default function Dashboard() {
         <Link to="/gallery" className="btn btn-ghost btn-sm">🖼️ Cabinet Gallery</Link>
         <Link to="/price-guide" className="btn btn-ghost btn-sm">💰 Price Guide</Link>
         {user?.isAdmin && <Link to="/admin/users" className="btn btn-ghost btn-sm">👥 Admin Users</Link>}
+        {user?.isAdmin && <Link to="/admin/dropdowns" className="btn btn-ghost btn-sm">🔧 Manage Dropdowns</Link>}
       </div>
 
       <div className="stats-row">

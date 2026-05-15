@@ -2,13 +2,8 @@ import { useState } from 'react';
 import Toggle from './Toggle';
 import MeasInput from './MeasInput';
 import ChevronIcon from './ChevronIcon';
+import DropdownSelect from './DropdownSelect';
 import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall } from '../types';
-
-const APPLIANCE_TYPES = [
-  'Refrigerator','Range / Slide-in','Cooktop','Wall Oven','Dishwasher',
-  'Microwave (Over Range)','Microwave (Built-in)','Hood / Range Hood',
-  'Warming Drawer','Wine Fridge','Trash Compactor',
-];
 
 // ── Window card ───────────────────────────────────────────────────────────────
 function WindowCard({ win, index, onUpdate, onRemove }: {
@@ -135,12 +130,15 @@ function ApplianceCard({ app, onUpdate, onRemove }: {
   return (
     <div className="sub-card">
       <div className="sub-card-header">
-        <select className="input input-sm" style={{ flex: 1 }}
-          value={app.name || ''}
-          onChange={e => onUpdate({ ...app, name: e.target.value })}>
-          <option value="">Select appliance…</option>
-          {APPLIANCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <div style={{ flex: 1 }}>
+          <DropdownSelect
+            listName="appliance_names"
+            value={app.name}
+            onChange={(val) => onUpdate({ ...app, name: val })}
+            placeholder="Select appliance…"
+            allowCustom={true}
+          />
+        </div>
         <div className="sub-card-actions">
           {app.name && <ChevronIcon open={open} onClick={() => setOpen(o => !o)} />}
           <button className="icon-btn danger" onClick={onRemove}>✕</button>
