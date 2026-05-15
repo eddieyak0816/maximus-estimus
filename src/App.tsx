@@ -10,6 +10,7 @@ import PriceGuidePage from './pages/PriceGuidePage';
 import EstimatePage from './pages/EstimatePage';
 import SummaryView from './pages/SummaryView';
 import LoginPage from './pages/LoginPage';
+import AdminUsersPage from './pages/AdminUsersPage';
 import { useAssessmentStore } from './store/assessmentStore';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -123,6 +124,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceGuidePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <AdminUsersPage />
             </ProtectedRoute>
           }
         />

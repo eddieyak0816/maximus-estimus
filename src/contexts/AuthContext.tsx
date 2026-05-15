@@ -9,6 +9,7 @@ export interface PinUser {
   lastName: string;
   email: string;
   pin: string;
+  isAdmin: boolean;
   createdAt?: string;
 }
 
@@ -18,6 +19,7 @@ interface PinUserRow {
   last_name?: string;
   email?: string;
   pin: string;
+  is_admin?: boolean;
   created_at?: string;
 }
 
@@ -57,6 +59,7 @@ function toPinUser(row: PinUserRow): PinUser {
     lastName: row.last_name || '',
     email: row.email || '',
     pin: row.pin,
+    isAdmin: row.is_admin || false,
     createdAt: row.created_at,
   };
 }
@@ -80,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data, error } = await supabase
       .from('pin_users')
-      .select('id,first_name,last_name,email,pin,created_at')
+      .select('id,first_name,last_name,email,pin,is_admin,created_at')
       .eq('pin', normalized)
       .maybeSingle();
 
@@ -131,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         pin: normalized,
       })
-      .select('id,first_name,last_name,email,pin,created_at')
+      .select('id,first_name,last_name,email,pin,is_admin,created_at')
       .single();
 
     if (error) throw new Error(getErrorMessage(error, 'Could not create user'));
