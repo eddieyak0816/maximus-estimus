@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { useAuth } from '../contexts/AuthContext';
+import FontSizeControl from './FontSizeControl';
 
 function Logo() {
   const [err, setErr] = useState(false);
@@ -54,6 +55,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/" className={pathname === '/' ? 'nav-link active' : 'nav-link'}>Dashboard</Link>
             <Link to="/gallery" className={pathname === '/gallery' ? 'nav-link active' : 'nav-link'}>Gallery</Link>
             <Link to="/price-guide" className={pathname === '/price-guide' ? 'nav-link active' : 'nav-link'}>Price Guide</Link>
+            <FontSizeControl />
             <Link to="/new" className="btn btn-primary btn-sm">+ New Assessment</Link>
             <button
               onClick={handleSignOut}
