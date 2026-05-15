@@ -122,6 +122,10 @@ export default function Dashboard() {
           {visibleAssessments.map(a => {
             const name = [a.client.firstName, a.client.lastName].filter(Boolean).join(' ') || 'Untitled';
             const href = `/assessment/${a.id}`;
+            const showCreator = a.creatorId && user?.isAdmin && creatorMap[a.creatorId];
+            if (a.creatorId) {
+              console.log(`Assessment "${name}": creatorId=${a.creatorId}, isAdmin=${user?.isAdmin}, creatorName=${creatorMap[a.creatorId]}, showCreator=${!!showCreator}`);
+            }
 
             return (
               <div
