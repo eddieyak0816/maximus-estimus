@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 5, 2026  
+> **Last Updated:** May 14, 2026  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Sprints 1-3 Complete + Real Photo Capture Complete. Next: Room Templates (Priority 1)
+> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete. Next: Room Templates (Priority 1)
 
 ---
 
@@ -10,10 +10,11 @@
 
 | Item | Status | Details |
 |------|--------|---------|
-| **Phase** | Phase 1 (Field Workflow) | Live field assessment app in progress |
+| **Phase** | Phase 1 + Phase 5 ✅ | Field workflow complete, cloud sync live |
 | **Platform** | Web (React 19 + TypeScript) | iOS/Android planned for Sprint 7 |
-| **Storage** | localStorage (Phase 1) | Will move to Supabase/Firebase in Sprint 5 |
-| **Deployment** | Local dev only | No cloud deployment yet |
+| **Storage** | Supabase + localStorage | PostgreSQL + offline cache (IndexedDB for photos) |
+| **Deployment** | GitHub Pages + Supabase | Live at https://eddieyak0816.github.io/maximus-estimus/ |
+| **Auth** | Supabase email/password | All team members see shared data |
 | **Team** | Solo dev (Eddie) + AI assistant | Small field team of 3+ in production |
 
 ---
@@ -52,13 +53,14 @@
 
 ## 📊 Current Sprint Status
 
-### ✅ Complete (May 4, 2026)
+### ✅ Complete (May 14, 2026)
 - **Sprint 1:** Core kitchen assessment (measurements, questions, photos, cabinet gallery)
 - **Sprint 2:** Bathroom and flooring assessments, "Other" job type
 - **Sprint 3:** Price guide (editable), estimate generation (auto + manual override), customer + internal cost views
 - **Real Photo Capture:** Device camera integration, IndexedDB storage, photo display/deletion
 - **Summary View:** Consolidated read-only report of all job data with estimate hero
 - **UX Polish:** Full collapsible sections, wall rename propagation, accordion appliances/island/plumbing
+- **Phase 5 (Cloud Sync):** Supabase backend, team authentication, cloud database, Supabase Storage for photos, local-first offline sync
 
 ### 🔲 Next Up (Priority Order)
 
@@ -88,14 +90,31 @@
 - [ ] Manage markup settings (labor % + materials %)
 - [ ] Cabinet gallery enhancements (add/remove images, full-screen view)
 
-#### Sprint 5: Backend & Cloud Sync
+#### ✅ Sprint 5: Backend & Cloud Sync (COMPLETE — May 14, 2026)
 **Goal:** Move off localStorage so the whole team can share jobs.
 
-- [ ] Decide: Supabase or Firebase?
-- [ ] User authentication (team member login)
-- [ ] Cloud database for all assessments
-- [ ] Offline support with sync when back online *(job sites often have poor signal)*
-- [ ] Role-based access (field user vs manager/owner)
+- [x] Chose Supabase (PostgreSQL, auth, storage)
+- [x] User authentication (team member login via email/password)
+- [x] Cloud database for all assessments (+ team members, price guide, markup settings)
+- [x] Offline support with sync when back online — local-first: localStorage cache + background Supabase sync
+- [x] Shared team access (all authenticated users see all assessments)
+- [ ] Role-based access (field user vs manager/owner) — deferred to Sprint 4
+
+**How it works:**
+- Users log in with Supabase credentials (created by Eddie in dashboard)
+- On app load, assessments load instantly from localStorage (works offline)
+- In background, app fetches latest from Supabase (last-write-wins by `updatedAt`)
+- Every mutation (create/update/delete) writes to localStorage immediately + syncs to Supabase async
+- Photos save to IndexedDB locally + upload to Supabase Storage (with public URLs)
+- If offline, changes persist locally, sync when back online
+
+**Key files:**
+- `src/lib/supabase.ts` — Supabase client
+- `src/contexts/AuthContext.tsx` — Auth state + login/logout
+- `src/pages/LoginPage.tsx` — Login form
+- `src/utils/supabaseSync.ts` — Push/pull utilities
+- `src/store/assessmentStore.ts` — Modified to add background sync calls
+- `src/utils/photoStorage.ts` — Added Supabase Storage upload/download
 
 #### Sprint 6: Export & Email
 **Goal:** Professional deliverables from every job.
@@ -131,12 +150,14 @@
 | Build Tool | Vite | ✅ In use |
 | Routing | React Router v7 | ✅ In use |
 | State | Zustand | ✅ In use |
-| Storage (Phase 1) | localStorage | ✅ In use |
+| Storage (Phase 1) | localStorage (offline cache) | ✅ In use |
 | Forms | Plain controlled components | ✅ In use (React Hook Form/Zod deferred) |
 | Styling | Custom CSS (dark mode, brand tokens) | ✅ In use |
-| Storage (Phase 1B) | Supabase or Firebase | 🔲 TBD |
-| PDF Export | react-pdf or jsPDF | 🔲 TBD |
-| Mobile | React Native or PWA | 🔲 TBD |
+| Backend (Phase 5) | Supabase (PostgreSQL + Auth + Storage) | ✅ In use |
+| Auth (Phase 5) | Supabase email/password | ✅ In use |
+| Photos (Phase 5) | Supabase Storage + IndexedDB cache | ✅ In use |
+| PDF Export | react-pdf or jsPDF | 🔲 TBD (Sprint 6) |
+| Mobile | React Native or PWA | 🔲 TBD (Sprint 7) |
 
 ### Key Files & Their Purposes
 
