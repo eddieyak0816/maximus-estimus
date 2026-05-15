@@ -23,20 +23,21 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pin.length >= 4 && !loading && !showCreateUser) {
-      const attemptSignIn = async () => {
-        setError('');
-        setLoading(true);
-        try {
-          await signIn(pin);
-          navigate('/');
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'PIN failed');
-          setLoading(false);
-        }
-      };
-      attemptSignIn();
-    }
+    if (pin.length < 4 || loading || showCreateUser) return;
+
+    const timer = setTimeout(async () => {
+      setError('');
+      setLoading(true);
+      try {
+        await signIn(pin);
+        navigate('/');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'PIN failed');
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [pin, loading, showCreateUser, signIn, navigate]);
 
   const appendDigit = (digit: string) => {
