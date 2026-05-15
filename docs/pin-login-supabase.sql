@@ -20,6 +20,9 @@ create unique index if not exists pin_users_email_unique
 on public.pin_users (lower(email))
 where email <> '';
 
+grant usage on schema public to anon;
+grant select, insert, update on public.pin_users to anon;
+
 alter table public.pin_users enable row level security;
 
 drop policy if exists "Allow PIN lookup" on public.pin_users;
@@ -45,6 +48,11 @@ alter table public.assessments enable row level security;
 alter table public.team_members enable row level security;
 alter table public.markup_settings enable row level security;
 alter table public.price_guide enable row level security;
+
+grant select, insert, update, delete on public.assessments to anon;
+grant select, insert, update, delete on public.team_members to anon;
+grant select, insert, update, delete on public.markup_settings to anon;
+grant select, insert, update, delete on public.price_guide to anon;
 
 drop policy if exists "Allow app access" on public.assessments;
 create policy "Allow app access"

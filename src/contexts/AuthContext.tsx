@@ -38,6 +38,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getErrorMessage(err: unknown, fallback: string) {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === 'object' && 'message' in err) {
+    return String((err as { message?: unknown }).message || fallback);
+  }
+  return fallback;
+}
+
 function cleanPin(pin: string) {
   return pin.replace(/\D/g, '');
 }
@@ -76,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('pin', normalized)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) throw new Error(getErrorMessage(error, 'Could not look up PIN'));
     if (!data) throw new Error('PIN not found');
 
     const nextUser = toPinUser(data as PinUserRow);
@@ -103,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('pin', normalized)
       .maybeSingle();
 
-    if (pinLookupError) throw pinLookupError;
+    if (pinLookupError) throw new Error(getErrorMessage(pinLookupError, 'Could not check PIN'));
     if (existingPin) throw new Error('That PIN is already taken');
 
     const { data: existingEmail, error: emailLookupError } = await supabase
@@ -112,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('email', email)
       .maybeSingle();
 
-    if (emailLookupError) throw emailLookupError;
+    if (emailLookupError) throw new Error(getErrorMessage(emailLookupError, 'Could not check email'));
     if (existingEmail) throw new Error('That email is already registered');
 
     const { data, error } = await supabase
@@ -126,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .select('id,first_name,last_name,email,pin,created_at')
       .single();
 
-    if (error) throw error;
+    if (error) throw new Error(getErrorMessage(error, 'Could not create user'));
 
     const nextUser = toPinUser(data as PinUserRow);
     localStorage.setItem(PIN_SESSION_KEY, JSON.stringify(nextUser));
