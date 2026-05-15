@@ -81,6 +81,19 @@
   - Summary view displays room template data correctly
   - Photos tied to room template items work (camera integration)
 
+#### 🔲 Role-Based Job Visibility (After Flooring Testing)
+**Goal:** Restrict job visibility based on user role.
+
+- [ ] Regular users see only jobs they created/entered
+- [ ] Admins see all jobs across the team
+- [ ] Dashboard filters assessments by creator (unless user is admin)
+- [ ] Modify Dashboard.tsx to check `isAdmin` flag and filter accordingly
+- **Acceptance Criteria:**
+  - Non-admin user logs in → sees only their own assessments
+  - Admin user logs in → sees all team assessments
+  - When creating new assessment, creator is automatically recorded
+  - Assessments show which user created them (for admin view)
+
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
 
