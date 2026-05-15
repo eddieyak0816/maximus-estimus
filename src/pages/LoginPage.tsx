@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { CreateUserInput } from '../contexts/AuthContext';
@@ -21,24 +21,6 @@ export default function LoginPage() {
   const [newUser, setNewUser] = useState(emptyUserForm);
   const { signIn, createUser } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (pin.length < 4 || loading || showCreateUser) return;
-
-    const timer = setTimeout(async () => {
-      setError('');
-      setLoading(true);
-      try {
-        await signIn(pin);
-        navigate('/');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'PIN failed');
-        setLoading(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [pin, loading, showCreateUser, signIn, navigate]);
 
   const appendDigit = (digit: string) => {
     setError('');
@@ -125,7 +107,7 @@ export default function LoginPage() {
           pattern="[0-9]*"
           autoComplete="one-time-code"
           value={pin}
-          onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 12))}
+          onChange={e => { setError(''); setPin(e.target.value.replace(/\D/g, '').slice(0, 12)); }}
           autoFocus
         />
 
