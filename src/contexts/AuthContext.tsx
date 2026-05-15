@@ -5,21 +5,34 @@ const PIN_SESSION_KEY = 'maximus-estimus-pin-session';
 
 export interface PinUser {
   id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   pin: string;
   createdAt?: string;
 }
 
 interface PinUserRow {
   id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
   pin: string;
   created_at?: string;
+}
+
+export interface CreateUserInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  pin: string;
 }
 
 interface AuthContextType {
   user: PinUser | null;
   loading: boolean;
   signIn: (pin: string) => Promise<void>;
-  createPin: (pin: string) => Promise<void>;
+  createUser: (input: CreateUserInput) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -32,6 +45,9 @@ function cleanPin(pin: string) {
 function toPinUser(row: PinUserRow): PinUser {
   return {
     id: row.id,
+    firstName: row.first_name || '',
+    lastName: row.last_name || '',
+    email: row.email || '',
     pin: row.pin,
     createdAt: row.created_at,
   };
@@ -56,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data, error } = await supabase
       .from('pin_users')
-      .select('id,pin,created_at')
+      .select('id,first_name,last_name,email,pin,created_at')
       .eq('pin', normalized)
       .maybeSingle();
 
@@ -68,23 +84,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(nextUser);
   };
 
-  const createPin = async (pin: string) => {
+  const createUser = async (input: CreateUserInput) => {
+    const firstName = input.firstName.trim();
+    const lastName = input.lastName.trim();
+    const email = input.email.trim().toLowerCase();
+    const pin = input.pin;
     const normalized = cleanPin(pin);
+
+    if (!firstName) throw new Error('First name is required');
+    if (!lastName) throw new Error('Last name is required');
+    if (!email) throw new Error('Email is required');
+    if (!email.includes('@')) throw new Error('Enter a valid email');
     if (normalized.length < 4) throw new Error('PIN must be at least 4 digits');
 
-    const { data: existing, error: lookupError } = await supabase
+    const { data: existingPin, error: pinLookupError } = await supabase
       .from('pin_users')
       .select('id')
       .eq('pin', normalized)
       .maybeSingle();
 
-    if (lookupError) throw lookupError;
-    if (existing) throw new Error('That PIN is already taken');
+    if (pinLookupError) throw pinLookupError;
+    if (existingPin) throw new Error('That PIN is already taken');
+
+    const { data: existingEmail, error: emailLookupError } = await supabase
+      .from('pin_users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (emailLookupError) throw emailLookupError;
+    if (existingEmail) throw new Error('That email is already registered');
 
     const { data, error } = await supabase
       .from('pin_users')
-      .insert({ pin: normalized })
-      .select('id,pin,created_at')
+      .insert({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        pin: normalized,
+      })
+      .select('id,first_name,last_name,email,pin,created_at')
       .single();
 
     if (error) throw error;
@@ -100,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, createPin, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, createUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );
