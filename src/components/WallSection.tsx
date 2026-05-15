@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Toggle from './Toggle';
 import MeasInput from './MeasInput';
+import ChevronIcon from './ChevronIcon';
 import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall } from '../types';
 
 const APPLIANCE_TYPES = [
@@ -21,7 +22,7 @@ function WindowCard({ win, index, onUpdate, onRemove }: {
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="sub-card-title">Window {index + 1}</span>
         <div className="sub-card-actions">
-          <button className="icon-btn" onClick={e => { e.stopPropagation(); setOpen(o => !o); }}>{open ? '▲' : '▼'}</button>
+          <ChevronIcon open={open} onClick={e => { e.stopPropagation(); setOpen(o => !o); }} />
           <button className="icon-btn danger" onClick={e => { e.stopPropagation(); onRemove(); }}>✕</button>
         </div>
       </div>
@@ -74,7 +75,7 @@ function DoorCard({ door, index, onUpdate, onRemove }: {
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="sub-card-title">{title}</span>
         <div className="sub-card-actions">
-          <button className="icon-btn" onClick={e => { e.stopPropagation(); setOpen(o => !o); }}>{open ? '▲' : '▼'}</button>
+          <ChevronIcon open={open} onClick={e => { e.stopPropagation(); setOpen(o => !o); }} />
           <button className="icon-btn danger" onClick={e => { e.stopPropagation(); onRemove(); }}>✕</button>
         </div>
       </div>
@@ -141,7 +142,7 @@ function ApplianceCard({ app, onUpdate, onRemove }: {
           {APPLIANCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <div className="sub-card-actions">
-          {app.name && <button className="icon-btn" onClick={() => setOpen(o => !o)}>{open ? '▲' : '▼'}</button>}
+          {app.name && <ChevronIcon open={open} onClick={() => setOpen(o => !o)} />}
           <button className="icon-btn danger" onClick={onRemove}>✕</button>
         </div>
       </div>
@@ -227,13 +228,14 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
 
   return (
     <div className="wall-section">
-      <div className="wall-header" style={{ cursor: 'pointer' }} onClick={toggleOpen}>
+      <div className="wall-header" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }} onClick={toggleOpen}>
+        <ChevronIcon open={open} onClick={e => { e.stopPropagation(); toggleOpen(); }} />
         <div className={`wall-badge${done ? ' done' : ''}`}>
           {done
             ? <svg width="14" height="14" viewBox="0 0 24 24" fill="#22c55e"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             : <span>{wall}</span>}
         </div>
-        <div className="wall-meta">
+        <div className="wall-meta" style={{ flex: 1 }}>
           {renaming
             ? <input autoFocus className="input wall-rename-input" value={data.name || ''} placeholder="e.g. Stove Wall…"
                 onChange={e => u('name', e.target.value)}
@@ -251,7 +253,6 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}
           </div>
         </div>
-        <button className="icon-btn" onClick={e => { e.stopPropagation(); toggleOpen(); }}>{open ? '▲' : '▼'}</button>
       </div>
 
       {open && (
@@ -268,9 +269,9 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
           {/* Per-wall soffit */}
           {globalHasSoffit && !soffitSame && (
             <div className="soffit-override-box">
-              <div className="soffit-override-header" onClick={() => setSoffitOpen(o => !o)}>
+              <div className="soffit-override-header" style={{ cursor: 'pointer' }} onClick={() => setSoffitOpen(o => !o)}>
                 <span className="soffit-override-label">SOFFIT — {displayName}</span>
-                <button className="icon-btn" onClick={e => { e.stopPropagation(); setSoffitOpen(o => !o); }}>{soffitOpen ? '▲' : '▼'}</button>
+                <ChevronIcon open={soffitOpen} onClick={e => { e.stopPropagation(); setSoffitOpen(o => !o); }} />
               </div>
               {soffitOpen && (
                 <>
@@ -358,9 +359,9 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             </div>
             {data.hasSink && (
               <>
-                <div className="soffit-override-header" style={{ marginTop: 8 }} onClick={() => setSinkOpen(o => !o)}>
+                <div className="soffit-override-header" style={{ marginTop: 8, cursor: 'pointer' }} onClick={() => setSinkOpen(o => !o)}>
                   <span className="soffit-override-label">SINK / PLUMBING — {displayName}</span>
-                  <button className="icon-btn" onClick={e => { e.stopPropagation(); setSinkOpen(o => !o); }}>{sinkOpen ? '▲' : '▼'}</button>
+                  <ChevronIcon open={sinkOpen} onClick={e => { e.stopPropagation(); setSinkOpen(o => !o); }} />
                 </div>
                 {sinkOpen && (
                   <div className="plumbing-box">
@@ -404,7 +405,7 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
           <div className="wall-sub-section">
             <div className="wall-sub-section-header" style={{ cursor: 'pointer' }} onClick={() => setCabsOpen(o => !o)}>
               <span className="tiny-label">Existing Cabinets on this wall</span>
-              <button className="icon-btn" onClick={e => { e.stopPropagation(); setCabsOpen(o => !o); }}>{cabsOpen ? '▲' : '▼'}</button>
+              <ChevronIcon open={cabsOpen} onClick={e => { e.stopPropagation(); setCabsOpen(o => !o); }} />
             </div>
             {cabsOpen && (
               <>

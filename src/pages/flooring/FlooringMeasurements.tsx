@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MeasInput from '../../components/MeasInput';
+import ChevronIcon from '../../components/ChevronIcon';
 import type { FlooringMeasurements as FM, FlooringRoom, FlooringPart } from '../../types';
 
 interface Props {
@@ -138,16 +139,13 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
         return (
           <div key={room.id} className="flooring-room-card">
             <div className="flooring-room-header" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleRoomExpanded(room.id)}>
-              <button
-                className="btn btn-ghost btn-xs"
+              <ChevronIcon
+                open={isRoomExpanded}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleRoomExpanded(room.id);
                 }}
-                style={{ padding: '4px 6px', minWidth: 'auto' }}
-              >
-                {isRoomExpanded ? '▼' : '▶'}
-              </button>
+              />
               {editingRoomId === room.id ? (
                 <input
                   className="input input-sm"
@@ -199,16 +197,13 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   return (
                     <div key={part.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isPartExpanded ? 8 : 0, cursor: 'pointer' }} onClick={() => togglePartExpanded(part.id)}>
-                        <button
-                          className="btn btn-ghost btn-xs"
+                        <ChevronIcon
+                          open={isPartExpanded}
                           onClick={(e) => {
                             e.stopPropagation();
                             togglePartExpanded(part.id);
                           }}
-                          style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
-                        >
-                          {isPartExpanded ? '▼' : '▶'}
-                        </button>
+                        />
                         {editingPartId === part.id ? (
                           <input
                             className="input input-sm"
@@ -272,16 +267,13 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   return (
                     <div key={trans.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isTransExpanded ? 8 : 0, cursor: 'pointer' }} onClick={() => toggleTransitionExpanded(trans.id)}>
-                        <button
-                          className="btn btn-ghost btn-xs"
+                        <ChevronIcon
+                          open={isTransExpanded}
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleTransitionExpanded(trans.id);
                           }}
-                          style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
-                        >
-                          {isTransExpanded ? '▼' : '▶'}
-                        </button>
+                        />
                         {editingTransitionId === trans.id ? (
                           <input
                             className="input input-sm"

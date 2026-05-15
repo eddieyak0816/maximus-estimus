@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"iSinkOpen\\\\|iCooktopOpen\\\\|iOutletOpen\\\\|iLevelsOpen\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\kitchen\\\\\\\\KitchenMeasurements.tsx\")"
+    ]
+  }
+}

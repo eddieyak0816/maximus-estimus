@@ -3,6 +3,7 @@ import Toggle from '../../components/Toggle';
 import MeasInput from '../../components/MeasInput';
 import CollapseSection from '../../components/CollapseSection';
 import WallSection from '../../components/WallSection';
+import ChevronIcon from '../../components/ChevronIcon';
 import type { KitchenMeasurements as KM } from '../../types';
 
 const WALL_LABELS = ['A','B','C','D'] as const;
@@ -104,7 +105,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
               <div className="sub-card">
                 <div className="wall-sub-section-header" style={{ cursor: 'pointer', marginBottom: iDimsOpen ? 8 : 0 }} onClick={() => setIDimsOpen(o => !o)}>
                   <span className="tiny-label">Dimensions</span>
-                  <button className="icon-btn" onClick={e => { e.stopPropagation(); setIDimsOpen(o => !o); }}>{iDimsOpen ? '▲' : '▼'}</button>
+                  <ChevronIcon open={iDimsOpen} onClick={e => { e.stopPropagation(); setIDimsOpen(o => !o); }} />
                 </div>
                 {iDimsOpen && (
                   <>
@@ -125,7 +126,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
               <div className="sub-card">
                 <div className="wall-sub-section-header" style={{ cursor: 'pointer', marginBottom: iClearOpen ? 8 : 0 }} onClick={() => setIClearOpen(o => !o)}>
                   <span className="tiny-label">Distance from Walls</span>
-                  <button className="icon-btn" onClick={e => { e.stopPropagation(); setIClearOpen(o => !o); }}>{iClearOpen ? '▲' : '▼'}</button>
+                  <ChevronIcon open={iClearOpen} onClick={e => { e.stopPropagation(); setIClearOpen(o => !o); }} />
                 </div>
                 {iClearOpen && (
                   <div className="grid-2">
@@ -143,7 +144,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
               <div className="sub-card">
                 <div className="wall-sub-section-header" style={{ cursor: 'pointer', marginBottom: iOvhgOpen ? 8 : 0 }} onClick={() => setIOvhgOpen(o => !o)}>
                   <span className="tiny-label">Countertop Overhang</span>
-                  <button className="icon-btn" onClick={e => { e.stopPropagation(); setIOvhgOpen(o => !o); }}>{iOvhgOpen ? '▲' : '▼'}</button>
+                  <ChevronIcon open={iOvhgOpen} onClick={e => { e.stopPropagation(); setIOvhgOpen(o => !o); }} />
                 </div>
                 {iOvhgOpen && (
                   <>
@@ -181,9 +182,9 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
                 </div>
                 {data.iSink && (
                   <>
-                    <div className="soffit-override-header" style={{ marginTop: 10 }} onClick={() => setISinkOpen(o => !o)}>
+                    <div className="soffit-override-header" style={{ marginTop: 10, cursor: 'pointer' }} onClick={() => setISinkOpen(o => !o)}>
                       <span className="soffit-override-label">SINK DETAILS</span>
-                      <button className="icon-btn" onClick={e => { e.stopPropagation(); setISinkOpen(o => !o); }}>{iSinkOpen ? '▲' : '▼'}</button>
+                      <ChevronIcon open={iSinkOpen} onClick={e => { e.stopPropagation(); setISinkOpen(o => !o); }} />
                     </div>
                     {iSinkOpen && (
                       <>
@@ -213,9 +214,9 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
                 </div>
                 {data.iCooktop && (
                   <>
-                    <div className="soffit-override-header" style={{ marginTop: 10 }} onClick={() => setICooktopOpen(o => !o)}>
+                    <div className="soffit-override-header" style={{ marginTop: 10, cursor: 'pointer' }} onClick={() => setICooktopOpen(o => !o)}>
                       <span className="soffit-override-label">COOKTOP DETAILS</span>
-                      <button className="icon-btn" onClick={e => { e.stopPropagation(); setICooktopOpen(o => !o); }}>{iCooktopOpen ? '▲' : '▼'}</button>
+                      <ChevronIcon open={iCooktopOpen} onClick={e => { e.stopPropagation(); setICooktopOpen(o => !o); }} />
                     </div>
                     {iCooktopOpen && (
                       <>
@@ -237,9 +238,9 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
                 </div>
                 {data.iOutlet && (
                   <>
-                    <div className="soffit-override-header" style={{ marginTop: 10 }} onClick={() => setIOutletOpen(o => !o)}>
+                    <div className="soffit-override-header" style={{ marginTop: 10, cursor: 'pointer' }} onClick={() => setIOutletOpen(o => !o)}>
                       <span className="soffit-override-label">OUTLET DETAILS</span>
-                      <button className="icon-btn" onClick={e => { e.stopPropagation(); setIOutletOpen(o => !o); }}>{iOutletOpen ? '▲' : '▼'}</button>
+                      <ChevronIcon open={iOutletOpen} onClick={e => { e.stopPropagation(); setIOutletOpen(o => !o); }} />
                     </div>
                     {iOutletOpen && (
                       <>
@@ -279,9 +280,9 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
                 </div>
                 {data.iHasLevels && (
                   <>
-                    <div className="soffit-override-header" style={{ marginTop: 10 }} onClick={() => setILevelsOpen(o => !o)}>
+                    <div className="soffit-override-header" style={{ marginTop: 10, cursor: 'pointer' }} onClick={() => setILevelsOpen(o => !o)}>
                       <span className="soffit-override-label">LEVEL DETAILS</span>
-                      <button className="icon-btn" onClick={e => { e.stopPropagation(); setILevelsOpen(o => !o); }}>{iLevelsOpen ? '▲' : '▼'}</button>
+                      <ChevronIcon open={iLevelsOpen} onClick={e => { e.stopPropagation(); setILevelsOpen(o => !o); }} />
                     </div>
                     {iLevelsOpen && (
                       <>
