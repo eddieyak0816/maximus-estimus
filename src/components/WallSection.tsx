@@ -269,9 +269,9 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
           {/* Per-wall soffit */}
           {globalHasSoffit && !soffitSame && (
             <div className="soffit-override-box">
-              <div className="soffit-override-header" style={{ cursor: 'pointer' }} onClick={() => setSoffitOpen(o => !o)}>
-                <span className="soffit-override-label">SOFFIT — {displayName}</span>
+              <div className="soffit-override-header" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setSoffitOpen(o => !o)}>
                 <ChevronIcon open={soffitOpen} onClick={e => { e.stopPropagation(); setSoffitOpen(o => !o); }} />
+                <span className="soffit-override-label">SOFFIT — {displayName}</span>
               </div>
               {soffitOpen && (
                 <>
@@ -359,9 +359,9 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             </div>
             {data.hasSink && (
               <>
-                <div className="soffit-override-header" style={{ marginTop: 8, cursor: 'pointer' }} onClick={() => setSinkOpen(o => !o)}>
-                  <span className="soffit-override-label">SINK / PLUMBING — {displayName}</span>
+                <div className="soffit-override-header" style={{ marginTop: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => setSinkOpen(o => !o)}>
                   <ChevronIcon open={sinkOpen} onClick={e => { e.stopPropagation(); setSinkOpen(o => !o); }} />
+                  <span className="soffit-override-label">SINK / PLUMBING — {displayName}</span>
                 </div>
                 {sinkOpen && (
                   <div className="plumbing-box">
@@ -403,9 +403,9 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
 
           {/* Existing Cabinets */}
           <div className="wall-sub-section">
-            <div className="wall-sub-section-header" style={{ cursor: 'pointer' }} onClick={() => setCabsOpen(o => !o)}>
-              <span className="tiny-label">Existing Cabinets on this wall</span>
+            <div className="wall-sub-section-header" style={{ cursor: 'pointer', gap: 8 }} onClick={() => setCabsOpen(o => !o)}>
               <ChevronIcon open={cabsOpen} onClick={e => { e.stopPropagation(); setCabsOpen(o => !o); }} />
+              <span className="tiny-label">Existing Cabinets on this wall</span>
             </div>
             {cabsOpen && (
               <>
