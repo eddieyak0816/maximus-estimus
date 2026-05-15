@@ -254,6 +254,114 @@ input, select, textarea { font-family: var(--font); }
 .btn-danger { color: var(--red); }
 .btn-danger:hover:not(:disabled) { background: var(--red-bg); color: var(--red); }
 
+/* ===== PIN Login ===== */
+.pin-login {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: var(--bg);
+}
+.pin-panel {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+.pin-title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+.pin-mode-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.pin-mode-btn {
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  padding: 10px;
+  font-weight: 800;
+}
+.pin-mode-btn.active {
+  background: var(--brand-yellow);
+  border-color: var(--brand-yellow);
+  color: var(--brand-blue-dark);
+}
+.pin-hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+.pin-display {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  margin-bottom: 14px;
+}
+.pin-error {
+  color: var(--red);
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pin-key {
+  height: 58px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 900;
+}
+.pin-key:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--brand-yellow);
+}
+.pin-key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pin-submit {
+  margin-top: 16px;
+}
+.pin-alt-action {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--brand-yellow);
+  font-weight: 700;
+  padding: 8px;
+}
+
 /* ===== Empty State ===== */
 .empty-state {
   text-align: center;

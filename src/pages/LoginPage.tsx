@@ -2,114 +2,134 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
+type PinMode = 'unlock' | 'create';
+
+const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'del'];
+
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [pin, setPin] = useState('');
+  const [mode, setMode] = useState<PinMode>('unlock');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, createPin } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const appendDigit = (digit: string) => {
+    setError('');
+    setPin(current => `${current}${digit}`.slice(0, 12));
+  };
+
+  const handlePadPress = (value: string) => {
+    if (value === 'clear') {
+      setPin('');
+      setError('');
+      return;
+    }
+    if (value === 'del') {
+      setPin(current => current.slice(0, -1));
+      setError('');
+      return;
+    }
+    appendDigit(value);
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (pin.length < 4) {
+      setError('Enter at least 4 digits');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      if (mode === 'create') {
+        await createPin(pin);
+      } else {
+        await signIn(pin);
+      }
       navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'PIN failed');
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleMode = () => {
+    setMode(current => current === 'unlock' ? 'create' : 'unlock');
+    setPin('');
+    setError('');
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px', backgroundColor: 'var(--bg-primary)' }}>
-      <div style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-primary)', fontSize: '28px' }}>
-          Maximus Estimus
-        </h1>
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-primary)', fontSize: '14px' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              disabled={loading}
-              required
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                backgroundColor: 'var(--input-bg)',
-                color: 'var(--text-primary)',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-primary)', fontSize: '14px' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-              required
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                backgroundColor: 'var(--input-bg)',
-                color: 'var(--text-primary)',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-
-          {error && (
-            <div style={{ color: '#ff6b6b', fontSize: '14px', backgroundColor: 'rgba(255, 107, 107, 0.1)', padding: '12px', borderRadius: '6px' }}>
-              {error}
-            </div>
-          )}
-
+    <div className="pin-login">
+      <form className="pin-panel" onSubmit={handleSubmit}>
+        <h1 className="pin-title">Maximus Estimus</h1>
+        <div className="pin-mode-row">
           <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '12px 16px',
-              backgroundColor: 'var(--primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
+            type="button"
+            className={`pin-mode-btn${mode === 'unlock' ? ' active' : ''}`}
+            onClick={() => {
+              setMode('unlock');
+              setPin('');
+              setError('');
             }}
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            Unlock
           </button>
-        </form>
+          <button
+            type="button"
+            className={`pin-mode-btn${mode === 'create' ? ' active' : ''}`}
+            onClick={() => {
+              setMode('create');
+              setPin('');
+              setError('');
+            }}
+          >
+            Save PIN
+          </button>
+        </div>
 
-        <p style={{ textAlign: 'center', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '14px' }}>
-          Ask your team lead for login credentials
-        </p>
-      </div>
+        <input
+          className="pin-hidden-input"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="one-time-code"
+          value={pin}
+          onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 12))}
+          autoFocus
+        />
+
+        <div className="pin-display" aria-label="PIN">
+          {pin.length > 0 ? '*'.repeat(pin.length) : '----'}
+        </div>
+
+        {error && <div className="pin-error">{error}</div>}
+
+        <div className="pin-pad">
+          {DIGITS.map(value => (
+            <button
+              key={value}
+              type="button"
+              className="pin-key"
+              disabled={loading}
+              onClick={() => handlePadPress(value)}
+            >
+              {value === 'clear' ? 'Clear' : value === 'del' ? 'Del' : value}
+            </button>
+          ))}
+        </div>
+
+        <button className="btn btn-primary btn-full pin-submit" disabled={loading || pin.length < 4}>
+          {loading ? 'Working...' : mode === 'create' ? 'Save PIN' : 'Unlock'}
+        </button>
+
+        <button type="button" className="pin-alt-action" onClick={toggleMode}>
+          {mode === 'unlock' ? 'Create a new PIN' : 'Use an existing PIN'}
+        </button>
+      </form>
     </div>
   );
 }

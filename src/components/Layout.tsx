@@ -30,11 +30,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const syncFromCloud = useAssessmentStore(s => s.syncFromCloud);
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
+    if (!user) return;
     syncFromCloud();
-  }, [syncFromCloud]);
+  }, [syncFromCloud, user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,19 +49,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Logo />
           <span className="brand-sub">Field Assessment Tool</span>
         </Link>
-        <nav className="header-nav">
-          <Link to="/" className={pathname === '/' ? 'nav-link active' : 'nav-link'}>Dashboard</Link>
-          <Link to="/gallery" className={pathname === '/gallery' ? 'nav-link active' : 'nav-link'}>Gallery</Link>
-          <Link to="/price-guide" className={pathname === '/price-guide' ? 'nav-link active' : 'nav-link'}>Price Guide</Link>
-          <Link to="/new" className="btn btn-primary btn-sm">+ New Assessment</Link>
-          <button
-            onClick={handleSignOut}
-            className="nav-link"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
-          >
-            Sign Out
-          </button>
-        </nav>
+        {user && (
+          <nav className="header-nav">
+            <Link to="/" className={pathname === '/' ? 'nav-link active' : 'nav-link'}>Dashboard</Link>
+            <Link to="/gallery" className={pathname === '/gallery' ? 'nav-link active' : 'nav-link'}>Gallery</Link>
+            <Link to="/price-guide" className={pathname === '/price-guide' ? 'nav-link active' : 'nav-link'}>Price Guide</Link>
+            <Link to="/new" className="btn btn-primary btn-sm">+ New Assessment</Link>
+            <button
+              onClick={handleSignOut}
+              className="nav-link"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+            >
+              Sign Out
+            </button>
+          </nav>
+        )}
       </header>
       <main className="app-main">{children}</main>
       <footer className="app-footer">
