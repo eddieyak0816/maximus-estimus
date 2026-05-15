@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 15, 2026 (Afternoon)  
+> **Last Updated:** May 15, 2026 (Evening)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅ + UI Standardization Complete ✅
+> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅ + UI Standardization Complete ✅ + Configurable Dropdowns Complete ✅
 
 ---
 
@@ -63,6 +63,7 @@
 - **Phase 5 (Cloud Sync):** Supabase backend, team authentication, cloud database, Supabase Storage for photos, local-first offline sync
 - **Admin Panel MVP (May 14 evening):** Super admin user management, user deletion, logged-in user display on Dashboard, PIN-based authentication with Supabase
 - **UI Standardization (May 15):** Consistent header backgrounds on collapsible sections, unified pencil icon styling (SVG not emoji), matching layout patterns across Kitchen and Flooring, collapsible rooms/sections with ChevronIcon, full-width clickable header backgrounds with rgba(255,255,255,0.02)
+- **Configurable Dropdowns (May 15 evening):** 8 dropdown categories (appliances, materials, finishes, transitions, etc.), admin UI at /admin/dropdowns, reusable DropdownSelect component, form integrations for Kitchen appliances, Flooring materials, transition locations, caching with in-memory 5-min TTL
 
 ### 🔲 Next Up (Priority Order)
 
@@ -95,32 +96,30 @@
   - When creating new assessment, creator is automatically recorded
   - Assessments show which user created them (for admin view)
 
-#### 🔲 Configurable Dropdown Lists (Data Management)
+#### ✅ Configurable Dropdown Lists (COMPLETE — May 15, 2026 Evening)
 **Goal:** Allow admins to create and manage dropdown options for labels throughout the app instead of free-text inputs.
 
-**Scope to Review:**
-- Room names (Kitchen, Master Bath, etc.)
-- Flooring section labels (e.g., "Main Area", "Entry", "Hallway")
-- Material types (flooring materials, cabinet finishes, tile types)
-- Appliance names (Stove, Refrigerator, Dishwasher, etc.)
-- Wall names (currently A, B, C, D in kitchen)
-- Team member names (for assignment)
-- Transition locations (doorways, thresholds, stairs)
+**Completed:**
+- [x] Supabase schema: `dropdown_lists` and `dropdown_options` tables with RLS policies
+- [x] Admin UI at `/admin/dropdowns` for viewing/managing all dropdown categories
+- [x] DropdownSelect component with support for custom values ("Other" option)
+- [x] Dropdown utility functions with in-memory caching (5-min TTL)
+- [x] 8 default dropdown categories seeded: appliance_names, flooring_materials, cabinet_finishes, wall_labels, transition_locations, team_members, room_names, special_notes_categories
+- [x] Form integrations: Appliance names (Kitchen), Flooring materials (Flooring questions), Transition locations (Flooring measurements)
+- [x] Integration guide: DROPDOWNS_INTEGRATION_GUIDE.md for remaining work
+
+**Current Integrations:**
+- ✅ Kitchen appliances (WallSection.tsx) — dropdown + custom input
+- ✅ Flooring materials (FlooringQuestions.tsx) — dynamic list from dropdown
+- ✅ Transition locations (FlooringMeasurements.tsx) — dropdown + custom input
+
+**Remaining Integrations (Optional):**
+- Cabinet finishes (KitchenQuestions.tsx)
+- Wall labels (currently A, B, C, D)
+- Team member dropdown (requires architectural change from local Zustand to remote source)
+- Room names/labels
 - Special notes categories
-
-**Implementation Plan:**
-- [ ] Create data structure for "Dropdowns" or "Labels" in Supabase
-- [ ] Add admin UI to manage dropdown lists (/admin/dropdowns or within admin panel)
-- [ ] Update forms to fetch and display dropdown options instead of text inputs
-- [ ] Provide sensible defaults (e.g., standard room types, common materials)
-- [ ] Allow admins to add/edit/delete options per list
-
-**Acceptance Criteria:**
-- Admins can create/manage dropdown lists
-- Forms show dropdowns for applicable fields (instead of text input)
-- Users can still type custom values if needed (with "Other" option)
-- Dropdowns sync across team in real-time
-- Default lists are provided on setup
+- See DROPDOWNS_INTEGRATION_GUIDE.md for implementation details
 
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
