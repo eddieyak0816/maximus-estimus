@@ -303,12 +303,18 @@ export interface FlooringPart {
   width?: string;
 }
 
+export interface TransitionStrip {
+  id: string;
+  location?: string;
+  length?: string;
+  type?: string;
+}
+
 export interface FlooringRoom {
   id: string;
   label: string;
   parts: FlooringPart[];
-  shapeNotes?: string;
-  transitionNotes?: string;
+  transitions: TransitionStrip[];
 }
 
 export interface FlooringMeasurements {

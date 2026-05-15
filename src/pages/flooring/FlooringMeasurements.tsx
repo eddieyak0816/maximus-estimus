@@ -30,6 +30,10 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
   const rooms = data.rooms || [];
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set(rooms.map(r => r.id)));
   const [expandedParts, setExpandedParts] = useState<Set<string>>(new Set());
+  const [expandedTransitions, setExpandedTransitions] = useState<Set<string>>(new Set());
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+  const [editingPartId, setEditingPartId] = useState<string | null>(null);
+  const [editingTransitionId, setEditingTransitionId] = useState<string | null>(null);
 
   const updateRoom = (id: string, patch: Partial<FlooringRoom>) =>
     onUpdate({ ...data, rooms: rooms.map(r => r.id === id ? { ...r, ...patch } : r) });
@@ -65,6 +69,34 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
     onUpdate({ ...data, rooms: updated });
   };
 
+  const updateTransition = (roomId: string, transId: string, patch: any) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return {
+        ...r,
+        transitions: r.transitions.map(t => t.id === transId ? { ...t, ...patch } : t),
+      };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
+  const addTransition = (roomId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      const transitions = r.transitions || [];
+      return { ...r, transitions: [...transitions, { id: crypto.randomUUID() }] };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
+  const removeTransition = (roomId: string, transId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return { ...r, transitions: r.transitions.filter(t => t.id !== transId) };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
   const removeRoom = (id: string) =>
     onUpdate({ ...data, rooms: rooms.filter(r => r.id !== id) });
 
@@ -80,6 +112,13 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setExpandedParts(next);
+  };
+
+  const toggleTransitionExpanded = (id: string) => {
+    const next = new Set(expandedTransitions);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setExpandedTransitions(next);
   };
 
   const grandTotal = rooms.reduce((sum, r) => sum + calcRoomTotal(r), 0);
@@ -98,27 +137,52 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
         const isRoomExpanded = expandedRooms.has(room.id);
         return (
           <div key={room.id} className="flooring-room-card">
-            <div className="flooring-room-header" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="flooring-room-header" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleRoomExpanded(room.id)}>
               <button
                 className="btn btn-ghost btn-xs"
-                onClick={() => toggleRoomExpanded(room.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleRoomExpanded(room.id);
+                }}
                 style={{ padding: '4px 6px', minWidth: 'auto' }}
               >
                 {isRoomExpanded ? '▼' : '▶'}
               </button>
-              <input
-                className="input flooring-room-label"
-                placeholder={`Room ${idx + 1}`}
-                value={room.label}
-                onChange={e => updateRoom(room.id, { label: e.target.value })}
-                style={{ flex: 1 }}
-              />
+              {editingRoomId === room.id ? (
+                <input
+                  className="input input-sm"
+                  autoFocus
+                  value={room.label}
+                  onChange={e => updateRoom(room.id, { label: e.target.value })}
+                  onBlur={() => setEditingRoomId(null)}
+                  onKeyDown={e => e.key === 'Enter' && setEditingRoomId(null)}
+                  style={{ flex: 1 }}
+                />
+              ) : (
+                <>
+                  <span style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>{room.label || `Room ${idx + 1}`}</span>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingRoomId(room.id);
+                    }}
+                    style={{ padding: '4px 6px', minWidth: 'auto' }}
+                    title="Edit room name"
+                  >
+                    ✏️
+                  </button>
+                </>
+              )}
               {roomTotal > 0 && (
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', marginRight: 8 }}>
                   {roomTotal.toFixed(1)} sq ft
                 </span>
               )}
-              <button className="btn btn-ghost btn-sm" onClick={() => removeRoom(room.id)}>Remove</button>
+              <button className="btn btn-ghost btn-sm" onClick={(e) => {
+                e.stopPropagation();
+                removeRoom(room.id);
+              }}>Remove</button>
             </div>
 
             {isRoomExpanded && (
@@ -134,27 +198,52 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   const isPartExpanded = expandedParts.has(part.id);
                   return (
                     <div key={part.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isPartExpanded ? 8 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isPartExpanded ? 8 : 0, cursor: 'pointer' }} onClick={() => togglePartExpanded(part.id)}>
                         <button
                           className="btn btn-ghost btn-xs"
-                          onClick={() => togglePartExpanded(part.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePartExpanded(part.id);
+                          }}
                           style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
                         >
                           {isPartExpanded ? '▼' : '▶'}
                         </button>
-                        <input
-                          className="input input-sm"
-                          placeholder={`Section ${pIdx + 1}`}
-                          value={part.label || ''}
-                          onChange={e => updatePart(room.id, part.id, { label: e.target.value })}
-                          style={{ flex: 1 }}
-                        />
+                        {editingPartId === part.id ? (
+                          <input
+                            className="input input-sm"
+                            autoFocus
+                            value={part.label || ''}
+                            onChange={e => updatePart(room.id, part.id, { label: e.target.value })}
+                            onBlur={() => setEditingPartId(null)}
+                            onKeyDown={e => e.key === 'Enter' && setEditingPartId(null)}
+                            style={{ flex: 1 }}
+                          />
+                        ) : (
+                          <>
+                            <span style={{ flex: 1, fontSize: 13 }}>{part.label || `Section ${pIdx + 1}`}</span>
+                            <button
+                              className="btn btn-ghost btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPartId(part.id);
+                              }}
+                              style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
+                              title="Edit section name"
+                            >
+                              ✏️
+                            </button>
+                          </>
+                        )}
                         {partSqFt > 0 && (
                           <span style={{ fontSize: 11, fontWeight: 600, marginRight: 8 }}>
                             {partSqFt.toFixed(1)} sq ft
                           </span>
                         )}
-                        <button className="btn btn-ghost btn-xs" onClick={() => removePart(room.id, part.id)}>Remove</button>
+                        <button className="btn btn-ghost btn-xs" onClick={(e) => {
+                          e.stopPropagation();
+                          removePart(room.id, part.id);
+                        }}>Remove</button>
                       </div>
                       {isPartExpanded && (
                         <>
@@ -177,9 +266,80 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   </div>
                 )}
 
-                <div className="tiny-label" style={{ marginBottom: 4 }}>Transition Strip Locations</div>
-                <input className="input input-sm" placeholder="e.g. Doorway to hallway"
-                  value={room.transitionNotes || ''} onChange={e => updateRoom(room.id, { transitionNotes: e.target.value })} />
+                <div className="tiny-label" style={{ marginBottom: 4 }}>Transition Strips</div>
+                {(room.transitions || []).map((trans, tIdx) => {
+                  const isTransExpanded = expandedTransitions.has(trans.id);
+                  return (
+                    <div key={trans.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isTransExpanded ? 8 : 0, cursor: 'pointer' }} onClick={() => toggleTransitionExpanded(trans.id)}>
+                        <button
+                          className="btn btn-ghost btn-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTransitionExpanded(trans.id);
+                          }}
+                          style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
+                        >
+                          {isTransExpanded ? '▼' : '▶'}
+                        </button>
+                        {editingTransitionId === trans.id ? (
+                          <input
+                            className="input input-sm"
+                            autoFocus
+                            value={trans.location || ''}
+                            onChange={e => updateTransition(room.id, trans.id, { location: e.target.value })}
+                            onBlur={() => setEditingTransitionId(null)}
+                            onKeyDown={e => e.key === 'Enter' && setEditingTransitionId(null)}
+                            style={{ flex: 1 }}
+                          />
+                        ) : (
+                          <>
+                            <span style={{ flex: 1, fontSize: 13 }}>
+                              {trans.location ? `${trans.location}${trans.length ? ` (${trans.length})` : ''}` : `Transition ${tIdx + 1}`}
+                            </span>
+                            <button
+                              className="btn btn-ghost btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTransitionId(trans.id);
+                              }}
+                              style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
+                              title="Edit transition location"
+                            >
+                              ✏️
+                            </button>
+                          </>
+                        )}
+                        <button className="btn btn-ghost btn-xs" onClick={(e) => {
+                          e.stopPropagation();
+                          removeTransition(room.id, trans.id);
+                        }}>Remove</button>
+                      </div>
+                      {isTransExpanded && (
+                        <>
+                          <input
+                            className="input input-sm"
+                            placeholder="e.g. Doorway to hallway"
+                            value={trans.location || ''}
+                            onChange={e => updateTransition(room.id, trans.id, { location: e.target.value })}
+                            style={{ marginBottom: 8 }}
+                          />
+                          <MeasInput label="Length" value={trans.length} onChange={v => updateTransition(room.id, trans.id, { length: v })} />
+                          <input
+                            className="input input-sm"
+                            placeholder="e.g. Reducer, Z-bar, T-molding"
+                            value={trans.type || ''}
+                            onChange={e => updateTransition(room.id, trans.id, { type: e.target.value })}
+                          />
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <button className="btn btn-ghost btn-sm" style={{ marginBottom: 12 }} onClick={() => addTransition(room.id)}>
+                  + Add Transition Strip
+                </button>
               </>
             )}
           </div>

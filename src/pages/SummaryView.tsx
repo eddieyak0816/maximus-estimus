@@ -463,7 +463,20 @@ function FlooringMeasurementsSection({ m, assessmentId }: { m: FlooringMeasureme
                 )}
               </>
             )}
-            {room.transitionNotes && <Row label="Transition Notes" value={room.transitionNotes} />}
+            {(room.transitions || []).length > 0 && (
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 6 }}>Transition Strips</div>
+                {room.transitions.map((trans, tIdx) => (
+                  <div key={trans.id} style={{ marginBottom: 6, paddingLeft: 8, fontSize: 13 }}>
+                    <div style={{ color: 'var(--text-muted)' }}>
+                      {trans.location || `Transition ${tIdx + 1}`}
+                    </div>
+                    {trans.length && <Row label="Length" value={trans.length} />}
+                    {trans.type && <Row label="Type" value={trans.type} />}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
