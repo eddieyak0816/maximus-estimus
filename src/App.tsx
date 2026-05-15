@@ -35,9 +35,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function NewRedirect() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const createAssessment = useAssessmentStore(s => s.createAssessment);
   useEffect(() => {
-    const id = createAssessment();
+    const id = createAssessment(user?.id || '');
     navigate(`/assessment/${id}/client`, { replace: true });
   }, []);
   return null;

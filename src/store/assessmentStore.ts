@@ -74,13 +74,14 @@ export function emptyJobInstance(type: JobType, label: string): JobInstance {
   return base;
 }
 
-export function emptyAssessment(): Assessment {
+export function emptyAssessment(creatorId: string = ''): Assessment {
   const now = new Date().toISOString();
   return {
     id: uuidv4(),
     status: 'draft',
     createdAt: now,
     updatedAt: now,
+    creatorId,
     client: {
       firstName: '', lastName: '', address: '', phone: '', email: '',
       notes: '', teamMember: '', visitDate: new Date().toISOString().split('T')[0],
@@ -145,7 +146,7 @@ interface Store {
   teamMembers: string[];
   priceGuide: PriceCategory[];
   markupSettings: MarkupSettings;
-  createAssessment: () => string;
+  createAssessment: (userId?: string) => string;
   updateAssessment: (id: string, patch: Partial<Assessment>) => void;
   deleteAssessment: (id: string) => void;
   setStatus: (id: string, status: AssessmentStatus) => void;
@@ -176,8 +177,8 @@ export const useAssessmentStore = create<Store>((set, get) => ({
   priceGuide: stored.priceGuide,
   markupSettings: stored.markupSettings,
 
-  createAssessment: () => {
-    const a = emptyAssessment();
+  createAssessment: (userId = '') => {
+    const a = emptyAssessment(userId);
     set(s => {
       const next = [a, ...s.assessments];
       save(next, s.teamMembers, s.priceGuide, s.markupSettings);

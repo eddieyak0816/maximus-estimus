@@ -7,6 +7,32 @@
 
 ---
 
+## Pre-Test Setup (Completed)
+
+### Admin-Only Job Visibility ✅ IMPLEMENTED
+
+**What was done:**
+- Added `creatorId` field to Assessment type (tracks who created each job)
+- Modified store to capture user ID when creating new assessments
+- Updated Dashboard to filter:
+  - **Admins:** See all assessments
+  - **Regular users:** See only their own assessments
+- Updated Supabase sync to handle creatorId in both directions
+
+**Files modified:**
+- `src/types/index.ts` — Added creatorId field
+- `src/store/assessmentStore.ts` — Capture user ID on create
+- `src/App.tsx` — Pass user ID when creating assessment
+- `src/pages/Dashboard.tsx` — Filter based on admin status
+- `src/utils/supabaseSync.ts` — Sync creatorId to cloud
+
+**Why this matters:** 
+- Security & Privacy: Regular users only see their own work
+- Admins can monitor all team activity
+- Works locally (localhost) and on GitHub Pages deployment
+
+---
+
 ## Test Plan (Simple Version)
 
 We're testing three new job types: **Living Room**, **Bedroom**, **Deck**

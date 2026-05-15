@@ -578,6 +578,7 @@ export interface Assessment {
   status: AssessmentStatus;
   createdAt: string;
   updatedAt: string;
+  creatorId: string;
   client: ClientInfo;
   jobs: JobInstance[];
   costs: CostEstimate;

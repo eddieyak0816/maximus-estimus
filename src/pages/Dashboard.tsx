@@ -37,11 +37,16 @@ export default function Dashboard() {
     }
   }
 
+  // Filter assessments: admins see all, regular users see only their own
+  const visibleAssessments = user?.isAdmin
+    ? assessments
+    : assessments.filter(a => a.creatorId === user?.id);
+
   const counts = {
-    total: assessments.length,
-    draft: assessments.filter(a => a.status === 'draft').length,
-    inProgress: assessments.filter(a => a.status === 'in-progress').length,
-    complete: assessments.filter(a => a.status === 'complete').length,
+    total: visibleAssessments.length,
+    draft: visibleAssessments.filter(a => a.status === 'draft').length,
+    inProgress: visibleAssessments.filter(a => a.status === 'in-progress').length,
+    complete: visibleAssessments.filter(a => a.status === 'complete').length,
   };
 
   return (
@@ -81,7 +86,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {assessments.length === 0 ? (
+      {visibleAssessments.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
           <h2>No assessments yet</h2>
@@ -90,7 +95,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="assessment-list">
-          {assessments.map(a => {
+          {visibleAssessments.map(a => {
             const name = [a.client.firstName, a.client.lastName].filter(Boolean).join(' ') || 'Untitled';
             const href = `/assessment/${a.id}`;
 
