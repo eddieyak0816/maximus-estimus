@@ -157,8 +157,8 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   style={{ flex: 1 }}
                 />
               ) : (
-                <>
-                  <span style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>{room.label || `Room ${idx + 1}`}</span>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 15, fontWeight: 500 }}>{room.label || `Room ${idx + 1}`}</span>
                   <button
                     className="icon-btn"
                     onClick={(e) => {
@@ -169,7 +169,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                   </button>
-                </>
+                </div>
               )}
               {roomTotal > 0 && (
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', marginRight: 8 }}>
@@ -214,8 +214,8 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                             style={{ flex: 1 }}
                           />
                         ) : (
-                          <>
-                            <span style={{ flex: 1, fontSize: 13 }}>{part.label || `Section ${pIdx + 1}`}</span>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13 }}>{part.label || `Section ${pIdx + 1}`}</span>
                             <button
                               className="icon-btn"
                               onClick={(e) => {
@@ -227,7 +227,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                             >
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                             </button>
-                          </>
+                          </div>
                         )}
                         {partSqFt > 0 && (
                           <span style={{ fontSize: 11, fontWeight: 600, marginRight: 8 }}>
@@ -284,8 +284,8 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                             style={{ flex: 1 }}
                           />
                         ) : (
-                          <>
-                            <span style={{ flex: 1, fontSize: 13 }}>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13 }}>
                               {trans.location ? `${trans.location}${trans.length ? ` (${trans.length})` : ''}` : `Transition ${tIdx + 1}`}
                             </span>
                             <button
@@ -299,7 +299,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                             >
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                             </button>
-                          </>
+                          </div>
                         )}
                         <button className="btn btn-ghost btn-xs" onClick={(e) => {
                           e.stopPropagation();
