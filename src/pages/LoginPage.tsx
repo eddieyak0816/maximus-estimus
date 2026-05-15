@@ -26,6 +26,7 @@ export default function LoginPage() {
     if (pin.length < 4 || loading || showCreateUser) return;
 
     const timer = setTimeout(async () => {
+      setError('');
       try {
         setLoading(true);
         await signIn(pin);
