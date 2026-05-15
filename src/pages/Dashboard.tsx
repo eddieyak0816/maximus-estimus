@@ -1,7 +1,9 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDate } from '../utils/calculations';
+import { supabase } from '../lib/supabase';
 import type { JobType, AssessmentStatus } from '../types';
 
 const JOB_TYPE_COLORS: Record<JobType, string> = {
@@ -30,6 +32,23 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { assessments, deleteAssessment } = useAssessmentStore();
+  const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    async function loadCreators() {
+      const { data, error } = await supabase
+        .from('pin_users')
+        .select('id,first_name,last_name');
+      if (!error && data) {
+        const map: Record<string, string> = {};
+        data.forEach(u => {
+          map[u.id] = `${u.first_name} ${u.last_name}`.trim();
+        });
+        setCreatorMap(map);
+      }
+    }
+    loadCreators();
+  }, []);
 
   function handleDelete(id: string, name: string) {
     if (confirm(`Delete "${name || 'Untitled'}"? This cannot be undone.`)) {
@@ -123,6 +142,12 @@ export default function Dashboard() {
                       ))}
                     </div>
                     {a.jobs.length > 0 && <span className="meta-sep">·</span>}
+                    {a.creatorId && user?.isAdmin && (
+                      <>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 {creatorMap[a.creatorId] || 'Unknown'}</span>
+                        <span className="meta-sep">·</span>
+                      </>
+                    )}
                     <span>{formatDate(a.updatedAt)}</span>
                   </div>
                 </div>

@@ -478,6 +478,22 @@ npm run lint       # Run ESLint
 
 ## ⚠️ Known Issues & Quirks
 
+### ✅ Data Sync: 403 Forbidden Live Site Bug (FIXED — May 15, 2026)
+**Issue:** Live site couldn't pull data from Supabase (403 Forbidden errors).
+
+**Root Cause:** Missing PostgreSQL table-level permissions. RLS policies were set up, but the `authenticated` and `anon` roles didn't have `SELECT` permission on the tables.
+
+**Fix:** Ran GRANT statements in Supabase:
+```sql
+GRANT SELECT ON public.assessments TO authenticated;
+GRANT SELECT ON public.team_members TO authenticated;
+-- ... etc for all data tables
+```
+
+**How to prevent:** When adding new Supabase tables, always run GRANT statements after setting up RLS.
+
+**Reference:** See **SUPABASE_RLS_PERMISSIONS_FIX.md** for complete diagnostic guide.
+
 ### ✅ PIN Auto-Login UX Bug (FIXED — May 15, 2026)
 **Issue:** "PIN Not Found" error message was flashing while typing a PIN.
 

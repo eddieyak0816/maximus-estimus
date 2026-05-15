@@ -12,7 +12,9 @@
       "Bash(taskkill /PID 36768 /F)",
       "PowerShell(Stop-Process -Id 36768 -Force)",
       "Bash(Get-ChildItem \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\\\\src\\\\pages\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(findstr \":5174\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)"
     ]
   }
 }
