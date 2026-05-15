@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import { useAuth } from '../contexts/AuthContext';
 import { formatDate } from '../utils/calculations';
 import type { JobType, AssessmentStatus } from '../types';
 
@@ -27,6 +28,7 @@ const STATUS_LABELS: Record<AssessmentStatus, string> = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { assessments, deleteAssessment } = useAssessmentStore();
 
   function handleDelete(id: string, name: string) {
@@ -48,6 +50,7 @@ export default function Dashboard() {
         <div>
           <h1 className="page-title">Field Assessments</h1>
           <p className="page-subtitle">Maximus Construction NJ LLC</p>
+          {user && <p className="page-subtitle" style={{ fontSize: '0.875rem', marginTop: '4px', opacity: 0.8 }}>👤 {user.firstName} {user.lastName}</p>}
         </div>
         <button className="btn btn-primary" onClick={() => navigate('/new')}>+ New</button>
       </div>
