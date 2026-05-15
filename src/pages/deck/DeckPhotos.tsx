@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
+import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { DeckPhotos as DP } from '../../types';
+import type { DeckPhotos as DP, CustomPhoto } from '../../types';
 
 interface Props {
   data: DP;
@@ -132,6 +133,13 @@ export default function DeckPhotos({ data, assessmentId, jobId, onUpdate }: Prop
           />
         )}
       </div>
+
+      <CustomPhotosSection
+        photos={data.customPhotos || []}
+        assessmentId={assessmentId}
+        jobId={jobId}
+        onUpdate={(customPhotos) => u('customPhotos', customPhotos)}
+      />
 
       {activePhotoKey && (
         <CameraModal

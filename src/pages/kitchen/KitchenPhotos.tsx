@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
+import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { KitchenPhotos as KP, KitchenMeasurements as KM } from '../../types';
+import type { KitchenPhotos as KP, KitchenMeasurements as KM, CustomPhoto } from '../../types';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 
@@ -200,6 +201,13 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
           />
         )}
       </div>
+
+      <CustomPhotosSection
+        photos={data.customPhotos || []}
+        assessmentId={assessmentId}
+        jobId={jobId}
+        onUpdate={(customPhotos) => u('customPhotos', customPhotos)}
+      />
 
       {activePhotoKey && (
         <CameraModal

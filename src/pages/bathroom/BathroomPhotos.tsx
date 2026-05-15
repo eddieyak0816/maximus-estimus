@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
+import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { BathroomPhotos as BP } from '../../types';
+import type { BathroomPhotos as BP, BathroomMeasurements, CustomPhoto } from '../../types';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
-
-import type { BathroomMeasurements } from '../../types';
 
 interface Props {
   data: BP;
@@ -171,6 +170,13 @@ export default function BathroomPhotos({ data, measurements, assessmentId, jobId
             value={data.catchAllNotes || ''} onChange={e => u('catchAllNotes', e.target.value)} />
         )}
       </div>
+
+      <CustomPhotosSection
+        photos={data.customPhotos || []}
+        assessmentId={assessmentId}
+        jobId={jobId}
+        onUpdate={(customPhotos) => u('customPhotos', customPhotos)}
+      />
 
       {activePhotoKey && (
         <CameraModal

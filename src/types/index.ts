@@ -170,6 +170,12 @@ export interface KitchenQuestions {
   specialNotes?: string;
 }
 
+export interface CustomPhoto {
+  id: string;
+  label: string;
+  photoId: string;
+}
+
 export interface KitchenPhotos {
   roomEntrance?: string;
   roomCorner?: string;
@@ -185,6 +191,7 @@ export interface KitchenPhotos {
   electricalPanel?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface KitchenAssessment {
@@ -287,6 +294,7 @@ export interface BathroomPhotos {
   problemAreas?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface BathroomAssessment {
@@ -342,6 +350,7 @@ export interface FlooringPhotos {
   stairs?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface FlooringAssessment {
@@ -381,6 +390,7 @@ export interface LivingRoomPhotos {
   problemAreas?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface LivingRoomAssessment {
@@ -421,6 +431,7 @@ export interface BedroomPhotos {
   problemAreas?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface BedroomAssessment {
@@ -462,6 +473,7 @@ export interface DeckPhotos {
   problemAreas?: string;
   catchAll?: string;
   catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
 }
 
 export interface DeckAssessment {

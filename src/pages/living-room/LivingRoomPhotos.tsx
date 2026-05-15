@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
+import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { LivingRoomPhotos as LP } from '../../types';
+import type { LivingRoomPhotos as LP, CustomPhoto } from '../../types';
 
 interface Props {
   data: LP;
@@ -132,6 +133,13 @@ export default function LivingRoomPhotos({ data, assessmentId, jobId, onUpdate }
           />
         )}
       </div>
+
+      <CustomPhotosSection
+        photos={data.customPhotos || []}
+        assessmentId={assessmentId}
+        jobId={jobId}
+        onUpdate={(customPhotos) => u('customPhotos', customPhotos)}
+      />
 
       {activePhotoKey && (
         <CameraModal

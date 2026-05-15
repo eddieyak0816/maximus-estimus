@@ -731,6 +731,32 @@ input, select, textarea { font-family: var(--font); }
   .summary-total-hero { background: #f5f5f5; border: 1px solid #ccc; }
 }
 
+/* ===== Custom Photos Section ===== */
+.custom-photos-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.custom-photos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.custom-photo-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-top: 12px;
+}
+
+.custom-photo-form .input {
+  width: 100%;
+}
+
 /* ===== Font Size Control ===== */
 .font-size-control {
   display: flex;

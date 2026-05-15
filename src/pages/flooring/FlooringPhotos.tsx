@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
+import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { FlooringPhotos as FP, FlooringMeasurements, FlooringRoom } from '../../types';
+import type { FlooringPhotos as FP, FlooringMeasurements, FlooringRoom, CustomPhoto } from '../../types';
 
 interface Props {
   data: FP;
@@ -153,6 +154,13 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
             value={data.catchAllNotes || ''} onChange={e => u('catchAllNotes', e.target.value)} />
         )}
       </div>
+
+      <CustomPhotosSection
+        photos={data.customPhotos || []}
+        assessmentId={assessmentId}
+        jobId={jobId}
+        onUpdate={(customPhotos) => u('customPhotos', customPhotos)}
+      />
 
       {activePhotoKey && (
         <CameraModal
