@@ -1,7 +1,10 @@
-// IndexedDB photo storage for real camera captures
+import { supabase } from '../lib/supabase';
+
+// IndexedDB photo storage for real camera captures (offline cache)
 const DB_NAME = 'maximus-estimus-photos';
 const DB_VERSION = 1;
 const STORE_NAME = 'photos';
+const BUCKET_NAME = 'assessment-photos';
 
 interface PhotoMetadata {
   id: string;
@@ -44,8 +47,10 @@ export async function savePhoto(
   blob: Blob,
 ): Promise<string> {
   const database = await openDB();
-  const photoId = `${jobId}-${photoKey}-${Date.now()}`;
+  const timestamp = Date.now();
+  const photoId = `${assessmentId}/${jobId}/${photoKey}-${timestamp}`;
 
+  // Save to IndexedDB immediately (offline cache)
   return new Promise((resolve, reject) => {
     const tx = database.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
@@ -55,14 +60,25 @@ export async function savePhoto(
       assessmentId,
       jobId,
       photoKey,
-      timestamp: Date.now(),
+      timestamp,
       blob,
     };
 
     const req = store.put(metadata);
     req.onerror = () => reject(req.error);
-    req.onsuccess = () => resolve(photoId);
+    req.onsuccess = () => {
+      // Upload to Supabase Storage in background
+      uploadPhotoToSupabase(photoId, blob).catch(console.error);
+      resolve(photoId);
+    };
   });
+}
+
+async function uploadPhotoToSupabase(path: string, blob: Blob): Promise<void> {
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(path, blob, { upsert: true });
+  if (error) console.error('Failed to upload photo to Supabase:', error);
 }
 
 export async function getPhoto(photoId: string): Promise<Blob | null> {
@@ -74,24 +90,68 @@ export async function getPhoto(photoId: string): Promise<Blob | null> {
     const req = store.get(photoId);
 
     req.onerror = () => reject(req.error);
-    req.onsuccess = () => {
+    req.onsuccess = async () => {
       const metadata = req.result as PhotoMetadata | undefined;
-      resolve(metadata?.blob || null);
+      if (metadata?.blob) {
+        resolve(metadata.blob);
+      } else {
+        // Try to download from Supabase Storage
+        const blob = await downloadPhotoFromSupabase(photoId);
+        resolve(blob);
+      }
     };
   });
 }
 
-export async function deletePhoto(photoId: string): Promise<void> {
-  const database = await openDB();
+async function downloadPhotoFromSupabase(path: string): Promise<Blob | null> {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .download(path);
+  if (error) {
+    console.error('Failed to download photo from Supabase:', error);
+    return null;
+  }
+  // Cache in IndexedDB for offline access next time
+  if (data) {
+    try {
+      const database = await openDB();
+      return new Promise((resolve) => {
+        const tx = database.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const metadata: PhotoMetadata = {
+          id: path,
+          assessmentId: path.split('/')[0],
+          jobId: path.split('/')[1],
+          photoKey: path.split('/')[2],
+          timestamp: Date.now(),
+          blob: data,
+        };
+        store.put(metadata);
+        resolve(data);
+      });
+    } catch {
+      return data;
+    }
+  }
+  return null;
+}
 
-  return new Promise((resolve, reject) => {
+export async function deletePhoto(photoId: string): Promise<void> {
+  // Delete from IndexedDB
+  const database = await openDB();
+  await new Promise<void>((resolve, reject) => {
     const tx = database.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     const req = store.delete(photoId);
-
     req.onerror = () => reject(req.error);
     req.onsuccess = () => resolve();
   });
+
+  // Delete from Supabase Storage
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .remove([photoId]);
+  if (error) console.error('Failed to delete photo from Supabase:', error);
 }
 
 export async function deleteAssessmentPhotos(assessmentId: string): Promise<void> {
@@ -103,13 +163,23 @@ export async function deleteAssessmentPhotos(assessmentId: string): Promise<void
     const idx = store.index('assessmentId');
     const req = idx.openCursor(IDBKeyRange.only(assessmentId));
 
+    const photoIds: string[] = [];
+
     req.onerror = () => reject(req.error);
-    req.onsuccess = (e) => {
+    req.onsuccess = async (e) => {
       const cursor = (e.target as IDBRequest).result;
       if (cursor) {
+        photoIds.push(cursor.value.id);
         cursor.delete();
         cursor.continue();
       } else {
+        // Delete all from Supabase Storage in background
+        if (photoIds.length > 0) {
+          const { error } = await supabase.storage
+            .from(BUCKET_NAME)
+            .remove(photoIds);
+          if (error) console.error('Failed to delete assessment photos from Supabase:', error);
+        }
         resolve();
       }
     };
@@ -117,7 +187,13 @@ export async function deleteAssessmentPhotos(assessmentId: string): Promise<void
 }
 
 export async function getPhotoUrl(photoId: string): Promise<string | null> {
+  // Check IndexedDB first
   const blob = await getPhoto(photoId);
-  if (!blob) return null;
-  return URL.createObjectURL(blob);
+  if (blob) return URL.createObjectURL(blob);
+
+  // Fall back to Supabase Storage public URL
+  const { data } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(photoId);
+  return data?.publicUrl || null;
 }

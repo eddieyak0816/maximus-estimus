@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAssessmentStore } from '../store/assessmentStore';
+import { useAuth } from '../contexts/AuthContext';
 
 function Logo() {
   const [err, setErr] = useState(false);
@@ -26,6 +28,18 @@ function Logo() {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const syncFromCloud = useAssessmentStore(s => s.syncFromCloud);
+  const { signOut } = useAuth();
+
+  useEffect(() => {
+    syncFromCloud();
+  }, [syncFromCloud]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   return (
     <div className="app-shell">
@@ -39,6 +53,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/gallery" className={pathname === '/gallery' ? 'nav-link active' : 'nav-link'}>Gallery</Link>
           <Link to="/price-guide" className={pathname === '/price-guide' ? 'nav-link active' : 'nav-link'}>Price Guide</Link>
           <Link to="/new" className="btn btn-primary btn-sm">+ New Assessment</Link>
+          <button
+            onClick={handleSignOut}
+            className="nav-link"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+          >
+            Sign Out
+          </button>
         </nav>
       </header>
       <main className="app-main">{children}</main>

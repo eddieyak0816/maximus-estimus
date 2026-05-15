@@ -9,7 +9,27 @@ import GalleryPage from './pages/GalleryPage';
 import PriceGuidePage from './pages/PriceGuidePage';
 import EstimatePage from './pages/EstimatePage';
 import SummaryView from './pages/SummaryView';
+import LoginPage from './pages/LoginPage';
 import { useAssessmentStore } from './store/assessmentStore';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--text-primary)' }}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 function NewRedirect() {
   const navigate = useNavigate();
@@ -21,24 +41,103 @@ function NewRedirect() {
   return null;
 }
 
+function AppRoutes() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/new"
+          element={
+            <ProtectedRoute>
+              <NewRedirect />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id/client"
+          element={
+            <ProtectedRoute>
+              <CustomerInfoPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id/type"
+          element={
+            <ProtectedRoute>
+              <JobTypePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id/estimate"
+          element={
+            <ProtectedRoute>
+              <EstimatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id/summary"
+          element={
+            <ProtectedRoute>
+              <SummaryView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id"
+          element={
+            <ProtectedRoute>
+              <AssessmentDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assessment/:id/:tab"
+          element={
+            <ProtectedRoute>
+              <AssessmentDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gallery"
+          element={
+            <ProtectedRoute>
+              <GalleryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/price-guide"
+          element={
+            <ProtectedRoute>
+              <PriceGuidePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter basename="/maximus-estimus/">
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/new" element={<NewRedirect />} />
-          <Route path="/assessment/:id/client" element={<CustomerInfoPage />} />
-          <Route path="/assessment/:id/type" element={<JobTypePage />} />
-          <Route path="/assessment/:id/estimate" element={<EstimatePage />} />
-          <Route path="/assessment/:id/summary" element={<SummaryView />} />
-          <Route path="/assessment/:id" element={<AssessmentDetail />} />
-          <Route path="/assessment/:id/:tab" element={<AssessmentDetail />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/price-guide" element={<PriceGuidePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
