@@ -68,6 +68,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (loading) return;
     if (pin.length < 4) {
       setError('Enter at least 4 digits');
       return;
@@ -156,7 +157,7 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <button className="btn btn-primary btn-full pin-submit" disabled={loading || pin.length < 4}>
+        <button className="btn btn-primary btn-full pin-submit" disabled={pin.length < 4}>
           Unlock
         </button>
 
