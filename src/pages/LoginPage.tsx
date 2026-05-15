@@ -24,20 +24,20 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pin.length < 4 || loading || showCreateUser) return;
+    if (pin.length < 4 || showCreateUser) return;
 
     const timer = setTimeout(async () => {
       const autoCheckPin = pin;
       currentAutoCheckPinRef.current = autoCheckPin;
       setError('');
+      setLoading(true);
 
       try {
-        setLoading(true);
         await signIn(autoCheckPin);
         if (currentAutoCheckPinRef.current === autoCheckPin) {
           navigate('/');
         }
-      } catch (err) {
+      } finally {
         if (currentAutoCheckPinRef.current === autoCheckPin) {
           setLoading(false);
         }
@@ -45,7 +45,7 @@ export default function LoginPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [pin, loading, showCreateUser, signIn, navigate]);
+  }, [pin, showCreateUser, signIn, navigate]);
 
   const appendDigit = (digit: string) => {
     setError('');
