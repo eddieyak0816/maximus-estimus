@@ -157,7 +157,7 @@ export default function LoginPage() {
         </div>
 
         <button className="btn btn-primary btn-full pin-submit" disabled={loading || pin.length < 4}>
-          {loading ? 'Working...' : 'Unlock'}
+          Unlock
         </button>
 
         <button
