@@ -412,8 +412,8 @@
 
   <div class="item" id="item-new-4">
     <div class="item-top">
-      <div class="item-label">Job Type — all 4 types display with icon and description
-        <div class="item-sub">Kitchen 🍳, Bathroom 🚿, Flooring 🪵, Other 🔧</div>
+      <div class="item-label">Job Type — all 7 types display with icon and description
+        <div class="item-sub">Kitchen 🍳, Bathroom 🚿, Flooring 🪵, Living Room 🛋️, Bedroom 🛏️, Deck 🏗️, Other 🔧</div>
       </div>
       <div class="item-btns">
         <button class="btn btn-pass" onclick="setStatus('new-4','pass')">✓ Pass</button>
@@ -1315,6 +1315,220 @@
     </div>
     <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
     <div class="item-notes" id="notes-multi-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('multi-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="section-title">14 — Living Room Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-lr-1">
+    <div class="item-top">
+      <div class="item-label">Create a Living Room job — Measurements tab shows: ceiling height, window/door/outlet counts, flooring type, lighting notes</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('lr-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('lr-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('lr-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-lr-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('lr-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-lr-2">
+    <div class="item-top">
+      <div class="item-label">Living Room Questions tab displays all scope/timeline/flooring/lighting/referral questions and saves correctly</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('lr-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('lr-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('lr-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-lr-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('lr-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-lr-3">
+    <div class="item-top">
+      <div class="item-label">Living Room Photos tab — capture room overview, corner, flooring, lighting, problem areas, catch-all; progress bar works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('lr-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('lr-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('lr-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-lr-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('lr-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-lr-4">
+    <div class="item-top">
+      <div class="item-label">Living Room data syncs to Supabase — check Supabase dashboard and verify data appears</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('lr-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('lr-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('lr-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-lr-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('lr-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-lr-5">
+    <div class="item-top">
+      <div class="item-label">Summary view displays Living Room data correctly — all measurements, questions, and photos appear</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('lr-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('lr-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('lr-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-lr-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('lr-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="section-title">15 — Bedroom Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-br-1">
+    <div class="item-top">
+      <div class="item-label">Create a Bedroom job — Measurements tab shows: ceiling height, closet count/notes, window/door/outlet counts, flooring type</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('br-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('br-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('br-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-br-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('br-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-br-2">
+    <div class="item-top">
+      <div class="item-label">Bedroom Questions tab displays scope/timeline/flooring/closet/referral questions and saves correctly</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('br-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('br-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('br-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-br-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('br-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-br-3">
+    <div class="item-top">
+      <div class="item-label">Bedroom Photos tab — capture room overview, corner, closets, flooring, problem areas, catch-all; progress bar works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('br-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('br-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('br-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-br-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('br-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-br-4">
+    <div class="item-top">
+      <div class="item-label">Bedroom data syncs to Supabase — check Supabase dashboard and verify data appears</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('br-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('br-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('br-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-br-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('br-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-br-5">
+    <div class="item-top">
+      <div class="item-label">Summary view displays Bedroom data correctly — all measurements, questions, and photos appear</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('br-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('br-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('br-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-br-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('br-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="section-title">16 — Deck Assessment <span class="section-new-badge">New</span></div>
+
+  <div class="item" id="item-dk-1">
+    <div class="item-top">
+      <div class="item-label">Create a Deck job — Measurements tab shows: length, width, height, calculated sq ft, existing condition, railing, access notes</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-1','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-1','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-1','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-1"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-1',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dk-2">
+    <div class="item-top">
+      <div class="item-label">Deck Questions tab displays scope/timeline/existing/railing/referral questions and saves correctly</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-2','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-2','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-2','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-2"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-2',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dk-3">
+    <div class="item-top">
+      <div class="item-label">Deck Photos tab — capture overall view, deck surface, railing, access/stairs, problem areas, catch-all; progress bar works</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-3','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-3','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-3','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-3"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-3',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dk-4">
+    <div class="item-top">
+      <div class="item-label">Deck data syncs to Supabase — check Supabase dashboard and verify data appears</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-4','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-4','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-4','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-4"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-4',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dk-5">
+    <div class="item-top">
+      <div class="item-label">Summary view displays Deck data correctly — all measurements, questions, and photos appear</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-5','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-5','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-5','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-5"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-5',this.value)"></textarea></div>
+  </div>
+
+  <div class="item" id="item-dk-6">
+    <div class="item-top">
+      <div class="item-label">Kitchen + Living Room + Bedroom + Deck multi-job assessment — all job types work together with independent data</div>
+      <div class="item-btns">
+        <button class="btn btn-pass" onclick="setStatus('dk-6','pass')">✓ Pass</button>
+        <button class="btn btn-fail" onclick="setStatus('dk-6','fail')">✗ Fail</button>
+        <button class="btn btn-skip" onclick="setStatus('dk-6','skip')">— Skip</button>
+      </div>
+    </div>
+    <button class="notes-toggle-btn" onclick="toggleNotes(this)">✏️ Add Note</button>
+    <div class="item-notes" id="notes-dk-6"><textarea placeholder="Describe what you saw or want changed…" oninput="saveNote('dk-6',this.value)"></textarea></div>
   </div>
 </div>
 
