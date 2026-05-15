@@ -94,6 +94,33 @@
   - When creating new assessment, creator is automatically recorded
   - Assessments show which user created them (for admin view)
 
+#### 🔲 Configurable Dropdown Lists (Data Management)
+**Goal:** Allow admins to create and manage dropdown options for labels throughout the app instead of free-text inputs.
+
+**Scope to Review:**
+- Room names (Kitchen, Master Bath, etc.)
+- Flooring section labels (e.g., "Main Area", "Entry", "Hallway")
+- Material types (flooring materials, cabinet finishes, tile types)
+- Appliance names (Stove, Refrigerator, Dishwasher, etc.)
+- Wall names (currently A, B, C, D in kitchen)
+- Team member names (for assignment)
+- Transition locations (doorways, thresholds, stairs)
+- Special notes categories
+
+**Implementation Plan:**
+- [ ] Create data structure for "Dropdowns" or "Labels" in Supabase
+- [ ] Add admin UI to manage dropdown lists (/admin/dropdowns or within admin panel)
+- [ ] Update forms to fetch and display dropdown options instead of text inputs
+- [ ] Provide sensible defaults (e.g., standard room types, common materials)
+- [ ] Allow admins to add/edit/delete options per list
+
+**Acceptance Criteria:**
+- Admins can create/manage dropdown lists
+- Forms show dropdowns for applicable fields (instead of text input)
+- Users can still type custom values if needed (with "Other" option)
+- Dropdowns sync across team in real-time
+- Default lists are provided on setup
+
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
 
