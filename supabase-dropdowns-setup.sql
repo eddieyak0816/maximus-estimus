@@ -36,7 +36,7 @@ create policy "Allow admin insert dropdown_lists"
   with check (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 
@@ -45,7 +45,7 @@ create policy "Allow admin update dropdown_lists"
   using (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 
@@ -54,7 +54,7 @@ create policy "Allow admin delete dropdown_lists"
   using (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 
@@ -69,7 +69,7 @@ create policy "Allow admin insert dropdown_options"
   with check (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 
@@ -78,7 +78,7 @@ create policy "Allow admin update dropdown_options"
   using (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 
@@ -87,7 +87,7 @@ create policy "Allow admin delete dropdown_options"
   using (
     exists (
       select 1 from public.pin_users
-      where id = current_user_id() and is_admin = true
+      where id = auth.uid() and is_admin = true
     )
   );
 

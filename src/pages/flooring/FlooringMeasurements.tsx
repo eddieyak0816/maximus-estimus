@@ -148,15 +148,25 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                 }}
               />
               {editingRoomId === room.id ? (
-                <input
-                  className="input input-sm"
-                  autoFocus
-                  value={room.label}
-                  onChange={e => updateRoom(room.id, { label: e.target.value })}
-                  onBlur={() => setEditingRoomId(null)}
-                  onKeyDown={e => e.key === 'Enter' && setEditingRoomId(null)}
-                  style={{ flex: 1 }}
-                />
+                <div style={{ flex: 1, display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    className="input input-sm"
+                    autoFocus
+                    value={room.label}
+                    onChange={e => updateRoom(room.id, { label: e.target.value })}
+                    onKeyDown={e => e.key === 'Enter' && setEditingRoomId(null)}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn btn-primary btn-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingRoomId(null);
+                    }}
+                  >
+                    OK
+                  </button>
+                </div>
               ) : (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 15, fontWeight: 500 }}>{room.label || `Room ${idx + 1}`}</span>
@@ -205,15 +215,25 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                           }}
                         />
                         {editingPartId === part.id ? (
-                          <input
-                            className="input input-sm"
-                            autoFocus
-                            value={part.label || ''}
-                            onChange={e => updatePart(room.id, part.id, { label: e.target.value })}
-                            onBlur={() => setEditingPartId(null)}
-                            onKeyDown={e => e.key === 'Enter' && setEditingPartId(null)}
-                            style={{ flex: 1 }}
-                          />
+                          <div style={{ flex: 1, display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <input
+                              className="input input-sm"
+                              autoFocus
+                              value={part.label || ''}
+                              onChange={e => updatePart(room.id, part.id, { label: e.target.value })}
+                              onKeyDown={e => e.key === 'Enter' && setEditingPartId(null)}
+                              style={{ flex: 1 }}
+                            />
+                            <button
+                              className="btn btn-primary btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPartId(null);
+                              }}
+                            >
+                              OK
+                            </button>
+                          </div>
                         ) : (
                           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 13 }}>{part.label || `Section ${pIdx + 1}`}</span>
@@ -275,15 +295,25 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                           }}
                         />
                         {editingTransitionId === trans.id ? (
-                          <input
-                            className="input input-sm"
-                            autoFocus
-                            value={trans.location || ''}
-                            onChange={e => updateTransition(room.id, trans.id, { location: e.target.value })}
-                            onBlur={() => setEditingTransitionId(null)}
-                            onKeyDown={e => e.key === 'Enter' && setEditingTransitionId(null)}
-                            style={{ flex: 1 }}
-                          />
+                          <div style={{ flex: 1, display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <input
+                              className="input input-sm"
+                              autoFocus
+                              value={trans.location || ''}
+                              onChange={e => updateTransition(room.id, trans.id, { location: e.target.value })}
+                              onKeyDown={e => e.key === 'Enter' && setEditingTransitionId(null)}
+                              style={{ flex: 1 }}
+                            />
+                            <button
+                              className="btn btn-primary btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTransitionId(null);
+                              }}
+                            >
+                              OK
+                            </button>
+                          </div>
                         ) : (
                           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 13 }}>

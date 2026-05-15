@@ -74,6 +74,11 @@ export default function DropdownSelect({
 
   const isCustomValue = value && !options.some(opt => opt.value === value);
 
+  // Sort options alphabetically by label
+  const sortedOptions = [...options].sort((a, b) =>
+    a.label.localeCompare(b.label)
+  );
+
   return (
     <div className={`dropdown-select-wrapper ${className}`}>
       {label && <label>{label}</label>}
@@ -84,7 +89,7 @@ export default function DropdownSelect({
         className="dropdown-select"
       >
         <option value="">{placeholder}</option>
-        {options.map(opt => (
+        {sortedOptions.map(opt => (
           <option key={opt.id} value={opt.value}>
             {opt.label}
           </option>

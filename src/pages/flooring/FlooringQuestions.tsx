@@ -53,6 +53,8 @@ export default function FlooringQuestions({ data, onUpdate }: Props) {
       ) : (
         <p style={{ fontSize: 'var(--font-size-sm)', color: '#999' }}>No materials configured yet. Use admin panel to add options.</p>
       )}
+      <input className="input" placeholder="Other material (not saved to list)" style={{ marginTop: 8 }}
+        value={data.customMaterial || ''} onChange={e => u('customMaterial', e.target.value)} />
 
       <SecHead title="2 — Remove Existing Flooring?" />
       <div className="q-card">

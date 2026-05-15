@@ -98,15 +98,23 @@ export async function addDropdownOption(
     if (listError) throw listError;
     if (!list) throw new Error(`Dropdown list "${listName}" not found`);
 
-    // Get max display_order
-    const { data: maxOrder } = await supabase
+    // Get all existing options to determine alphabetical position
+    const { data: allOptions } = await supabase
       .from('dropdown_options')
-      .select('display_order')
+      .select('id, label, display_order')
       .eq('list_id', list.id)
-      .order('display_order', { ascending: false })
-      .limit(1);
+      .order('display_order', { ascending: true });
 
-    const nextOrder = (maxOrder?.[0]?.display_order ?? -1) + 1;
+    // Find position for alphabetical insertion
+    let newOrder = (allOptions?.length ?? 0);
+    if (allOptions && allOptions.length > 0) {
+      for (let i = 0; i < allOptions.length; i++) {
+        if (label.localeCompare(allOptions[i].label) < 0) {
+          newOrder = i;
+          break;
+        }
+      }
+    }
 
     // Insert new option
     const { error } = await supabase
@@ -115,10 +123,29 @@ export async function addDropdownOption(
         list_id: list.id,
         value,
         label,
-        display_order: nextOrder,
+        display_order: newOrder,
       });
 
     if (error) throw error;
+
+    // Re-sort all options to maintain alphabetical order
+    if (allOptions && allOptions.length > 0) {
+      const { data: updated } = await supabase
+        .from('dropdown_options')
+        .select('id, label')
+        .eq('list_id', list.id)
+        .order('label', { ascending: true });
+
+      if (updated) {
+        for (let i = 0; i < updated.length; i++) {
+          await supabase
+            .from('dropdown_options')
+            .update({ display_order: i })
+            .eq('id', updated[i].id);
+        }
+      }
+    }
+
     clearDropdownsCache();
   } catch (err) {
     console.error(`Error adding dropdown option to "${listName}":`, err);

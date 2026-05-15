@@ -82,8 +82,9 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
       )}
 
       <SecHead title="2 — Reason for Renovating" />
+      <p className="assess-hint">Select all that apply</p>
       {['Outdated','Damaged','Full remodel','Preparing to sell','Other'].map(opt =>
-        <CheckOpt key={opt} label={opt} selected={isSel('reason', opt)} onToggle={() => toggle('reason', opt)} round />
+        <CheckOpt key={opt} label={opt} selected={isSel('reason', opt)} onToggle={() => toggle('reason', opt)} />
       )}
       {isSel('reason', 'Other') && (
         <textarea className="textarea" rows={2} placeholder="Describe reason…"

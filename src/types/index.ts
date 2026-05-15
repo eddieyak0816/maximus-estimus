@@ -331,6 +331,7 @@ export interface FlooringMeasurements {
 
 export interface FlooringQuestions {
   material?: string[];
+  customMaterial?: string;
   removeExisting?: boolean;
   subfloorRepairs?: string;
   underlayment?: boolean;

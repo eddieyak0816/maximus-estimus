@@ -235,11 +235,14 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
         </div>
         <div className="wall-meta" style={{ flex: 1 }}>
           {renaming
-            ? <input autoFocus className="input wall-rename-input" value={data.name || ''} placeholder="e.g. Stove Wall…"
-                onChange={e => u('name', e.target.value)}
-                onBlur={() => setRenaming(false)}
-                onKeyDown={e => e.key === 'Enter' && setRenaming(false)}
-                onClick={e => e.stopPropagation()} />
+            ? <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input autoFocus className="input wall-rename-input" value={data.name || ''} placeholder="e.g. Stove Wall…"
+                  onChange={e => u('name', e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && setRenaming(false)}
+                  onClick={e => e.stopPropagation()}
+                  style={{ flex: 1 }} />
+                <button className="btn btn-primary btn-sm" onClick={e => { e.stopPropagation(); setRenaming(false); }}>OK</button>
+              </div>
             : <div className="wall-name-row">
                 <span className="wall-name">{displayName}</span>
                 <button className="icon-btn" title="Rename"

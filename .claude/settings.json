@@ -6,7 +6,11 @@
       "Bash(cat /tmp/dev.log 2>&1 || echo \"Log file not found yet\")",
       "Read(//tmp/**)",
       "Bash(grep -v \"//\")",
-      "Bash(curl -s http://localhost:5177/maximus-estimus/)"
+      "Bash(curl -s http://localhost:5177/maximus-estimus/)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :5174)",
+      "Bash(taskkill /PID 36768 /F)",
+      "PowerShell(Stop-Process -Id 36768 -Force)"
     ]
   }
 }
