@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { fetchDropdownList } from '../utils/dropdownManager';
 import type { DropdownOption } from '../utils/dropdownManager';
 
@@ -10,9 +10,11 @@ interface Props {
   placeholder?: string;
   allowCustom?: boolean;
   className?: string;
+  hideCustomButton?: boolean;
+  onConfirm?: () => void;
 }
 
-export default function DropdownSelect({
+export default forwardRef(function DropdownSelect({
   listName,
   value,
   onChange,
@@ -20,12 +22,24 @@ export default function DropdownSelect({
   placeholder = 'Select...',
   allowCustom = true,
   className = '',
-}: Props) {
+  hideCustomButton = false,
+  onConfirm,
+}: Props, ref) {
   const [options, setOptions] = useState<DropdownOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customValue, setCustomValue] = useState('');
+
+  useImperativeHandle(ref, () => ({
+    confirmCustom: () => {
+      if (customValue.trim()) {
+        onChange(customValue.trim());
+        setShowCustomInput(false);
+        setCustomValue('');
+      }
+    },
+  }));
 
   useEffect(() => {
     let isMounted = true;
@@ -37,6 +51,11 @@ export default function DropdownSelect({
         if (isMounted) {
           setOptions(opts);
           setError(null);
+          // If current value is custom (not in options), show custom input
+          if (value && !opts.some(opt => opt.value === value)) {
+            setShowCustomInput(true);
+            setCustomValue(value);
+          }
         }
       } catch (err) {
         if (isMounted) {
@@ -51,7 +70,7 @@ export default function DropdownSelect({
     return () => {
       isMounted = false;
     };
-  }, [listName]);
+  }, [listName, value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -69,6 +88,7 @@ export default function DropdownSelect({
       onChange(customValue.trim());
       setShowCustomInput(false);
       setCustomValue('');
+      onConfirm?.();
     }
   };
 
@@ -106,15 +126,18 @@ export default function DropdownSelect({
             placeholder="Enter custom value..."
             className="custom-input"
             onKeyDown={e => e.key === 'Enter' && handleCustomSubmit()}
+            onBlur={() => hideCustomButton && handleCustomSubmit()}
           />
-          <button
-            onClick={handleCustomSubmit}
-            className="btn btn-sm btn-primary"
-          >
-            OK
-          </button>
+          {!hideCustomButton && (
+            <button
+              onClick={handleCustomSubmit}
+              className="btn btn-sm btn-primary"
+            >
+              OK
+            </button>
+          )}
         </div>
       )}
     </div>
   );
-}
+});

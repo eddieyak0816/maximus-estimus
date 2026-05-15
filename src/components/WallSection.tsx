@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Toggle from './Toggle';
 import MeasInput from './MeasInput';
 import ChevronIcon from './ChevronIcon';
@@ -211,6 +211,7 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [soffitOpen, setSoffitOpen] = useState(true);
   const [sinkOpen, setSinkOpen] = useState(true);
   const [cabsOpen, setCabsOpen] = useState(true);
+  const dropdownRef = useRef<any>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
 
   const addWin = () => u('windows', [...(data.windows || []), {}]);
@@ -236,11 +237,18 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
         <div className="wall-meta" style={{ flex: 1 }}>
           {renaming
             ? <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <input autoFocus className="input wall-rename-input" value={data.name || ''} placeholder="e.g. Stove Wall…"
-                  onChange={e => u('name', e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && setRenaming(false)}
-                  onClick={e => e.stopPropagation()}
-                  style={{ flex: 1 }} />
+                <div style={{ flex: 1 }}>
+                  <DropdownSelect
+                    ref={dropdownRef}
+                    listName="wall_labels"
+                    value={data.name || ''}
+                    onChange={v => u('name', v)}
+                    placeholder="Select wall label…"
+                    allowCustom={true}
+                    hideCustomButton={true}
+                    onConfirm={() => setRenaming(false)}
+                  />
+                </div>
                 <button className="btn btn-primary btn-sm" onClick={e => { e.stopPropagation(); setRenaming(false); }}>OK</button>
               </div>
             : <div className="wall-name-row">
