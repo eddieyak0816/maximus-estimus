@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { CreateUserInput } from '../contexts/AuthContext';
@@ -21,6 +21,22 @@ export default function LoginPage() {
   const [newUser, setNewUser] = useState(emptyUserForm);
   const { signIn, createUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pin.length < 4 || loading || showCreateUser) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setLoading(true);
+        await signIn(pin);
+        navigate('/');
+      } catch (err) {
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [pin, loading, showCreateUser, signIn, navigate]);
 
   const appendDigit = (digit: string) => {
     setError('');
