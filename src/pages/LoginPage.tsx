@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { CreateUserInput } from '../contexts/AuthContext';
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [newUser, setNewUser] = useState(emptyUserForm);
+  const currentAutoCheckPinRef = useRef<string>('');
   const { signIn, createUser } = useAuth();
   const navigate = useNavigate();
 
@@ -26,13 +27,20 @@ export default function LoginPage() {
     if (pin.length < 4 || loading || showCreateUser) return;
 
     const timer = setTimeout(async () => {
+      const autoCheckPin = pin;
+      currentAutoCheckPinRef.current = autoCheckPin;
       setError('');
+
       try {
         setLoading(true);
-        await signIn(pin);
-        navigate('/');
+        await signIn(autoCheckPin);
+        if (currentAutoCheckPinRef.current === autoCheckPin) {
+          navigate('/');
+        }
       } catch (err) {
-        setLoading(false);
+        if (currentAutoCheckPinRef.current === autoCheckPin) {
+          setLoading(false);
+        }
       }
     }, 500);
 
