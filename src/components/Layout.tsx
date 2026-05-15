@@ -8,7 +8,7 @@ function Logo() {
   if (!err) {
     return (
       <img
-        src="/logo.jpg"
+        src={`${import.meta.env.BASE_URL}logo.jpg`}
         alt="Maximus Construction LLC"
         className="brand-logo"
         onError={() => setErr(true)}
