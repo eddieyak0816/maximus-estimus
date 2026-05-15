@@ -36,15 +36,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadCreators() {
+      console.log('Loading creator names from Supabase...');
       const { data, error } = await supabase
         .from('pin_users')
         .select('id,first_name,last_name');
+      console.log('Creator fetch result:', { data, error });
       if (!error && data) {
         const map: Record<string, string> = {};
         data.forEach(u => {
           map[u.id] = `${u.first_name} ${u.last_name}`.trim();
         });
+        console.log('Creator map built:', map);
         setCreatorMap(map);
+      } else {
+        console.error('Failed to load creators:', error);
       }
     }
     loadCreators();
