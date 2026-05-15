@@ -163,10 +163,8 @@ export function generateEstimate(
 
       let totalSqFt = 0;
       for (const room of m.rooms) {
-        if (room.isIrregular) {
-          totalSqFt += n(room.sqFtManual);
-        } else {
-          totalSqFt += n(room.length) * n(room.width);
+        for (const part of (room.parts || [])) {
+          totalSqFt += n(part.length) * n(part.width);
         }
       }
 

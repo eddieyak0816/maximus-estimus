@@ -1,6 +1,5 @@
 import MeasInput from '../../components/MeasInput';
-import Toggle from '../../components/Toggle';
-import type { FlooringMeasurements as FM, FlooringRoom } from '../../types';
+import type { FlooringMeasurements as FM, FlooringRoom, FlooringPart } from '../../types';
 
 interface Props {
   data: FM;
@@ -16,11 +15,14 @@ function parseFtIn(val: string = ''): number {
   return isNaN(n) ? 0 : n;
 }
 
-function calcSqFt(room: FlooringRoom): number {
-  if (room.isIrregular && room.sqFtManual) return parseFloat(room.sqFtManual) || 0;
-  const lIn = parseFtIn(room.length);
-  const wIn = parseFtIn(room.width);
+function calcPartSqFt(part: FlooringPart): number {
+  const lIn = parseFtIn(part.length);
+  const wIn = parseFtIn(part.width);
   return (lIn * wIn) / 144;
+}
+
+function calcRoomTotal(room: FlooringRoom): number {
+  return (room.parts || []).reduce((sum, p) => sum + calcPartSqFt(p), 0);
 }
 
 export default function FlooringMeasurements({ data, onUpdate }: Props) {
@@ -29,13 +31,41 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
   const updateRoom = (id: string, patch: Partial<FlooringRoom>) =>
     onUpdate({ ...data, rooms: rooms.map(r => r.id === id ? { ...r, ...patch } : r) });
 
+  const updatePart = (roomId: string, partId: string, patch: Partial<FlooringPart>) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return {
+        ...r,
+        parts: r.parts.map(p => p.id === partId ? { ...p, ...patch } : p),
+      };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
   const addRoom = () =>
-    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}` }] });
+    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}`, parts: [] }] });
+
+  const addPart = (roomId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      const parts = r.parts || [];
+      return { ...r, parts: [...parts, { id: crypto.randomUUID(), label: `Part ${parts.length + 1}` }] };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
+  const removePart = (roomId: string, partId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return { ...r, parts: r.parts.filter(p => p.id !== partId) };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
 
   const removeRoom = (id: string) =>
     onUpdate({ ...data, rooms: rooms.filter(r => r.id !== id) });
 
-  const grandTotal = rooms.reduce((sum, r) => sum + calcSqFt(r), 0);
+  const grandTotal = rooms.reduce((sum, r) => sum + calcRoomTotal(r), 0);
 
   return (
     <div className="assess-tab">
@@ -46,7 +76,8 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
       )}
 
       {rooms.map((room, idx) => {
-        const sqFt = calcSqFt(room);
+        const roomTotal = calcRoomTotal(room);
+        const parts = room.parts || [];
         return (
           <div key={room.id} className="flooring-room-card">
             <div className="flooring-room-header">
@@ -59,33 +90,50 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
               <button className="btn btn-ghost btn-sm" onClick={() => removeRoom(room.id)}>Remove</button>
             </div>
 
-            <MeasInput label="Length" value={room.length} onChange={v => updateRoom(room.id, { length: v })} />
-            <MeasInput label="Width" value={room.width} onChange={v => updateRoom(room.id, { width: v })} />
-
-            {!room.isIrregular && sqFt > 0 && (
-              <div className="sqft-auto-row">
-                <span className="sqft-label">Est. Sq. Ft.</span>
-                <span className="sqft-value">{sqFt.toFixed(1)}</span>
+            {parts.length === 0 && (
+              <div className="assess-hint" style={{ fontSize: 13, marginBottom: 12 }}>
+                No sections added — tap below to measure parts of this room.
               </div>
             )}
 
-            <div className="toggle-row">
-              <span className="toggle-label">Irregular shape?</span>
-              <Toggle on={!!room.isIrregular} onToggle={() => updateRoom(room.id, { isIrregular: !room.isIrregular })} />
-            </div>
+            {parts.map((part, pIdx) => {
+              const partSqFt = calcPartSqFt(part);
+              return (
+                <div key={part.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <input
+                      className="input input-sm"
+                      placeholder={`Section ${pIdx + 1}`}
+                      value={part.label || ''}
+                      onChange={e => updatePart(room.id, part.id, { label: e.target.value })}
+                      style={{ flex: 1 }}
+                    />
+                    <button className="btn btn-ghost btn-xs" onClick={() => removePart(room.id, part.id)}>Remove</button>
+                  </div>
+                  <MeasInput label="Length" value={part.length} onChange={v => updatePart(room.id, part.id, { length: v })} />
+                  <MeasInput label="Width" value={part.width} onChange={v => updatePart(room.id, part.id, { width: v })} />
+                  {partSqFt > 0 && (
+                    <div className="sqft-auto-row">
+                      <span className="sqft-label">Section Sq. Ft.</span>
+                      <span className="sqft-value">{partSqFt.toFixed(1)}</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
-            {room.isIrregular && (
-              <>
-                <div className="tiny-label" style={{ marginBottom: 4 }}>Manual Sq. Ft.</div>
-                <input className="input input-sm" placeholder="e.g. 124"
-                  value={room.sqFtManual || ''} onChange={e => updateRoom(room.id, { sqFtManual: e.target.value })} />
-                <div className="tiny-label" style={{ marginBottom: 4, marginTop: 8 }}>Shape Notes</div>
-                <textarea className="textarea" rows={2} placeholder="Describe irregular shape…"
-                  value={room.shapeNotes || ''} onChange={e => updateRoom(room.id, { shapeNotes: e.target.value })} />
-              </>
+            <button className="btn btn-ghost btn-sm" style={{ marginBottom: 12 }} onClick={() => addPart(room.id)}>
+              + Add Section
+            </button>
+
+            {roomTotal > 0 && (
+              <div style={{ padding: '10px 12px', backgroundColor: 'rgba(245,196,42,0.1)', borderRadius: 6, borderLeft: '3px solid var(--accent)' }}>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>Room Total: </span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{roomTotal.toFixed(1)} sq ft</span>
+              </div>
             )}
 
-            <div className="tiny-label" style={{ marginTop: 10, marginBottom: 4 }}>Transition Strip Locations</div>
+            <div className="tiny-label" style={{ marginTop: 12, marginBottom: 4 }}>Transition Strip Locations</div>
             <input className="input input-sm" placeholder="e.g. Doorway to hallway"
               value={room.transitionNotes || ''} onChange={e => updateRoom(room.id, { transitionNotes: e.target.value })} />
           </div>
@@ -96,7 +144,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
         + Add Room
       </button>
 
-      {rooms.length > 1 && (
+      {rooms.length > 0 && grandTotal > 0 && (
         <div className="grand-total-card">
           <span className="grand-total-label">Grand Total</span>
           <span className="grand-total-value">{grandTotal.toFixed(1)} sq ft</span>

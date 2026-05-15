@@ -296,13 +296,17 @@ export interface BathroomAssessment {
 }
 
 // ── Flooring ──────────────────────────────────────────────────────────────────
+export interface FlooringPart {
+  id: string;
+  label?: string;
+  length?: string;
+  width?: string;
+}
+
 export interface FlooringRoom {
   id: string;
   label: string;
-  length?: string;
-  width?: string;
-  isIrregular?: boolean;
-  sqFtManual?: string;
+  parts: FlooringPart[];
   shapeNotes?: string;
   transitionNotes?: string;
 }

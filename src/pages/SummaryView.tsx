@@ -417,42 +417,57 @@ function FlooringMeasurementsSection({ m, assessmentId }: { m: FlooringMeasureme
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
   const grandTotal = m.rooms.reduce((sum, room) => {
-    if (room.isIrregular) {
-      return sum + (parseFloat(room.sqFtManual || '0') || 0);
-    }
-    const l = parseFloat(room.length || '0') || 0;
-    const w = parseFloat(room.width || '0') || 0;
-    return sum + (l * w);
+    const roomTotal = (room.parts || []).reduce((s, part) => {
+      const l = parseFloat(part.length || '0') || 0;
+      const w = parseFloat(part.width || '0') || 0;
+      return s + (l * w);
+    }, 0);
+    return sum + roomTotal;
   }, 0);
+
   return (
     <SectionCard title="Measurements" action={editBtn}>
       {m.rooms.length === 0 && (
         <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>No rooms added.</p>
       )}
       {m.rooms.map(room => {
-        const sqFt = room.isIrregular
-          ? parseFloat(room.sqFtManual || '0') || 0
-          : calcArea(room.length || '0', room.width || '0');
+        const parts = room.parts || [];
+        const roomTotal = parts.reduce((sum, part) => {
+          const l = parseFloat(part.length || '0') || 0;
+          const w = parseFloat(part.width || '0') || 0;
+          return sum + (l * w);
+        }, 0);
         return (
           <div key={room.id} className="wall-summary-block">
             <div className="summary-sub-head">{room.label || 'Room'}</div>
-            {room.isIrregular ? (
-              <>
-                <Row label="Sq Ft (manual)" value={room.sqFtManual} />
-                <Row label="Shape Notes" value={room.shapeNotes} />
-              </>
+            {parts.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: 13, marginLeft: 8 }}>No sections added</p>
             ) : (
               <>
-                <Row label="Length" value={room.length} />
-                <Row label="Width" value={room.width} />
-                {sqFt > 0 && <Row label="Sq Ft" value={sqFt.toFixed(1)} />}
+                {parts.map((part, idx) => {
+                  const partSqFt = (parseFloat(part.length || '0') || 0) * (parseFloat(part.width || '0') || 0);
+                  return (
+                    <div key={part.id} style={{ marginBottom: 8, paddingLeft: 8, borderLeft: '2px solid var(--border)' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{part.label || `Section ${idx + 1}`}</div>
+                      <Row label="Length" value={part.length} />
+                      <Row label="Width" value={part.width} />
+                      {partSqFt > 0 && <Row label="Sq Ft" value={partSqFt.toFixed(1)} />}
+                    </div>
+                  );
+                })}
+                {roomTotal > 0 && (
+                  <div style={{ padding: '8px', backgroundColor: 'rgba(245,196,42,0.1)', borderRadius: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 500 }}>Room Total: </span>
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>{roomTotal.toFixed(1)} sq ft</span>
+                  </div>
+                )}
               </>
             )}
-            <Row label="Transition Notes" value={room.transitionNotes} />
+            {room.transitionNotes && <Row label="Transition Notes" value={room.transitionNotes} />}
           </div>
         );
       })}
-      {m.rooms.length > 1 && grandTotal > 0 && (
+      {m.rooms.length > 0 && grandTotal > 0 && (
         <div className="summary-row" style={{ borderTop: '2px solid var(--border)', paddingTop: 12, marginTop: 8 }}>
           <span className="summary-label">Grand Total</span>
           <span className="summary-value" style={{ fontWeight: 700 }}>{grandTotal.toFixed(1)} sq ft</span>
