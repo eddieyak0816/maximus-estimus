@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { DropdownOption, fetchDropdownList } from '../utils/dropdownManager';
+import { fetchDropdownList } from '../utils/dropdownManager';
+import type { DropdownOption } from '../utils/dropdownManager';
 
 interface Props {
   listName: string;

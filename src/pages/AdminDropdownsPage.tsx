@@ -6,9 +6,8 @@ import {
   fetchDropdownList,
   addDropdownOption,
   removeDropdownOption,
-  DropdownList,
-  DropdownOption,
 } from '../utils/dropdownManager';
+import type { DropdownList, DropdownOption } from '../utils/dropdownManager';
 
 export default function AdminDropdownsPage() {
   const { user } = useAuth();

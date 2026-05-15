@@ -121,7 +121,7 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
         <CameraModal
           label={activePhotoId === 'new' ? newPhotoLabel : 'Review Custom Photo'}
           onClose={() => setActivePhotoId(null)}
-          onCapture={(blob, _label) => handleAddCustomPhoto(blob)}
+          onCapture={(blob) => { handleAddCustomPhoto(blob).catch(err => console.error(err)); }}
         />
       )}
     </div>

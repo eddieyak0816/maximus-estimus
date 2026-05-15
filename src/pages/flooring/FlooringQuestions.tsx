@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import CheckOpt from '../../components/CheckOpt';
 import Toggle from '../../components/Toggle';
-import { fetchDropdownList, DropdownOption } from '../../utils/dropdownManager';
+import { fetchDropdownList } from '../../utils/dropdownManager';
+import type { DropdownOption } from '../../utils/dropdownManager';
 import type { FlooringQuestions as FQ } from '../../types';
 
 const SPECIAL_NOTES_ITEMS = [

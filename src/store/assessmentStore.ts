@@ -29,7 +29,7 @@ function emptyBathroom(): BathroomAssessment {
 
 function emptyFlooring(): FlooringAssessment {
   return {
-    measurements: { rooms: [{ id: uuidv4(), label: 'Room 1' }] },
+    measurements: { rooms: [{ id: uuidv4(), label: 'Room 1', parts: [], transitions: [] }] },
     questions: {},
     photos: { roomPhotos: {} },
   };

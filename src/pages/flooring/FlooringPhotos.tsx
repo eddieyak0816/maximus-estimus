@@ -3,7 +3,7 @@ import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { FlooringPhotos as FP, FlooringMeasurements, FlooringRoom, CustomPhoto } from '../../types';
+import type { FlooringPhotos as FP, FlooringMeasurements, FlooringRoom } from '../../types';
 
 interface Props {
   data: FP;

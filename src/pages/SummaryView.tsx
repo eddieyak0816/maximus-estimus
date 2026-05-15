@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
-import { formatCurrency, formatDate, calcArea } from '../utils/calculations';
+import { formatCurrency, formatDate } from '../utils/calculations';
 import { estimateTotals } from '../utils/estimateEngine';
 import { getPhotoUrl } from '../utils/photoStorage';
 import SectionCard from '../components/SectionCard';

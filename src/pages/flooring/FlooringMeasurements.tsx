@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import MeasInput from '../../components/MeasInput';
 import ChevronIcon from '../../components/ChevronIcon';
 import DropdownSelect from '../../components/DropdownSelect';
@@ -52,7 +52,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
   };
 
   const addRoom = () =>
-    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}`, parts: [] }] });
+    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}`, parts: [], transitions: [] }] });
 
   const addPart = (roomId: string) => {
     const updated = rooms.map(r => {

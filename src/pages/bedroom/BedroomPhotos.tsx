@@ -3,7 +3,7 @@ import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { BedroomPhotos as BP, CustomPhoto } from '../../types';
+import type { BedroomPhotos as BP } from '../../types';
 
 interface Props {
   data: BP;

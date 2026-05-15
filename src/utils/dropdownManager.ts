@@ -142,7 +142,6 @@ export async function removeDropdownOption(optionId: string): Promise<void> {
 }
 
 export async function reorderDropdownOptions(
-  listName: string,
   optionIds: string[]
 ): Promise<void> {
   try {

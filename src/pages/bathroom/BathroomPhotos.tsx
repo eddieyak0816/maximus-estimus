@@ -3,7 +3,7 @@ import PhotoItem from '../../components/PhotoItem';
 import CameraModal from '../../components/CameraModal';
 import CustomPhotosSection from '../../components/CustomPhotosSection';
 import { savePhoto, deletePhoto } from '../../utils/photoStorage';
-import type { BathroomPhotos as BP, BathroomMeasurements, CustomPhoto } from '../../types';
+import type { BathroomPhotos as BP, BathroomMeasurements } from '../../types';
 
 const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 
