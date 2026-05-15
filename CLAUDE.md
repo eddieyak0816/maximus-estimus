@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 15, 2026 (Evening)  
+> **Last Updated:** May 15, 2026 (Late Evening)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅ + UI Standardization Complete ✅ + Configurable Dropdowns Complete ✅
+> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅ + UI Standardization Complete ✅ + Configurable Dropdowns Complete ✅ + UX Enhancements Complete ✅
 
 ---
 
@@ -64,6 +64,14 @@
 - **Admin Panel MVP (May 14 evening):** Super admin user management, user deletion, logged-in user display on Dashboard, PIN-based authentication with Supabase
 - **UI Standardization (May 15):** Consistent header backgrounds on collapsible sections, unified pencil icon styling (SVG not emoji), matching layout patterns across Kitchen and Flooring, collapsible rooms/sections with ChevronIcon, full-width clickable header backgrounds with rgba(255,255,255,0.02)
 - **Configurable Dropdowns (May 15 evening):** 8 dropdown categories (appliances, materials, finishes, transitions, etc.), admin UI at /admin/dropdowns, reusable DropdownSelect component, form integrations for Kitchen appliances, Flooring materials, transition locations, caching with in-memory 5-min TTL
+- **UX Enhancements (May 15 late evening):** 
+  - Team Member field now uses dropdown (team_members list) with custom value support
+  - Wall labels now use dropdown (wall_labels list: A, B, C, D, or custom) when editing
+  - All dropdown fields include "Other / Custom" option for free-text values
+  - Fixed checkbox vs radio button display: multi-select fields show checkboxes, single-select show radio buttons
+  - Added OK buttons to all edit fields (wall rename, room/part/transition rename in Flooring) instead of relying on blur
+  - Custom values auto-populate their input field when editing existing custom entries
+  - Alphabetically sorted dropdown options (both admin entry and user display)
 
 ### 🔲 Next Up (Priority Order)
 
