@@ -1025,16 +1025,22 @@ input, select, textarea { font-family: var(--font); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  padding: 16px;
   margin-bottom: 14px;
-  overflow: hidden;
 }
 .wall-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px;
+  margin-bottom: 14px;
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-top: -16px;
+  padding: 12px 16px;
   cursor: pointer;
   user-select: none;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .wall-badge {
   width: 30px; height: 30px;
@@ -1048,22 +1054,22 @@ input, select, textarea { font-family: var(--font); }
 .wall-badge.done { border-color: var(--green-border); background: var(--green-bg); }
 .wall-meta { flex: 1; min-width: 0; }
 .wall-name-row { display: flex; align-items: center; gap: 6px; }
-.wall-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.wall-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
 .wall-rename-input { font-size: 13px; padding: 4px 8px; max-width: 180px; }
 .wall-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.wall-body { padding: 16px; border-top: 1px solid var(--border-subtle); }
+.wall-body { padding: 0; }
 .wall-sub-section { margin-top: 16px; }
 .wall-sub-section-header {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; align-items: center; gap: 8px;
   margin-bottom: 8px;
 }
 
 /* ===== Sub-card (window / door cards) ===== */
 .sub-card {
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 12px;
   margin-bottom: 8px;
 }
 .sub-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -1077,17 +1083,17 @@ input, select, textarea { font-family: var(--font); }
 
 /* ===== Soffit boxes ===== */
 .soffit-global-box {
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 12px;
   margin-top: 10px;
 }
 .soffit-override-box {
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 12px;
   margin: 10px 0;
 }
 .soffit-override-label {
@@ -1103,10 +1109,10 @@ input, select, textarea { font-family: var(--font); }
 
 /* ===== Island / desk feature boxes ===== */
 .island-feature-box {
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 12px;
   margin: 8px 0 10px;
 }
 .overhang-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
@@ -1117,10 +1123,10 @@ input, select, textarea { font-family: var(--font); }
 
 /* ===== Plumbing box ===== */
 .plumbing-box {
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 12px;
   margin-top: 8px;
 }
 
@@ -1347,6 +1353,12 @@ input, select, textarea { font-family: var(--font); }
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-top: -16px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .flooring-room-label {
   flex: 1;
@@ -1358,10 +1370,10 @@ input, select, textarea { font-family: var(--font); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-subtle);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 8px 14px;
+  padding: 10px 12px;
   margin-bottom: 10px;
 }
 .sqft-label { font-size: 13px; color: var(--text-muted); }

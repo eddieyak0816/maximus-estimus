@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(grep -n \"iSinkOpen\\\\|iCooktopOpen\\\\|iOutletOpen\\\\|iLevelsOpen\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\kitchen\\\\\\\\KitchenMeasurements.tsx\")",
-      "Bash(grep -n \"Tap ▲▼\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\bathroom\\\\\\\\BathroomMeasurements.tsx\")"
+      "Bash(grep -n \"Tap ▲▼\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\bathroom\\\\\\\\BathroomMeasurements.tsx\")",
+      "Bash(cat /tmp/dev.log 2>&1 || echo \"Log file not found yet\")",
+      "Read(//tmp/**)",
+      "Bash(grep -v \"//\")",
+      "Bash(curl -s http://localhost:5177/maximus-estimus/)"
     ]
   }
 }

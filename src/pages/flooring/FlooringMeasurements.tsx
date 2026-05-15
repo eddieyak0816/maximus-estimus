@@ -160,15 +160,14 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                 <>
                   <span style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>{room.label || `Room ${idx + 1}`}</span>
                   <button
-                    className="btn btn-ghost btn-xs"
+                    className="icon-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingRoomId(room.id);
                     }}
-                    style={{ padding: '4px 6px', minWidth: 'auto' }}
                     title="Edit room name"
                   >
-                    ✏️
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                   </button>
                 </>
               )}
@@ -218,15 +217,15 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                           <>
                             <span style={{ flex: 1, fontSize: 13 }}>{part.label || `Section ${pIdx + 1}`}</span>
                             <button
-                              className="btn btn-ghost btn-xs"
+                              className="icon-btn"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingPartId(part.id);
                               }}
-                              style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
+                              style={{ width: '20px', height: '20px', padding: 0 }}
                               title="Edit section name"
                             >
-                              ✏️
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                             </button>
                           </>
                         )}
@@ -290,15 +289,15 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
                               {trans.location ? `${trans.location}${trans.length ? ` (${trans.length})` : ''}` : `Transition ${tIdx + 1}`}
                             </span>
                             <button
-                              className="btn btn-ghost btn-xs"
+                              className="icon-btn"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingTransitionId(trans.id);
                               }}
-                              style={{ padding: '2px 4px', minWidth: 'auto', fontSize: 10 }}
+                              style={{ width: '20px', height: '20px', padding: 0 }}
                               title="Edit transition location"
                             >
-                              ✏️
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                             </button>
                           </>
                         )}
