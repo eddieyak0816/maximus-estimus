@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 14, 2026  
+> **Last Updated:** May 14, 2026 (Evening)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete. Next: Room Templates (Priority 1)
+> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live. **BLOCKER:** PIN auto-login UX needs fix (see Known Issues)
 
 ---
 
@@ -14,7 +14,7 @@
 | **Platform** | Web (React 19 + TypeScript) | iOS/Android planned for Sprint 7 |
 | **Storage** | Supabase + localStorage | PostgreSQL + offline cache (IndexedDB for photos) |
 | **Deployment** | GitHub Pages + Supabase | Live at https://eddieyak0816.github.io/maximus-estimus/ |
-| **Auth** | Supabase email/password | All team members see shared data |
+| **Auth** | Supabase PIN-based (4-12 digit) | Admin creates PINs; super admins at eddie0816@gmail.com & maximusconstructionnj@gmail.com |
 | **Team** | Solo dev (Eddie) + AI assistant | Small field team of 3+ in production |
 
 ---
@@ -61,6 +61,7 @@
 - **Summary View:** Consolidated read-only report of all job data with estimate hero
 - **UX Polish:** Full collapsible sections, wall rename propagation, accordion appliances/island/plumbing
 - **Phase 5 (Cloud Sync):** Supabase backend, team authentication, cloud database, Supabase Storage for photos, local-first offline sync
+- **Admin Panel MVP (May 14 evening):** Super admin user management, user deletion, logged-in user display on Dashboard, PIN-based authentication with Supabase
 
 ### 🔲 Next Up (Priority Order)
 
@@ -280,6 +281,73 @@ src/
 - **Save:** Camera modal calls `savePhoto(assessmentId, jobId, blob)` → Promise<string> (returns photoId)
 - **Delete:** `deletePhoto(assessmentId, jobId, photoId)` → Promise<void>
 
+### PIN-Based Authentication (May 14 Evening)
+
+**Architecture:**
+- Users authenticate via 4-12 digit PIN, not email/password
+- PINs are stored in Supabase `pin_users` table
+- Each user has: `id`, `first_name`, `last_name`, `email`, `pin`, `is_admin`, `created_at`
+- Super admins (can delete users): `eddie0816@gmail.com` and `maximusconstructionnj@gmail.com`
+- **Key files:**
+  - `src/contexts/AuthContext.tsx` — PIN validation, user lookup, sign-in/sign-out, is_admin field
+  - `src/pages/LoginPage.tsx` — PIN entry UI with numpad, Unlock button, Create User modal
+  - `src/pages/AdminUsersPage.tsx` — Super admin panel to view all users and delete them
+
+**Auth Flow:**
+1. User enters PIN on LoginPage
+2. AuthContext.signIn() queries Supabase for matching PIN
+3. If found, user object (including `isAdmin` flag) stored in localStorage
+4. Dashboard shows logged-in user name (top right)
+5. If user is admin, "👥 Admin Users" link appears on Dashboard
+
+**Admin Users Page:**
+- Accessible only to users with `isAdmin: true`
+- Displays all users in a table (Name, Email, PIN, Admin status)
+- Super admins can delete users directly
+- RLS policy allows public delete (access control enforced by frontend `isAdmin` check)
+
+**Supabase RLS Policies (for Publishable API keys with public role):**
+```sql
+-- SELECT: Allow public to query all users
+create policy "Allow public select"
+on public.pin_users for select to public using (true);
+
+-- INSERT: Allow public to create users (with validation)
+create policy "Allow public insert"
+on public.pin_users for insert to public
+with check (
+  pin ~ '^[0-9]{4,}' and
+  first_name <> '' and
+  last_name <> '' and
+  email <> ''
+);
+
+-- DELETE: Allow public to delete (access control via frontend isAdmin check)
+create policy "Allow public delete"
+on public.pin_users for delete to public using (true);
+```
+
+### Admin Panel MVP (May 14 Evening)
+
+**Features:**
+- `/admin/users` route — Super admin user management page
+- Users table with columns: Name, Email, PIN, Admin (Y/N), Action (Delete button)
+- Loading state and error handling
+- Access denied message for non-admin users
+- Delete confirmation dialog before removal
+
+**Files Added/Modified:**
+- `src/pages/AdminUsersPage.tsx` — New admin users management page
+- `src/pages/Dashboard.tsx` — Added logged-in user display + admin link
+- `src/contexts/AuthContext.tsx` — Added `isAdmin` field to PinUser, propagated through all queries
+- `src/App.tsx` — Added `/admin/users` route
+
+**To Add Super Admin Status:**
+Update Supabase directly:
+```sql
+update pin_users set is_admin = true where email = 'newadmin@example.com';
+```
+
 ---
 
 ## 🚀 Local Development Setup
@@ -361,6 +429,21 @@ npm run lint       # Run ESLint
 ---
 
 ## ⚠️ Known Issues & Quirks
+
+### 🔴 PIN Auto-Login UX Bug (BLOCKER — May 14 Evening)
+**Issue:** "PIN Not Found" error message flashes repeatedly while typing a PIN, even though the intention is silent background checks.
+
+**Status:** Deployed but not working as intended. Code was written to silently check PINs without showing errors, but error messages are still appearing and flashing.
+
+**What to investigate:**
+- The auto-check logic in `src/pages/LoginPage.tsx` useEffect (lines ~26-39) should fail silently, but something is triggering error display
+- Possible causes: error state persisting across attempts, input handler issues, form submission being triggered, stale browser cache
+- Test with both valid and invalid PINs to isolate behavior
+- May need to trace through state changes with console logging to understand when/why error is being set
+
+**Temporary workaround:** Users can click "Unlock" button instead of relying on auto-login
+
+**Next dev:** Before starting Room Templates, please debug and fix this. It's a critical UX issue that makes the app feel buggy.
 
 ### Google Drive Path Issue
 - `npm install` from Google Drive path fails (see workaround above)
