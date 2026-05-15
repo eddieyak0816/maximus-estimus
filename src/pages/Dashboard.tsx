@@ -151,7 +151,7 @@ export default function Dashboard() {
                       ))}
                     </div>
                     {a.jobs.length > 0 && <span className="meta-sep">·</span>}
-                    {a.creatorId && user?.isAdmin && creatorMap[a.creatorId] && (
+                    {creatorMap[a.creatorId] && (
                       <>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 {creatorMap[a.creatorId]}</span>
                         <span className="meta-sep">·</span>
