@@ -18,7 +18,7 @@ export default function AdminUsersPage() {
     try {
       const { data, error: err } = await supabase
         .from('pin_users')
-        .select('id,first_name,last_name,email,pin,is_admin,created_at')
+        .select('id,first_name,last_name,email,is_admin,created_at')
         .order('created_at', { ascending: false });
 
       if (err) throw err;
@@ -28,7 +28,7 @@ export default function AdminUsersPage() {
         firstName: row.first_name || '',
         lastName: row.last_name || '',
         email: row.email || '',
-        pin: row.pin,
+        pin: '', // PIN not fetched for security
         isAdmin: row.is_admin || false,
         createdAt: row.created_at,
       }));
@@ -101,7 +101,6 @@ export default function AdminUsersPage() {
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <th style={{ textAlign: 'left', padding: '12px', fontWeight: 600 }}>Name</th>
                 <th style={{ textAlign: 'left', padding: '12px', fontWeight: 600 }}>Email</th>
-                <th style={{ textAlign: 'left', padding: '12px', fontWeight: 600 }}>PIN</th>
                 <th style={{ textAlign: 'left', padding: '12px', fontWeight: 600 }}>Admin</th>
                 <th style={{ textAlign: 'left', padding: '12px', fontWeight: 600 }}>Action</th>
               </tr>
@@ -111,7 +110,6 @@ export default function AdminUsersPage() {
                 <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '12px' }}>{u.firstName} {u.lastName}</td>
                   <td style={{ padding: '12px' }}>{u.email}</td>
-                  <td style={{ padding: '12px', fontFamily: 'monospace' }}>{u.pin}</td>
                   <td style={{ padding: '12px' }}>
                     {u.isAdmin ? <span style={{ color: 'var(--accent)' }}>✓ Yes</span> : <span style={{ color: 'var(--text-secondary)' }}>—</span>}
                   </td>

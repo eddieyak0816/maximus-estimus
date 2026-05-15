@@ -31,6 +31,21 @@
 - Admins can monitor all team activity
 - Works locally (localhost) and on GitHub Pages deployment
 
+### PIN Security ✅ SECURED
+
+**What was done:**
+- Removed PIN column from Admin Users table display
+- PINs no longer fetched from database unnecessarily
+- Table now shows: Name, Email, Admin status, Delete action
+
+**File modified:**
+- `src/pages/AdminUsersPage.tsx` — Removed PIN column and query
+
+**Why this matters:**
+- PINs are authentication credentials, should not be displayed
+- Reduces attack surface (less sensitive data visible)
+- Prevents shoulder-surfing/accidental exposure
+
 ---
 
 ## Test Plan (Simple Version)
