@@ -66,7 +66,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
 
       {/* ── Per-Wall ── */}
       <CollapseSection title="📏 Walls" accent defaultOpen>
-        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap ▲▼ to expand or collapse.</p>
+        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse.</p>
         {WALL_LABELS.map(w => (
           <WallSection
             key={w}

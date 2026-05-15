@@ -1025,14 +1025,14 @@ input, select, textarea { font-family: var(--font); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   overflow: hidden;
 }
 .wall-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 16px;
   cursor: pointer;
   user-select: none;
 }
@@ -1051,7 +1051,7 @@ input, select, textarea { font-family: var(--font); }
 .wall-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .wall-rename-input { font-size: 13px; padding: 4px 8px; max-width: 180px; }
 .wall-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.wall-body { padding: 14px 16px; border-top: 1px solid var(--border-subtle); }
+.wall-body { padding: 16px; border-top: 1px solid var(--border-subtle); }
 .wall-sub-section { margin-top: 16px; }
 .wall-sub-section-header {
   display: flex; justify-content: space-between; align-items: center;
