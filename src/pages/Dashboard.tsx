@@ -151,9 +151,9 @@ export default function Dashboard() {
                       ))}
                     </div>
                     {a.jobs.length > 0 && <span className="meta-sep">·</span>}
-                    {creatorMap[a.creatorId] && (
+                    {a.creatorId && (
                       <>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 {creatorMap[a.creatorId]}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 {creatorMap[a.creatorId] || a.creatorId.substring(0, 8)}</span>
                         <span className="meta-sep">·</span>
                       </>
                     )}
