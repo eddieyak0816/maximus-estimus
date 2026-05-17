@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   Assessment, AssessmentStatus, JobType, JobInstance,
-  KitchenAssessment, BathroomAssessment, FlooringAssessment, OtherAssessment,
+  KitchenAssessment, BathroomAssessment, FlooringAssessment, PaintingAssessment, OtherAssessment,
   LivingRoomAssessment, BedroomAssessment, DeckAssessment,
   PriceCategory, MarkupSettings, EstimateData,
 } from '../types';
@@ -29,9 +29,17 @@ function emptyBathroom(): BathroomAssessment {
 
 function emptyFlooring(): FlooringAssessment {
   return {
-    measurements: { rooms: [{ id: uuidv4(), label: 'Room 1', parts: [], transitions: [] }] },
+    measurements: { rooms: [{ id: uuidv4(), label: 'Room 1', parts: [], transitions: [], trims: [] }] },
     questions: {},
     photos: { roomPhotos: {} },
+  };
+}
+
+function emptyPainting(): PaintingAssessment {
+  return {
+    measurements: { floorMeasurements: [], trimMeasurements: [] },
+    questions: {},
+    photos: {},
   };
 }
 
@@ -67,6 +75,7 @@ export function emptyJobInstance(type: JobType, label: string): JobInstance {
   const base = { id: uuidv4(), type, label, kitchen: emptyKitchen() };
   if (type === 'Bathroom') return { ...base, bathroom: emptyBathroom() };
   if (type === 'Flooring') return { ...base, flooring: emptyFlooring() };
+  if (type === 'Painting') return { ...base, painting: emptyPainting() };
   if (type === 'Living Room') return { ...base, livingRoom: emptyLivingRoom() };
   if (type === 'Bedroom') return { ...base, bedroom: emptyBedroom() };
   if (type === 'Deck') return { ...base, deck: emptyDeck() };
@@ -155,6 +164,7 @@ interface Store {
   updateJobKitchen: (assessmentId: string, jobId: string, kitchen: KitchenAssessment) => void;
   updateJobBathroom: (assessmentId: string, jobId: string, bathroom: BathroomAssessment) => void;
   updateJobFlooring: (assessmentId: string, jobId: string, flooring: FlooringAssessment) => void;
+  updateJobPainting: (assessmentId: string, jobId: string, painting: PaintingAssessment) => void;
   updateJobLivingRoom: (assessmentId: string, jobId: string, livingRoom: LivingRoomAssessment) => void;
   updateJobBedroom: (assessmentId: string, jobId: string, bedroom: BedroomAssessment) => void;
   updateJobDeck: (assessmentId: string, jobId: string, deck: DeckAssessment) => void;
@@ -270,6 +280,19 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       const next = s.assessments.map(a => {
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, flooring } : j), updatedAt: new Date().toISOString() };
+      });
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      const updated = next.find(a => a.id === assessmentId);
+      if (updated) pushAssessment(updated).catch(console.error);
+      return { assessments: next };
+    });
+  },
+
+  updateJobPainting: (assessmentId, jobId, painting) => {
+    set(s => {
+      const next = s.assessments.map(a => {
+        if (a.id !== assessmentId) return a;
+        return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, painting } : j), updatedAt: new Date().toISOString() };
       });
       save(next, s.teamMembers, s.priceGuide, s.markupSettings);
       const updated = next.find(a => a.id === assessmentId);
