@@ -1,4 +1,5 @@
 import CheckOpt from '../../components/CheckOpt';
+import Toggle from '../../components/Toggle';
 import type { BathroomQuestions as BQ } from '../../types';
 
 const SPECIAL_NOTES_ITEMS = [
@@ -68,7 +69,28 @@ export default function BathroomQuestions({ data, onUpdate }: Props) {
       <textarea className="textarea" rows={2} placeholder="Tile pattern preference…"
         value={data.tilePatternNotes || ''} onChange={e => u('tilePatternNotes', e.target.value)} />
 
-      <SecHead title="8 & 9 — Trades" />
+      <SecHead title="8 — Windows" />
+      <div className="q-card">
+        <p className="assess-hint">Individual windows marked on measurements</p>
+        <div className="toggle-row">
+          <span className="toggle-label">Are windows being replaced?</span>
+          <Toggle on={!!data.windowsReplacing} onToggle={() => u('windowsReplacing', !data.windowsReplacing)} />
+        </div>
+      </div>
+
+      <SecHead title="9 — Lighting" />
+      <div className="q-card">
+        <div className="toggle-row" style={{ marginBottom: 10 }}>
+          <span className="toggle-label">Will there be recessed lights?</span>
+          <Toggle on={!!data.recessedLights} onToggle={() => u('recessedLights', !data.recessedLights)} />
+        </div>
+        {data.recessedLights && (
+          <input type="number" className="input" placeholder="How many?" min="0"
+            value={data.recessedLightsCount || ''} onChange={e => u('recessedLightsCount', e.target.value)} />
+        )}
+      </div>
+
+      <SecHead title="10 & 11 — Trades" />
       {(['Electrical', 'Plumbing'] as const).map(label => {
         const key = label.toLowerCase() as 'electrical' | 'plumbing';
         return (
@@ -81,12 +103,12 @@ export default function BathroomQuestions({ data, onUpdate }: Props) {
         );
       })}
 
-      <SecHead title="10 — Permits" />
+      <SecHead title="12 — Permits" />
       {['Yes', 'No', 'Unknown'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={data.permits === opt} onToggle={() => u('permits', opt)} round />
       )}
 
-      <SecHead title="11 — How Did You Hear About Us?" />
+      <SecHead title="13 — How Did You Hear About Us?" />
       {['Referral', 'Google', 'Social media', 'Repeat customer', 'Other'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={data.referral === opt} onToggle={() => u('referral', opt)} round />
       )}
