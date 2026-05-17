@@ -79,6 +79,14 @@
   - Admins can see who created each job (helps oversee team workflow)
   - Data syncing fully fixed (403 permissions issue resolved)
 
+- **Kitchen & Bathroom Feature Enhancements (May 17):**
+  - **Windows:** Added toggle "Are windows being replaced?" in Kitchen (Section 5) and Bathroom (Section 8), displayed in summary with count
+  - **Flooring:** Support multiple floor and trim measurement entries per room with individual + room totals shown
+  - **Backsplash:** New Kitchen question (Section 8) "Will there be a new backsplash?" with material options (Tiles, Solid Slab, Other) and custom text input
+  - **Painting:** New assessment type (auto-creates like Flooring) with multiple floor and trim measurements, questions (scope, timeline, referral, special notes), and photo checklist
+  - **Recessed Lights:** Added to Kitchen (Section 13) and Bathroom (Section 9) with toggle + numeric count input, displayed in summary
+  - **Reusable Pattern:** Multiple measurement entries now support varied field patterns for future room types
+
 ### 🔲 Next Up (Priority Order)
 
 #### PRIORITY 1: Room Templates (Starting Next)
