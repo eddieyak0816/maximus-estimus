@@ -104,7 +104,16 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         <CheckOpt key={opt} label={opt} selected={isSel('cabinets', opt)} onToggle={() => toggle('cabinets', opt)} />
       )}
 
-      <SecHead title="5 — Cabinet Style" />
+      <SecHead title="5 — Windows" />
+      <div className="q-card">
+        <p className="assess-hint">Individual windows marked on measurements</p>
+        <div className="toggle-row">
+          <span className="toggle-label">Are windows being replaced?</span>
+          <Toggle on={!!data.windowsReplacing} onToggle={() => u('windowsReplacing', !data.windowsReplacing)} />
+        </div>
+      </div>
+
+      <SecHead title="6 — Cabinet Style" />
       <div className="q-card">
         <div className="q-card-header">
           <span>Style Preference</span>
@@ -124,26 +133,37 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.cabinetNotes || ''} onChange={e => u('cabinetNotes', e.target.value)} />
       </div>
 
-      <SecHead title="6 — Countertops" />
+      <SecHead title="7 — Countertops" />
       <div className="q-card">
         <p className="assess-hint">We offer guidance only — customer sources and arranges fabrication</p>
         <textarea className="textarea" rows={3} placeholder="Customer's material preference…"
           value={data.countertopNotes || ''} onChange={e => u('countertopNotes', e.target.value)} />
       </div>
 
-      <SecHead title="7 — Backsplash" />
+      <SecHead title="8 — Backsplash" />
       <div className="q-card">
-        <p className="assess-hint">We do not sell materials but we install tile</p>
-        <textarea className="textarea" rows={2} placeholder="Customer's material preference…"
-          style={{ marginBottom: 10 }}
-          value={data.backsplashNotes || ''} onChange={e => u('backsplashNotes', e.target.value)} />
-        <div className="toggle-row">
-          <span className="toggle-label">Installation needed?</span>
+        <div className="toggle-row" style={{ marginBottom: 10 }}>
+          <span className="toggle-label">Will there be a new backsplash?</span>
           <Toggle on={!!data.backsplashInstall} onToggle={() => u('backsplashInstall', !data.backsplashInstall)} />
         </div>
+        {data.backsplashInstall && (
+          <>
+            <p className="assess-hint" style={{ marginBottom: 8 }}>Material</p>
+            {['Tiles','Solid Slab','Other'].map(opt =>
+              <CheckOpt key={opt} label={opt} selected={data.backsplashMaterial === opt} onToggle={() => u('backsplashMaterial', opt)} round />
+            )}
+            {data.backsplashMaterial === 'Other' && (
+              <input className="input" placeholder="Describe material…" style={{ marginTop: 8 }}
+                value={data.backsplashOther || ''} onChange={e => u('backsplashOther', e.target.value)} />
+            )}
+          </>
+        )}
+        <textarea className="textarea" rows={2} placeholder="Additional notes…"
+          style={{ marginTop: 10 }}
+          value={data.backsplashNotes || ''} onChange={e => u('backsplashNotes', e.target.value)} />
       </div>
 
-      <SecHead title="8 & 9 — Sink & Faucet" />
+      <SecHead title="9 & 10 — Sink & Faucet" />
       <div className="q-card">
         <p className="assess-hint">Customer provides their own sink and faucet</p>
         <div className="tiny-label" style={{ marginBottom: 4 }}>Sink style preference</div>
@@ -155,7 +175,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.faucetNotes || ''} onChange={e => u('faucetNotes', e.target.value)} />
       </div>
 
-      <SecHead title="10 & 11 — Appliances" />
+      <SecHead title="11 & 12 — Appliances" />
       {['Keeping all existing appliances','Replacing all appliances','Replacing some appliances','Customer purchasing appliances themselves','Install only — customer provides'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={isSel('applianceScope', opt)} onToggle={() => toggle('applianceScope', opt)} />
       )}
@@ -168,16 +188,26 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       )}
 
-      <SecHead title="12 — Lighting" />
+      <SecHead title="13 — Lighting" />
+      <div className="q-card" style={{ marginBottom: 8 }}>
+        <div className="toggle-row" style={{ marginBottom: 10 }}>
+          <span className="toggle-label">Will there be recessed lights?</span>
+          <Toggle on={!!data.recessedLights} onToggle={() => u('recessedLights', !data.recessedLights)} />
+        </div>
+        {data.recessedLights && (
+          <input type="number" className="input" placeholder="How many?" min="0"
+            value={data.recessedLightsCount || ''} onChange={e => u('recessedLightsCount', e.target.value)} />
+        )}
+      </div>
       <div className="q-info-card">
         <span className="q-info-icon">💡</span>
         <div>
-          <div className="q-info-title">Customer handles lighting separately</div>
+          <div className="q-info-title">Other lighting handled separately</div>
           <div className="q-info-sub">Noted on report</div>
         </div>
       </div>
 
-      <SecHead title="13 — Cabinet Hardware" />
+      <SecHead title="14 — Cabinet Hardware" />
       <div className="q-info-card">
         <span className="q-info-icon">🔩</span>
         <div>
@@ -186,7 +216,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </div>
 
-      <SecHead title="14 & 15 — Trades" />
+      <SecHead title="15 & 16 — Trades" />
       {(['Electrical','Plumbing'] as const).map(label => {
         const key = label.toLowerCase() as 'electrical' | 'plumbing';
         return (
@@ -199,7 +229,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         );
       })}
 
-      <SecHead title="16 — Flooring" />
+      <SecHead title="17 — Flooring" />
       <div className="q-card">
         <div className="toggle-row">
           <span className="toggle-label">Flooring included in this job?</span>
@@ -213,12 +243,12 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </>}
       </div>
 
-      <SecHead title="17 — Permits" />
+      <SecHead title="18 — Permits" />
       {['Yes','No','Unknown'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={data.permits === opt} onToggle={() => u('permits', opt)} round />
       )}
 
-      <SecHead title="18 — How Did You Hear About Us?" />
+      <SecHead title="19 — How Did You Hear About Us?" />
       {['Referral','Google','Social media','Repeat customer','Other'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={data.referral === opt} onToggle={() => u('referral', opt)} round />
       )}
@@ -231,7 +261,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.referralOther || ''} onChange={e => u('referralOther', e.target.value)} />
       )}
 
-      <SecHead title="19 — Special Notes" />
+      <SecHead title="20 — Special Notes" />
       <p className="assess-hint">Tap to add common items</p>
       <div className="special-notes-chips">
         {SPECIAL_NOTES_ITEMS.map(item => {
