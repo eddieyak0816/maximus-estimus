@@ -52,7 +52,7 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
   };
 
   const addRoom = () =>
-    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}`, parts: [], transitions: [] }] });
+    onUpdate({ ...data, rooms: [...rooms, { id: crypto.randomUUID(), label: `Room ${rooms.length + 1}`, parts: [], transitions: [], trims: [] }] });
 
   const addPart = (roomId: string) => {
     const updated = rooms.map(r => {
@@ -101,6 +101,34 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
 
   const removeRoom = (id: string) =>
     onUpdate({ ...data, rooms: rooms.filter(r => r.id !== id) });
+
+  const updateTrim = (roomId: string, trimId: string, patch: any) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return {
+        ...r,
+        trims: (r.trims || []).map(t => t.id === trimId ? { ...t, ...patch } : t),
+      };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
+  const addTrim = (roomId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      const trims = r.trims || [];
+      return { ...r, trims: [...trims, { id: crypto.randomUUID() }] };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
+
+  const removeTrim = (roomId: string, trimId: string) => {
+    const updated = rooms.map(r => {
+      if (r.id !== roomId) return r;
+      return { ...r, trims: (r.trims || []).filter(t => t.id !== trimId) };
+    });
+    onUpdate({ ...data, rooms: updated });
+  };
 
   const toggleRoomExpanded = (id: string) => {
     const next = new Set(expandedRooms);
@@ -363,6 +391,76 @@ export default function FlooringMeasurements({ data, onUpdate }: Props) {
 
                 <button className="btn btn-ghost btn-sm" style={{ marginBottom: 12 }} onClick={() => addTransition(room.id)}>
                   + Add Transition Strip
+                </button>
+
+                <div className="tiny-label" style={{ marginBottom: 4, marginTop: 16 }}>Trim Measurements</div>
+                {(room.trims || []).map((trim, trimIdx) => {
+                  const isTrimExpanded = expandedTransitions.has(trim.id);
+                  return (
+                    <div key={trim.id} style={{ padding: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 6, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isTrimExpanded ? 8 : 0, cursor: 'pointer' }} onClick={() => toggleTransitionExpanded(trim.id)}>
+                        <ChevronIcon
+                          open={isTrimExpanded}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTransitionExpanded(trim.id);
+                          }}
+                        />
+                        {editingTransitionId === trim.id ? (
+                          <div style={{ flex: 1, display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <input
+                              className="input input-sm"
+                              autoFocus
+                              value={trim.label || ''}
+                              onChange={e => updateTrim(room.id, trim.id, { label: e.target.value })}
+                              onKeyDown={e => e.key === 'Enter' && setEditingTransitionId(null)}
+                              placeholder="Trim section name (optional)"
+                              style={{ flex: 1 }}
+                            />
+                            <button
+                              className="btn btn-primary btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTransitionId(null);
+                              }}
+                            >
+                              OK
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13 }}>
+                              {trim.label || `Trim ${trimIdx + 1}`}
+                            </span>
+                            <button
+                              className="icon-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTransitionId(trim.id);
+                              }}
+                              style={{ width: '20px', height: '20px', padding: 0 }}
+                              title="Edit trim name"
+                            >
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
+                          </div>
+                        )}
+                        <button className="btn btn-ghost btn-xs" onClick={(e) => {
+                          e.stopPropagation();
+                          removeTrim(room.id, trim.id);
+                        }}>Remove</button>
+                      </div>
+                      {isTrimExpanded && (
+                        <>
+                          <MeasInput label="Linear Feet" value={trim.length} onChange={v => updateTrim(room.id, trim.id, { length: v })} />
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <button className="btn btn-ghost btn-sm" style={{ marginBottom: 12 }} onClick={() => addTrim(room.id)}>
+                  + Add Trim Entry
                 </button>
               </>
             )}
