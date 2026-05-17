@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 15, 2026 (Late Evening)  
+> **Last Updated:** May 17, 2026 (Morning)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 (Cloud Sync) Complete + Admin Panel MVP Live + PIN auto-login bug FIXED ✅ + UI Standardization Complete ✅ + Configurable Dropdowns Complete ✅ + UX Enhancements Complete ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅
 
 ---
 
@@ -72,6 +72,12 @@
   - Added OK buttons to all edit fields (wall rename, room/part/transition rename in Flooring) instead of relying on blur
   - Custom values auto-populate their input field when editing existing custom entries
   - Alphabetically sorted dropdown options (both admin entry and user display)
+
+- **Creator Tracking & Dashboard Display (May 17):**
+  - Added `creatorId` field to all assessments (links to pin_users.id)
+  - Dashboard now displays creator name next to each assessment date
+  - Admins can see who created each job (helps oversee team workflow)
+  - Data syncing fully fixed (403 permissions issue resolved)
 
 ### 🔲 Next Up (Priority Order)
 
