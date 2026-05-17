@@ -32,7 +32,7 @@ function WindowCard({ win, index, onUpdate, onRemove }: {
           ] as [string, keyof WindowData][]).map(([l, k]) => (
             <div key={k}>
               <div className="tiny-label">{l}</div>
-              <input className="input input-sm" placeholder='0"' value={win[k] || ''} onChange={e => u(k, e.target.value)} />
+              <input className="input input-sm" placeholder='0"' value={(win[k] as string) || ''} onChange={e => u(k, e.target.value)} />
             </div>
           ))}
         </div>
@@ -48,9 +48,13 @@ function WindowCard({ win, index, onUpdate, onRemove }: {
           ] as [string, keyof WindowData][]).map(([l, k]) => (
             <div key={k}>
               <div className="tiny-label">{l}</div>
-              <input className="input input-sm" placeholder='0"' value={win[k] || ''} onChange={e => u(k, e.target.value)} />
+              <input className="input input-sm" placeholder='0"' value={(win[k] as string) || ''} onChange={e => u(k, e.target.value)} />
             </div>
           ))}
+        </div>
+        <div className="toggle-row" style={{ marginTop: 12 }}>
+          <span className="toggle-label">Window Being Replaced?</span>
+          <Toggle on={!!win.replacing} onToggle={() => onUpdate({ ...win, replacing: !win.replacing })} />
         </div>
       </>}
     </div>

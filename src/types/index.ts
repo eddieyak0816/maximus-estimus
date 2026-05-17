@@ -1,5 +1,5 @@
 export type AssessmentStatus = 'draft' | 'in-progress' | 'complete';
-export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
+export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
 
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface ClientInfo {
@@ -24,6 +24,7 @@ export interface WindowData {
   trimRight?: string;
   trimTop?: string;
   trimBottom?: string;
+  replacing?: boolean;
 }
 
 export interface DoorData {
@@ -152,8 +153,13 @@ export interface KitchenQuestions {
   cabinetStyle?: string;
   cabinetNotes?: string;
   countertopNotes?: string;
-  backsplashNotes?: string;
   backsplashInstall?: boolean;
+  backsplashMaterial?: string;
+  backsplashOther?: string;
+  backsplashNotes?: string;
+  windowsReplacing?: boolean;
+  recessedLights?: boolean;
+  recessedLightsCount?: string;
   sinkNotes?: string;
   faucetNotes?: string;
   applianceScope?: string[];
@@ -265,6 +271,9 @@ export interface BathroomQuestions {
   tubShowerScope?: string[];
   vanityScope?: string[];
   tileScope?: string[];
+  windowsReplacing?: boolean;
+  recessedLights?: boolean;
+  recessedLightsCount?: string;
   groutNotes?: string;
   tilePatternNotes?: string;
   electrical?: string;
@@ -318,11 +327,18 @@ export interface TransitionStrip {
   type?: string;
 }
 
+export interface FlooringTrim {
+  id: string;
+  label?: string;
+  length?: string;
+}
+
 export interface FlooringRoom {
   id: string;
   label: string;
   parts: FlooringPart[];
   transitions: TransitionStrip[];
+  trims: FlooringTrim[];
 }
 
 export interface FlooringMeasurements {
@@ -483,6 +499,44 @@ export interface DeckAssessment {
   photos: DeckPhotos;
 }
 
+// ── Painting ──────────────────────────────────────────────────────────────────
+export interface PaintingMeasurement {
+  id: string;
+  label?: string;
+  length?: string;
+}
+
+export interface PaintingMeasurements {
+  floorMeasurements: PaintingMeasurement[];
+  trimMeasurements: PaintingMeasurement[];
+}
+
+export interface PaintingQuestions {
+  scope?: string[];
+  timeline?: string;
+  targetDate?: string;
+  referral?: string;
+  referralName?: string;
+  referralOther?: string;
+  specialNoteItems?: string[];
+  specialNotes?: string;
+}
+
+export interface PaintingPhotos {
+  roomOverview?: string;
+  roomCorner?: string;
+  problemAreas?: string;
+  catchAll?: string;
+  catchAllNotes?: string;
+  customPhotos?: CustomPhoto[];
+}
+
+export interface PaintingAssessment {
+  measurements: PaintingMeasurements;
+  questions: PaintingQuestions;
+  photos: PaintingPhotos;
+}
+
 // ── Other ─────────────────────────────────────────────────────────────────────
 export interface OtherAssessment {
   measurementNotes?: string;
@@ -498,6 +552,7 @@ export interface JobInstance {
   kitchen: KitchenAssessment;
   bathroom?: BathroomAssessment;
   flooring?: FlooringAssessment;
+  painting?: PaintingAssessment;
   livingRoom?: LivingRoomAssessment;
   bedroom?: BedroomAssessment;
   deck?: DeckAssessment;

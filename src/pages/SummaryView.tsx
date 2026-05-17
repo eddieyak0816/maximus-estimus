@@ -114,6 +114,7 @@ function CustomerInfoSection({ client, assessmentId }: { client: any; assessment
 
 function WallSummary({ wallKey, wall }: { wallKey: string; wall: WallData }) {
   const wins = (wall.windows || []).filter(w => w.width || w.height);
+  const winsReplacing = (wall.windows || []).filter(w => w.replacing);
   const doors = (wall.doors || []).filter(d => d.width || d.height);
   const apps = (wall.appliances || []).filter(a => a.name);
   return (
@@ -144,6 +145,7 @@ function WallSummary({ wallKey, wall }: { wallKey: string; wall: WallData }) {
         </>
       )}
       {wins.length > 0 && <Row label="Windows" value={String(wins.length)} />}
+      {winsReplacing.length > 0 && <Row label="Windows Being Replaced" value={String(winsReplacing.length)} />}
       {doors.length > 0 && <Row label="Doors/Openings" value={String(doors.length)} />}
       {apps.length > 0 && <Row label="Appliances" value={apps.map(a => a.name).join(', ')} />}
       <Row label="Cabinet Notes" value={wall.cabinetNotes} />
@@ -201,8 +203,12 @@ function KitchenQuestionsSection({ q, assessmentId }: { q: KitchenQuestions; ass
       <Row label="Cabinet Style" value={q.cabinetStyle} />
       <Row label="Cabinet Notes" value={q.cabinetNotes} />
       <Row label="Countertop Notes" value={q.countertopNotes} />
+      <Row label="Windows Being Replaced" value={q.windowsReplacing} />
+      <Row label="Backsplash Needed" value={q.backsplashInstall} />
+      <Row label="Backsplash Material" value={q.backsplashMaterial} />
+      <Row label="Backsplash Other" value={q.backsplashOther} />
       <Row label="Backsplash Notes" value={q.backsplashNotes} />
-      <Row label="Backsplash Install" value={q.backsplashInstall} />
+      <Row label="Recessed Lights" value={q.recessedLights ? `Yes (${q.recessedLightsCount || 'quantity not specified'})` : undefined} />
       <Row label="Sink Notes" value={q.sinkNotes} />
       <Row label="Faucet Notes" value={q.faucetNotes} />
       <Row label="Appliance Scope" value={q.applianceScope?.join(', ')} />
@@ -358,6 +364,8 @@ function BathroomQuestionsSection({ q, assessmentId }: { q: BathroomQuestions; a
       <Row label="Tile Scope" value={q.tileScope?.join(', ')} />
       <Row label="Grout Notes" value={q.groutNotes} />
       <Row label="Tile Pattern Notes" value={q.tilePatternNotes} />
+      <Row label="Windows Being Replaced" value={q.windowsReplacing} />
+      <Row label="Recessed Lights" value={q.recessedLights ? `Yes (${q.recessedLightsCount || 'quantity not specified'})` : undefined} />
       <Row label="Electrical" value={q.electrical} />
       <Row label="Plumbing" value={q.plumbing} />
       <Row label="Permits Required" value={q.permits} />
@@ -473,6 +481,19 @@ function FlooringMeasurementsSection({ m, assessmentId }: { m: FlooringMeasureme
                     </div>
                     {trans.length && <Row label="Length" value={trans.length} />}
                     {trans.type && <Row label="Type" value={trans.type} />}
+                  </div>
+                ))}
+              </div>
+            )}
+            {(room.trims || []).length > 0 && (
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 6 }}>Trim Measurements</div>
+                {room.trims.map((trim, tIdx) => (
+                  <div key={trim.id} style={{ marginBottom: 6, paddingLeft: 8, fontSize: 13 }}>
+                    <div style={{ color: 'var(--text-muted)' }}>
+                      {trim.label || `Trim ${tIdx + 1}`}
+                    </div>
+                    {trim.length && <Row label="Length" value={trim.length} />}
                   </div>
                 ))}
               </div>
