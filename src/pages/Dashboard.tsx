@@ -78,7 +78,9 @@ export default function Dashboard() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Field Assessments</h1>
+          <h1 className="page-title">
+            {user?.isAdmin ? 'All Assessments' : 'My Assessments'}
+          </h1>
           <p className="page-subtitle">Maximus Construction NJ LLC</p>
           {user && <p className="page-subtitle" style={{ fontSize: '0.875rem', marginTop: '4px', opacity: 0.8 }}>👤 {user.firstName} {user.lastName}</p>}
         </div>
