@@ -157,7 +157,6 @@ export interface KitchenQuestions {
   backsplashMaterial?: string;
   backsplashOther?: string;
   backsplashNotes?: string;
-  windowsReplacing?: boolean;
   recessedLights?: boolean;
   recessedLightsCount?: string;
   sinkNotes?: string;
@@ -271,7 +270,6 @@ export interface BathroomQuestions {
   tubShowerScope?: string[];
   vanityScope?: string[];
   tileScope?: string[];
-  windowsReplacing?: boolean;
   recessedLights?: boolean;
   recessedLightsCount?: string;
   groutNotes?: string;

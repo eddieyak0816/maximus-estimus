@@ -104,16 +104,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         <CheckOpt key={opt} label={opt} selected={isSel('cabinets', opt)} onToggle={() => toggle('cabinets', opt)} />
       )}
 
-      <SecHead title="5 — Windows" />
-      <div className="q-card">
-        <p className="assess-hint">Individual windows marked on measurements</p>
-        <div className="toggle-row">
-          <span className="toggle-label">Are windows being replaced?</span>
-          <Toggle on={!!data.windowsReplacing} onToggle={() => u('windowsReplacing', !data.windowsReplacing)} />
-        </div>
-      </div>
-
-      <SecHead title="6 — Cabinet Style" />
+      <SecHead title="5 — Cabinet Style" />
       <div className="q-card">
         <div className="q-card-header">
           <span>Style Preference</span>
@@ -133,14 +124,14 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.cabinetNotes || ''} onChange={e => u('cabinetNotes', e.target.value)} />
       </div>
 
-      <SecHead title="7 — Countertops" />
+      <SecHead title="6 — Countertops" />
       <div className="q-card">
         <p className="assess-hint">We offer guidance only — customer sources and arranges fabrication</p>
         <textarea className="textarea" rows={3} placeholder="Customer's material preference…"
           value={data.countertopNotes || ''} onChange={e => u('countertopNotes', e.target.value)} />
       </div>
 
-      <SecHead title="8 — Backsplash" />
+      <SecHead title="7 — Backsplash" />
       <div className="q-card">
         <div className="toggle-row" style={{ marginBottom: 10 }}>
           <span className="toggle-label">Will there be a new backsplash?</span>
@@ -163,7 +154,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.backsplashNotes || ''} onChange={e => u('backsplashNotes', e.target.value)} />
       </div>
 
-      <SecHead title="9 & 10 — Sink & Faucet" />
+      <SecHead title="8 & 9 — Sink & Faucet" />
       <div className="q-card">
         <p className="assess-hint">Customer provides their own sink and faucet</p>
         <div className="tiny-label" style={{ marginBottom: 4 }}>Sink style preference</div>
@@ -175,7 +166,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
           value={data.faucetNotes || ''} onChange={e => u('faucetNotes', e.target.value)} />
       </div>
 
-      <SecHead title="11 & 12 — Appliances" />
+      <SecHead title="10 & 11 — Appliances" />
       {['Keeping all existing appliances','Replacing all appliances','Replacing some appliances','Customer purchasing appliances themselves','Install only — customer provides'].map(opt =>
         <CheckOpt key={opt} label={opt} selected={isSel('applianceScope', opt)} onToggle={() => toggle('applianceScope', opt)} />
       )}
@@ -188,7 +179,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       )}
 
-      <SecHead title="13 — Lighting" />
+      <SecHead title="12 — Lighting" />
       <div className="q-card" style={{ marginBottom: 8 }}>
         <div className="toggle-row" style={{ marginBottom: 10 }}>
           <span className="toggle-label">Will there be recessed lights?</span>

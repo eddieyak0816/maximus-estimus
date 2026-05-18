@@ -203,7 +203,6 @@ function KitchenQuestionsSection({ q, assessmentId }: { q: KitchenQuestions; ass
       <Row label="Cabinet Style" value={q.cabinetStyle} />
       <Row label="Cabinet Notes" value={q.cabinetNotes} />
       <Row label="Countertop Notes" value={q.countertopNotes} />
-      <Row label="Windows Being Replaced" value={q.windowsReplacing} />
       <Row label="Backsplash Needed" value={q.backsplashInstall} />
       <Row label="Backsplash Material" value={q.backsplashMaterial} />
       <Row label="Backsplash Other" value={q.backsplashOther} />
@@ -364,7 +363,6 @@ function BathroomQuestionsSection({ q, assessmentId }: { q: BathroomQuestions; a
       <Row label="Tile Scope" value={q.tileScope?.join(', ')} />
       <Row label="Grout Notes" value={q.groutNotes} />
       <Row label="Tile Pattern Notes" value={q.tilePatternNotes} />
-      <Row label="Windows Being Replaced" value={q.windowsReplacing} />
       <Row label="Recessed Lights" value={q.recessedLights ? `Yes (${q.recessedLightsCount || 'quantity not specified'})` : undefined} />
       <Row label="Electrical" value={q.electrical} />
       <Row label="Plumbing" value={q.plumbing} />
