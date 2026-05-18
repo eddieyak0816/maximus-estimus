@@ -80,12 +80,23 @@
   - Data syncing fully fixed (403 permissions issue resolved)
 
 - **Kitchen & Bathroom Feature Enhancements (May 17):**
-  - **Windows:** Added toggle "Are windows being replaced?" in Kitchen (Section 5) and Bathroom (Section 8), displayed in summary with count
+  - **Windows:** Per-window replacement toggle in measurements (WindowCard) — no longer in Questions tab; cleaner UX with scope decisions at point of measurement
   - **Flooring:** Support multiple floor and trim measurement entries per room with individual + room totals shown
-  - **Backsplash:** New Kitchen question (Section 8) "Will there be a new backsplash?" with material options (Tiles, Solid Slab, Other) and custom text input
+  - **Backsplash:** New Kitchen question (Section 7) "Will there be a new backsplash?" with material options (Tiles, Solid Slab, Other) and custom text input
   - **Painting:** New assessment type (auto-creates like Flooring) with multiple floor and trim measurements, questions (scope, timeline, referral, special notes), and photo checklist
-  - **Recessed Lights:** Added to Kitchen (Section 13) and Bathroom (Section 9) with toggle + numeric count input, displayed in summary
+  - **Recessed Lights:** Added to Kitchen (Section 12) and Bathroom (Section 8) with toggle + numeric count input, displayed in summary
   - **Reusable Pattern:** Multiple measurement entries now support varied field patterns for future room types
+
+- **Mobile-Friendly UI Redesign (May 17 evening):**
+  - Hamburger menu (≡ button) for navigation on screens ≤768px — slide-down overlay with all nav links, Font Size control, + New Assessment, Sign Out
+  - Touch targets: All interactive elements brought to 44px minimum (iOS/Android standard)
+    - Input fields: 30px → 44px min-height
+    - Buttons: 24–28px → 40–44px
+    - Pills: 20–26px → 36–44px
+    - Toggle rows: 52px tap zone
+    - CheckOpt rows: 48px min-height
+  - Responsive layouts on mobile: Page padding reduced, cards wrap/stack, buttons full-width, outlet rows stack on 480px
+  - App works reliably on field contractors' phones (iPhone/Android, 375px+)
 
 ### 🔲 Next Up (Priority Order)
 
