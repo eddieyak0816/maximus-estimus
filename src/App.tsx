@@ -38,9 +38,10 @@ function NewRedirect() {
   const { user } = useAuth();
   const createAssessment = useAssessmentStore(s => s.createAssessment);
   useEffect(() => {
-    const id = createAssessment(user?.id || '');
+    if (!user) return;
+    const id = createAssessment(user.id);
     navigate(`/assessment/${id}/client`, { replace: true });
-  }, []);
+  }, [user, navigate, createAssessment]);
   return null;
 }
 
