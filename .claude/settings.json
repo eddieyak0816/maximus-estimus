@@ -14,7 +14,11 @@
       "Bash(Get-ChildItem \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\\\\src\\\\pages\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(findstr \":5174\")",
-      "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)",
+      "Bash(mv \"C:\\\\Users\\\\Eddie\\\\.claude\\\\plans\\\\peaceful-giggling-mochi.md\" \"C:\\\\Users\\\\Eddie\\\\.claude\\\\plans\\\\mobile-ui-redesign-plan.md\" && ls -la \"C:\\\\Users\\\\Eddie\\\\.claude\\\\plans\\\\\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Eddie\\.claude\\plans"
     ]
   }
 }
