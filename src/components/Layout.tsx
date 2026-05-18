@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
 import { useAuth } from '../contexts/AuthContext';
+import { syncOnReconnect, setupRealtimeListener } from '../utils/supabaseSync';
 import FontSizeControl from './FontSizeControl';
 
 function Logo() {
@@ -41,13 +42,48 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const syncFromCloud = useAssessmentStore(s => s.syncFromCloud);
+  const assessments = useAssessmentStore(s => s.assessments);
   const { user, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Initial sync on user login
   useEffect(() => {
     if (!user) return;
     syncFromCloud();
   }, [syncFromCloud, user]);
+
+  // Connection detection: sync when going from offline to online
+  useEffect(() => {
+    if (!user) return;
+
+    const handleOnline = async () => {
+      console.log('🟢 Back online — syncing with Supabase...');
+      try {
+        // Bidirectional sync: merge local and remote, resolve conflicts
+        const merged = await syncOnReconnect(assessments);
+        // Update store with merged data
+        useAssessmentStore.setState({ assessments: merged });
+        console.log('✅ Sync complete');
+      } catch (error) {
+        console.error('❌ Sync failed:', error);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [user, assessments]);
+
+  // Real-time listener: instant updates when data changes on any device
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = setupRealtimeListener(() => {
+      console.log('📡 Real-time update — pulling fresh data');
+      syncFromCloud();
+    });
+
+    return unsubscribe;
+  }, [user, syncFromCloud]);
 
   useEffect(() => {
     setMenuOpen(false);
