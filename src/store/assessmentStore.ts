@@ -130,26 +130,6 @@ function save(assessments: Assessment[], teamMembers: string[], priceGuide: Pric
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ assessments, teamMembers, priceGuide, markupSettings }));
 }
 
-function mergeAssessments(local: Assessment[], remote: Assessment[]): Assessment[] {
-  const remoteMap = new Map(remote.map(a => [a.id, a]));
-
-  const merged = local.map(a => {
-    const r = remoteMap.get(a.id);
-    if (!r) return a;
-    // Last-write-wins: compare updatedAt timestamps
-    return new Date(r.updatedAt) > new Date(a.updatedAt) ? r : a;
-  });
-
-  // Add any remote assessments not in local
-  for (const r of remote) {
-    if (!local.find(a => a.id === r.id)) {
-      merged.push(r);
-    }
-  }
-
-  return merged;
-}
-
 interface Store {
   assessments: Assessment[];
   teamMembers: string[];
