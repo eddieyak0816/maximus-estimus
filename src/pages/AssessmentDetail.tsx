@@ -299,9 +299,9 @@ export default function AssessmentDetail() {
       )}
 
       {jobs.length > 0 && (
-        <div className="page-footer" style={{ marginTop: 24, display: 'flex', gap: 12 }}>
+        <div className="page-footer" style={{ marginTop: 12, display: 'flex', gap: 12 }}>
           <button
-            className="btn btn-ghost"
+            className="btn btn-outline"
             style={{ flex: 1 }}
             onClick={() => setStatus(id!, 'complete')}
             disabled={assessment.status === 'complete'}
