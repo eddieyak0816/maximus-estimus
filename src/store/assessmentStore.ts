@@ -423,10 +423,9 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       ]);
 
       set(s => {
-        // Merge strategy: last-write-wins by updatedAt for assessments
-        const merged = mergeAssessments(s.assessments, assessments);
+        // When online, Supabase is the source of truth — use it directly, don't merge with stale local data
         const newState = {
-          assessments: merged,
+          assessments: assessments,
           teamMembers: teamMembers || s.teamMembers,
           markupSettings: markupSettings || s.markupSettings,
           priceGuide: priceGuide || s.priceGuide,
