@@ -63,14 +63,9 @@ export default function Dashboard() {
   }
 
   // Filter assessments: admins see all, regular users see only their own
-  // Also filter out incomplete/blank assessments (no client name)
-  const visibleAssessments = (user?.isAdmin
+  const visibleAssessments = user?.isAdmin
     ? assessments
-    : assessments.filter(a => a.creatorId === user?.id)
-  ).filter(a => {
-    const hasClientName = !!(a.client.firstName?.trim() || a.client.lastName?.trim());
-    return hasClientName;
-  });
+    : assessments.filter(a => a.creatorId === user?.id);
 
   const counts = {
     total: visibleAssessments.length,

@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAssessmentStore } from '../store/assessmentStore';
 import DropdownSelect from '../components/DropdownSelect';
 import type { ClientInfo } from '../types';
@@ -6,15 +7,33 @@ import type { ClientInfo } from '../types';
 export default function CustomerInfoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getAssessment, updateAssessment } = useAssessmentStore();
+  const { getAssessment, updateAssessment, deleteAssessment } = useAssessmentStore();
+  const [hasClientName, setHasClientName] = useState(false);
 
   const assessment = id ? getAssessment(id) : undefined;
+
+  // If user navigates away without filling in a client name, delete the blank assessment
+  useEffect(() => {
+    return () => {
+      if (id && !hasClientName) {
+        const a = getAssessment(id);
+        if (a && !a.client.firstName?.trim() && !a.client.lastName?.trim()) {
+          deleteAssessment(id);
+        }
+      }
+    };
+  }, [id, hasClientName, getAssessment, deleteAssessment]);
 
   if (!assessment) return <div className="page-empty">Assessment not found.</div>;
 
   const client = assessment.client;
-  const u = (f: keyof ClientInfo, v: string) =>
+  const u = (f: keyof ClientInfo, v: string) => {
     updateAssessment(id!, { client: { ...client, [f]: v } });
+    // Mark as having client name once user fills in firstName or lastName
+    if ((f === 'firstName' || f === 'lastName') && v.trim()) {
+      setHasClientName(true);
+    }
+  };
 
   return (
     <div className="page">

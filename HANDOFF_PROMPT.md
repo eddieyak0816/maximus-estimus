@@ -1,58 +1,91 @@
 # 🚀 Maximus Estimus — AI Developer Handoff Prompt
 
-**Date:** May 15, 2026 (Late Evening)  
-**Status:** Phase 1 + Phase 5 Complete | All UX Polish Done | Ready for Room Templates  
+**Date:** May 17, 2026 (Morning)  
+**Status:** Phase 1 + Phase 5 Complete | Mobile UI Done | Windows Per-Basis Complete | Role-Based Visibility Complete | Duplicate Bug Fixed ✅  
 **Next Task:** PRIORITY 1 — Room Templates (Living Room, Bedroom, Deck)
 
 ---
 
-## ✅ What's Been Completed (This Session)
+## ✅ What's Been Completed (This Session — May 17)
 
-### Configurable Dropdowns System (COMPLETE)
-- 8 dropdown categories managed in Supabase (`dropdown_lists` and `dropdown_options` tables)
-- Admin panel at `/admin/dropdowns` for CRUD operations
-- In-memory caching with 5-minute TTL
-- Default categories seeded: appliance_names, flooring_materials, cabinet_finishes, wall_labels, team_members, room_names, transition_locations, special_notes_categories
-- Reusable `DropdownSelect` component with custom value support ("Other / Custom" option)
-- Alphabetical sorting (both admin entry and user display)
+### Mobile-Friendly UI Redesign (COMPLETE)
+- Added hamburger menu (≡ icon) for mobile navigation (hidden on desktop >768px)
+- Hamburger toggles slide-down nav panel with all links, + New button, Sign Out
+- Menu auto-closes on route change and when backdrop is tapped
+- All touch targets increased to 44px minimum (iOS/Android accessibility standard):
+  - Inputs: 44px min-height with 11px padding
+  - Buttons: .btn-sm, .remove-btn, .icon-btn all 40-44px
+  - Pills: 40px min-height
+  - Toggle rows: 52px min-height
+  - CheckOpts: 48px min-height with 20×20px checkbox
+- Layout improvements for 480px screens:
+  - Page padding reduced: 32px 24px → 20px 14px
+  - Assessment cards wrap right side to full-width on narrow screens
+  - Footer buttons stack vertically on mobile
+  - Outlet rows flex-column on mobile
+  - Header reduced from 68px to 60px on mobile
+- Tested on iPhone SE (375×667) — hamburger menu, form inputs, photo capture all work
 
-### UX Enhancements (COMPLETE)
-- **Team Member field:** Now uses "team_members" dropdown (was manual input)
-- **Wall labels:** Now use "wall_labels" dropdown (A, B, C, D default, or custom)
-- **Checkbox vs Radio buttons:** Fixed — multi-select fields show checkboxes, single-select show radio buttons
-- **Edit confirmations:** All edit fields (wall, room, part, transition) have explicit OK buttons (no blur-to-confirm)
-- **Custom value auto-population:** When editing a custom value, the input field pre-populates with the previous value
-- **Custom input in one click:** Users can type a custom value and click OK once to save (no double-click needed)
+### Windows Feature Moved to Per-Basis (COMPLETE)
+- Removed global "Windows being replaced?" toggle from Kitchen Questions and Bathroom Questions
+- Windows now toggle individually in wall measurements:
+  - Each wall can have a "Windows" button to expand a section
+  - User adds individual windows with toggle "Are windows being replaced?" per window
+  - Windows show in summary with total count
+- Sections renumbered after removal (KitchenQuestions, BathroomQuestions)
+- SummaryView updated to display window count from measurements, not questions
 
-### Integrations Complete
-- Kitchen appliances → DropdownSelect with custom support
-- Flooring materials → DropdownSelect + custom material text input
-- Transition locations → DropdownSelect with custom support
-- Team member selection → DropdownSelect with custom support
-- Wall labels → DropdownSelect with custom support
+### Role-Based Job Visibility (COMPLETE)
+- Dashboard now filters assessments based on user role:
+  - Admins see "All Assessments" (all jobs across team)
+  - Regular users see "My Assessments" (only their own, filtered by creatorId)
+- Title updates dynamically: "All Assessments" or "My Assessments"
+- Creator display shows who created each job (for admin view)
+- Visible in AssessmentDetail → AssessmentCard → filtered in Dashboard.tsx
+
+### Duplicate Assessment Bug Fixed (COMPLETE)
+- **Root cause:** Creating assessment via NewRedirect creates blank entry; user fills in client info but blank copy persists if user navigates away
+- **Fix:** Added useEffect cleanup in CustomerInfoPage.tsx that deletes incomplete assessments
+  - Tracks `hasClientName` state (set to true when firstName or lastName filled)
+  - On unmount, if hasClientName is false and assessment has no name, deletes it via store
+- **Result:** No more duplicate blank assessments left behind
+
+### Enterprise Standards Enforcement (NEW)
+- Created memory file documenting: **Only suggest enterprise-acceptable solutions, never workarounds**
+  - Example: Don't hide blank assessments → prevent them from being created
+  - Example: Don't filter out bad data → fix data at the source
+- Applied to: Duplicate assessment bug (chose proper cleanup over filter-and-hide)
 
 ---
 
 ## 📋 Codebase State
 
-### Key Files (No Changes Needed)
-- `src/store/assessmentStore.ts` — Zustand state management (unchanged)
-- `src/types/index.ts` — All type definitions (up-to-date with custom fields)
-- `src/utils/dropdownManager.ts` — Dropdown utilities with caching
-- `src/components/DropdownSelect.tsx` — Reusable dropdown component (forwardRef, useImperativeHandle)
-- `src/pages/AdminDropdownsPage.tsx` — Admin CRUD UI
-- `src/utils/supabaseSync.ts` — Cloud sync (unchanged)
-
-### Database State
-- Supabase tables created: `dropdown_lists`, `dropdown_options`
-- RLS policies: Permissive (access control in frontend)
-- Default data seeded for all 8 categories
-- PIN-based auth working with admin flag
+### Files Modified in This Session
+| File | Change |
+|------|--------|
+| `src/components/Layout.tsx` | Added hamburger menu (useState, useEffect, mobile nav panel) |
+| `src/index.css` | Added @media queries for 768px and 480px breakpoints; touch target fixes; nav styling |
+| `src/pages/kitchen/KitchenQuestions.tsx` | Removed "Windows being replaced?" toggle; renumbered sections |
+| `src/pages/bathroom/BathroomQuestions.tsx` | Removed "Windows being replaced?" toggle; renumbered sections |
+| `src/pages/kitchen/WallSection.tsx` | Added per-window "Are windows being replaced?" toggle |
+| `src/pages/bathroom/BathroomMeasurements.tsx` | Added per-window "Are windows being replaced?" toggle |
+| `src/pages/CustomerInfoPage.tsx` | Added hasClientName state + cleanup useEffect to delete incomplete assessments |
+| `src/pages/Dashboard.tsx` | Added role-based filtering (admins see all, users see only their own) |
+| `src/pages/SummaryView.tsx` | Removed q.windowsReplacing display from Kitchen/Bathroom questions sections |
+| `src/pages/AssessmentDetail.tsx` | Reduced footer spacing (marginTop: 24 → 12); changed "Mark Complete" from btn-ghost to btn-outline |
+| `src/types/index.ts` | Removed windowsReplacing?: boolean from KitchenQuestions and BathroomQuestions |
 
 ### Build Status
 - ✅ TypeScript: No errors
-- ✅ Vite build: 143 modules, ~656 KB minified
-- ✅ All components render and function correctly
+- ✅ Vite build: 143 modules, ~656 KB minified (warning about chunk size is non-critical)
+- ✅ All components compile and function correctly
+- ✅ Mobile testing passed: hamburger menu, touch targets, responsive layouts
+
+### Key Unchanged Files (Reference for Patterns)
+- `src/store/assessmentStore.ts` — Zustand state + localStorage + Supabase sync
+- `src/contexts/AuthContext.tsx` — PIN-based auth with isAdmin flag
+- `src/types/index.ts` — Type definitions (updated with window changes)
+- `src/utils/supabaseSync.ts` — Cloud sync
 
 ---
 
@@ -61,183 +94,12 @@
 ### Goal
 Add 3 flexible room templates for non-kitchen jobs (Living Room, Bedroom, Deck) with their own measurement forms, questions, and photo checklists.
 
-### What Needs to Be Done
-
-#### 1. Create Type Definitions (15 min)
-**File:** `src/types/index.ts`
-
-Add three new assessment types:
-```typescript
-export interface LivingRoomMeasurements {
-  ceilingHeight?: string;
-  windows?: WindowData[];
-  doors?: DoorData[];
-  outlets?: OutletData[];
-  flooringNotes?: string;
-  lightingNotes?: string;
-}
-
-export interface LivingRoomQuestions {
-  scope?: string[];
-  timeline?: string;
-  targetDate?: string;
-  lighting?: string[];
-  flooring?: string[];
-  referral?: string;
-  referralName?: string;
-  referralOther?: string;
-  specialNoteItems?: string[];
-  specialNotes?: string;
-}
-
-export interface LivingRoomPhotos {
-  roomEntrance?: string;
-  roomOverview?: string;
-  ceiling?: string;
-  flooring?: string;
-  walls?: Record<string, string>;
-  lighting?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-}
-
-export interface LivingRoomAssessment {
-  measurements: LivingRoomMeasurements;
-  questions: LivingRoomQuestions;
-  photos: LivingRoomPhotos;
-}
-```
-
-Do the same for `BedroomAssessment` and `DeckAssessment`.
-
-Add to `JobInstance` type:
-```typescript
-livingRoom?: LivingRoomAssessment;
-bedroom?: BedroomAssessment;
-deck?: DeckAssessment;
-```
-
-Update `JobType`:
-```typescript
-export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
-```
-
-#### 2. Add Store Actions (10 min)
-**File:** `src/store/assessmentStore.ts`
-
-Add three new store actions (follow existing pattern for Kitchen/Bathroom/Flooring):
-```typescript
-updateJobLivingRoom: (assessmentId: string, jobId: string, livingRoom: LivingRoomAssessment) => void;
-updateJobBedroom: (assessmentId: string, jobId: string, bedroom: BedroomAssessment) => void;
-updateJobDeck: (assessmentId: string, jobId: string, deck: DeckAssessment) => void;
-```
-
-Add empty initializers to `emptyJobInstance()`:
-```typescript
-if (type === 'Living Room') return { ...base, livingRoom: emptyLivingRoom() };
-if (type === 'Bedroom') return { ...base, bedroom: emptyBedroom() };
-if (type === 'Deck') return { ...base, deck: emptyDeck() };
-```
-
-#### 3. Create Living Room Components (1.5 hours)
-**Path:** `src/pages/living-room/`
-
-Create 3 files following Kitchen/Bathroom/Flooring pattern:
-
-**LivingRoomMeasurements.tsx**
-- Label: "1 — Ceiling Height"
-- Label: "2 — Windows" (add/remove with WindowCard)
-- Label: "3 — Doors / Openings" (add/remove with DoorCard)
-- Label: "4 — Outlets & Switches" (add/remove with OutletRow)
-- Label: "5 — Flooring Notes" (textarea)
-- Label: "6 — Lighting Notes" (textarea)
-
-**LivingRoomQuestions.tsx**
-- Section 1: Project Scope (checkboxes) — examples: "Full refurbish", "Lighting upgrade", "Flooring only", etc.
-- Section 2: Timeline (radio buttons: Under 3 months, 3-6 months, etc. + target date option)
-- Section 3: Lighting preferences (textarea)
-- Section 4: Flooring preferences (dropdown or textarea)
-- Section 5: Referral source (radio buttons: Referral, Google, Social, Repeat, Other)
-- Section 6: Special Notes (chips + textarea)
-
-**LivingRoomPhotos.tsx**
-- Room Entrance
-- Room Overview
-- Ceiling condition
-- Flooring condition
-- Wall conditions (A, B, C, D if applicable, or free-text)
-- Lighting setup
-- Problem areas (if any)
-- Catch-all photo + notes
-
-#### 4. Create Bedroom Components (1.5 hours)
-**Path:** `src/pages/bedroom/`
-
-Same structure as LivingRoom, but with:
-- Closet measurements (width, height, depth)
-- Closet condition toggle
-- Bedroom-specific scope options (closet build-out, flooring, wall treatment, etc.)
-- Bedroom-specific photos (closets, ceiling, flooring, walls, problem areas, etc.)
-
-#### 5. Create Deck Components (1.5 hours)
-**Path:** `src/pages/deck/`
-
-Same structure, but with:
-- Deck dimensions (length, width, height above ground)
-- Existing condition (good, fair, poor, needs demo)
-- Railing requirements (yes/no, type if yes)
-- Access constraints (basement stairs, side access, etc.)
-- Deck-specific questions (expansion plans, materials, weather exposure, etc.)
-- Deck-specific photos (overall, railings, stairs, existing condition, problem areas, etc.)
-
-#### 6. Wire into Job Type Selector (30 min)
-**File:** `src/pages/JobTypePage.tsx`
-
-Add 3 new buttons to the job type selector:
-- "Living Room"
-- "Bedroom"
-- "Deck"
-
-Add corresponding case statements in routing to show the new templates.
-
-#### 7. Wire into Assessment Detail Router (30 min)
-**File:** `src/pages/AssessmentDetail.tsx`
-
-Add imports for the 3 new components (Measurements, Questions, Photos for each).
-
-Add case statements to render the right components when job type matches.
-
-Add state update handlers:
-```typescript
-case 'Living Room':
-  updateJobLivingRoom(assessmentId!, job.id, measurementsData);
-```
-
-#### 8. Update Summary View (1 hour)
-**File:** `src/pages/SummaryView.tsx`
-
-Add sections to display data for the 3 new room templates (following Kitchen/Bathroom/Flooring pattern).
-
-Add edit links back to AssessmentDetail for each template.
-
-#### 9. Test Integration (30 min)
-- Create a new assessment
-- Add a Living Room job
-- Fill measurements, questions, photos
-- Verify data saves in Zustand
-- View in summary
-- Create Bedroom and Deck jobs
-- Test all three in one assessment
-
-### Acceptance Criteria
-- [x] User can select "Living Room", "Bedroom", or "Deck" as a job type
-- [x] Each template shows its own measurement form, questions, and photo checklist
-- [x] Data saves independently per room template (no cross-contamination)
-- [x] Summary view displays all three template types correctly
-- [x] Photos tied to room template work (camera integration)
-- [x] TypeScript build passes
-- [x] Manual testing shows golden path works
+### Quick Start
+1. Read **CLAUDE.md** (full project context)
+2. Read **project-spcs.md** (detailed feature spec)
+3. Look at `src/pages/kitchen/` folder as the reference implementation
+4. Follow the same pattern for Living Room, Bedroom, Deck
+5. Run `npm run dev` and test locally before pushing
 
 ### Files to Create
 ```
@@ -258,58 +120,65 @@ src/pages/deck/
 ```
 
 ### Files to Modify
-- `src/types/index.ts` — Add 3 assessment types, update JobType and JobInstance
-- `src/store/assessmentStore.ts` — Add 3 store actions, add empty initializers
-- `src/pages/JobTypePage.tsx` — Add 3 buttons to selector
-- `src/pages/AssessmentDetail.tsx` — Wire in new components and actions
+- `src/types/index.ts` — Add LivingRoomAssessment, BedroomAssessment, DeckAssessment types
+- `src/store/assessmentStore.ts` — Add updateJobLivingRoom, updateJobBedroom, updateJobDeck actions
+- `src/pages/JobTypePage.tsx` — Add 3 job type buttons
+- `src/pages/AssessmentDetail.tsx` — Wire in new components
 - `src/pages/SummaryView.tsx` — Add sections for 3 new templates
 
----
-
-## 📚 Reference Docs
-
-Read these in order:
-1. **CLAUDE.md** (this repo) — Full project context, stack, architecture
-2. **project-spcs.md** (this repo) — Detailed spec of all features
-3. **Memory files** (in `.claude/projects/.../memory/`):
-   - `ux-enhancements-may15-late.md` — Just-completed work
-   - `configurable-dropdowns-complete.md` — Dropdown system details
-   - `admin-panel-and-auth-may14.md` — Auth & admin setup
+### Acceptance Criteria
+- [ ] TypeScript build passes
+- [ ] User can select Living Room, Bedroom, Deck as job types
+- [ ] Each template has measurements, questions, photos forms
+- [ ] Data saves independently (no cross-contamination)
+- [ ] Summary view displays all three templates correctly
+- [ ] Manual testing: Create assessment → add all 3 jobs → view summary
+- [ ] Photos work (camera integration)
 
 ---
 
-## 🎮 How to Test Locally
+## 💡 Important Notes
 
-```bash
-# Start dev server
-npm run dev
+### Enterprise Standards Rule
+**Only suggest solutions that meet enterprise standards. No bandaids or workarounds.**
+- Bad data in the database is never acceptable, even if hidden from UI
+- Always prevent bad data at the source, don't filter/hide it in the UI
+- Example: Don't hide blank assessments → implement cleanup on form unmount instead
 
-# Visit http://localhost:5173
-# Create assessment → Add Living Room → Fill forms → View summary
+### Mobile-First Development
+- Always test on DevTools Device Mode (iPhone SE 375×667)
+- Verify all touch targets are ≥44px
+- Test hamburger menu opens/closes smoothly
+- Test form inputs are easily tappable
 
-# Build for production
-npm run build
-```
+### Testing Checklist Before Submitting
+1. `npm run build` — Verify TypeScript and Vite pass
+2. `npm run dev` — Start local server
+3. Chrome DevTools → Device Mode → iPhone SE
+4. Create new assessment → verify hamburger menu and all inputs work
+5. Fill one complete job (measurements, questions, photos)
+6. Navigate away and back → verify data persists
+7. View summary → verify all data shows correctly
+8. Test on actual phone if available (not just DevTools)
 
 ---
 
-## 💡 Tips & Patterns
+## 🔗 Key Files & Patterns
 
-### Reuse These Components
-- `MeasInput` — For measurement input (width, height, length, etc.)
-- `Toggle` — For on/off toggles
-- `CheckOpt` — For checkboxes (multi-select) and radio buttons (single-select)
-- `ChevronIcon` — For expandable sections
-- `DropdownSelect` — For admin-managed dropdowns
-- `WindowCard`, `DoorCard`, `OutletRow` — From Kitchen for shared elements
-
-### State Update Pattern
+### Zustand Store Pattern
 ```typescript
+// Update action (used in all room templates)
 updateJobLivingRoom: (assessmentId, jobId, livingRoom) => {
   set(s => {
     const next = s.assessments.map(a => {
       if (a.id !== assessmentId) return a;
-      return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, livingRoom } : j), updatedAt: new Date().toISOString() };
+      return {
+        ...a,
+        jobs: a.jobs.map(j =>
+          j.id === jobId ? { ...j, livingRoom } : j
+        ),
+        updatedAt: new Date().toISOString(),
+      };
     });
     save(next, s.teamMembers, s.priceGuide, s.markupSettings);
     const updated = next.find(a => a.id === assessmentId);
@@ -319,73 +188,105 @@ updateJobLivingRoom: (assessmentId, jobId, livingRoom) => {
 };
 ```
 
-### Photo Pattern
+### Measurements Form Pattern
+```typescript
+export default function LivingRoomMeasurements({ data, onUpdate }) {
+  const u = (key: keyof typeof data, value: any) =>
+    onUpdate({ ...data, [key]: value });
+
+  return (
+    <div className="form-section">
+      <div className="section-card">
+        <div className="section-card-header">1 — Ceiling Height</div>
+        <div className="section-card-body">
+          <MeasInput
+            value={data.ceilingHeight || ''}
+            onChange={v => u('ceilingHeight', v)}
+            placeholder="12' 0\""
+          />
+        </div>
+      </div>
+      {/* More sections... */}
+    </div>
+  );
+}
+```
+
+### Questions Section Pattern
+```typescript
+const SecHead = ({ title }: { title: string }) => (
+  <div className="q-sec-head">{title}</div>
+);
+
+// In render:
+<SecHead title="1 — Project Scope" />
+<p className="assess-hint">Select all that apply</p>
+{['Option 1', 'Option 2'].map(opt => (
+  <CheckOpt
+    key={opt}
+    label={opt}
+    selected={data.scope?.includes(opt) ?? false}
+    onToggle={() => {
+      const next = data.scope?.includes(opt)
+        ? data.scope.filter(x => x !== opt)
+        : [...(data.scope || []), opt];
+      u('scope', next);
+    }}
+  />
+))}
+```
+
+### Photo Checklist Pattern
 ```typescript
 <CheckOpt
-  label="Ceiling photo"
-  selected={!!data.photos.ceiling}
+  label="Room overview"
+  selected={!!data.photos.roomOverview}
   onToggle={() => {
-    if (data.photos.ceiling) {
-      deletePhoto(assessmentId, jobId, data.photos.ceiling).catch(console.error);
-      u('photos', { ...data.photos, ceiling: '' });
+    if (data.photos.roomOverview) {
+      deletePhoto(assessmentId, jobId, data.photos.roomOverview).catch(
+        console.error
+      );
+      u('photos', { ...data.photos, roomOverview: '' });
     } else {
-      setShowCamera({ field: 'ceiling', label: 'Ceiling' });
+      setShowCamera({ field: 'roomOverview', label: 'Room Overview' });
     }
   }}
 />
 ```
 
-### Questions Section Pattern
-```typescript
-const SecHead = ({ title }: { title: string }) => <div className="q-sec-head">{title}</div>;
+---
 
-<SecHead title="1 — Project Scope" />
-<p className="assess-hint">Select all that apply</p>
-{['Option 1', 'Option 2'].map(opt =>
-  <CheckOpt key={opt} label={opt} selected={isSel('scope', opt)} onToggle={() => toggle('scope', opt)} />
-)}
-```
+## 📚 Reference Docs (In Reading Order)
+1. **CLAUDE.md** — Full project context, stack, all features
+2. **project-spcs.md** — Detailed feature specification
+3. **Kitchen reference:** `src/pages/kitchen/` (best working example)
+4. **Memory docs:** `.claude/projects/.../memory/` for session context
 
 ---
 
 ## ⚠️ Common Gotchas
 
-- **TypeScript:** Don't forget to import `type { ... }` for types only (verbatimModuleSyntax is strict)
-- **Zustand:** Always use `set(s => {...})` pattern for state updates, call `save()` after updates
-- **Photos:** Use `assessmentId` and `jobId` for IndexedDB keys, check for empty string before rendering
-- **Push to Cloud:** Every update should call `pushAssessment()` async (no await needed)
-- **Summary View:** All data is READ-ONLY; edit buttons link back to AssessmentDetail
-- **CSS:** Use CSS variables for colors (`var(--primary)`, `var(--accent)`, `var(--text-primary)`)
+- **TypeScript:** Use `import type { X }` for types only (strict mode)
+- **Zustand:** Always `set(s => {...})`, call `save()` after, call `pushAssessment()` async
+- **Photos:** Use assessmentId + jobId as IndexedDB key, check for empty string before rendering
+- **Summary:** All read-only; edit buttons link back to AssessmentDetail
+- **CSS:** Use variables: `var(--primary)`, `var(--accent)`, `var(--text-primary)`
+- **Mobile:** Always test on DevTools Device Mode, verify 44px touch targets
 
 ---
 
-## ✅ Pre-Flight Checklist
+## ✅ Pre-Flight Checklist (For Each Session)
 
-Before declaring Room Templates done:
-- [ ] TypeScript build passes (no errors)
-- [ ] Create new assessment
-- [ ] Add Living Room job
-- [ ] Fill all Measurements fields
-- [ ] Answer all Questions
-- [ ] Capture photos (at least one)
-- [ ] Save and reload page → data persists
-- [ ] View Summary → Living Room data displays correctly
-- [ ] Click "Edit" link → back to measurement form
-- [ ] Create Bedroom and Deck jobs
-- [ ] Verify all three can exist in one assessment
-- [ ] Summary shows all three with no cross-contamination
-- [ ] Delete one job → others remain intact
+- [ ] Read CLAUDE.md and project-spcs.md
+- [ ] `npm run build` passes
+- [ ] `npm run dev` starts without errors
+- [ ] Tested manually on Device Mode (iPhone SE 375×667)
+- [ ] Verified hamburger menu works
+- [ ] Verified all form inputs are tappable (44px+)
+- [ ] Created test assessment, filled data, verified persistence
+- [ ] Viewed summary, verified data displays correctly
+- [ ] No console errors (warnings OK)
 
 ---
 
-## 📞 Questions?
-
-Refer to:
-- **Code patterns:** Look at Kitchen, Bathroom, or Flooring implementations (they're the reference)
-- **Type definitions:** Check `src/types/index.ts` for the full schema
-- **Store actions:** Check `src/store/assessmentStore.ts` for the pattern
-- **Component props:** Check `src/pages/kitchen/KitchenMeasurements.tsx` for structure
-
-Good luck! This is a straightforward feature — just follow the Kitchen/Bathroom/Flooring pattern and you'll be done in ~6 hours of focused work.
-
-**Next task after this:** Role-Based Job Visibility (allow filtering by creator for non-admin users).
+**Good luck! You've got this. 🚀**
