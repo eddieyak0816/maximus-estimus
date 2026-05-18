@@ -2151,6 +2151,17 @@ input, select, textarea { font-family: var(--font); }
     border-top: 1px solid var(--border-subtle);
   }
 
+  /* Page footer (Assessment Detail buttons) */
+  .page-footer {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .page-footer .btn {
+    width: 100%;
+    flex: unset !important;
+    min-height: 48px;
+  }
+
   /* Summary view actions */
   .summary-actions {
     flex-direction: column;
@@ -2163,7 +2174,7 @@ input, select, textarea { font-family: var(--font); }
     min-height: 48px;
   }
 
-  /* Assessment detail footer */
+  /* Assessment detail footer (alternate name) */
   .assess-footer {
     flex-direction: column;
     gap: 8px;
