@@ -103,23 +103,19 @@ function DoorCard({ door, index, onUpdate, onRemove }: {
             <button key={d} className={`pill${door.swing === d ? ' active' : ''}`} onClick={() => onUpdate({ ...door, swing: d })}>{d}</button>
           ))}
         </div>
-        {door.type !== 'Opening' && (
-          <>
-            <div className="sub-section-label">TRIM WIDTH</div>
-            <div className="grid-2">
-              {([
-                ['Left Side', 'trimLeft'],
-                ['Right Side', 'trimRight'],
-                ['Top', 'trimTop'],
-              ] as [string, keyof DoorData][]).map(([l, k]) => (
-                <div key={k}>
-                  <div className="tiny-label">{l}</div>
-                  <input className="input input-sm" placeholder='0"' value={(door[k] as string) || ''} onChange={e => u(k, e.target.value)} />
-                </div>
-              ))}
+        <div className="sub-section-label">TRIM WIDTH</div>
+        <div className="grid-2">
+          {([
+            ['Left Side', 'trimLeft'],
+            ['Right Side', 'trimRight'],
+            ['Top', 'trimTop'],
+          ] as [string, keyof DoorData][]).map(([l, k]) => (
+            <div key={k}>
+              <div className="tiny-label">{l}</div>
+              <input className="input input-sm" placeholder='0"' value={(door[k] as string) || ''} onChange={e => u(k, e.target.value)} />
             </div>
-          </>
-        )}
+          ))}
+        </div>
       </>}
     </div>
   );
