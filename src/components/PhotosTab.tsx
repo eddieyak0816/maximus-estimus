@@ -7,7 +7,7 @@ import type { CustomPhoto } from '../types';
 
 interface Props {
   photos: CustomPhoto[];
-  measurements?: any;
+  measurements?: object;
   assessmentId: string;
   jobId: string;
   onUpdate: (photos: CustomPhoto[]) => void;
@@ -49,6 +49,16 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
 
     try {
       const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      if (activePhotoId && activePhotoId !== 'new') {
+        const existingPhoto = photos.find(p => p.id === activePhotoId);
+        if (existingPhoto) {
+          deletePhoto(existingPhoto.photoId).catch(err => console.error('Failed to delete replaced photo:', err));
+          onUpdate(photos.map(p => p.id === activePhotoId ? { ...p, label: selectedCategory, photoId } : p));
+          resetForm();
+          return;
+        }
+      }
+
       const newPhoto: CustomPhoto = {
         id: uuidv4(),
         label: selectedCategory,
@@ -193,8 +203,8 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.onchange = (e: any) => {
-                  const file = e.target.files?.[0];
+                input.onchange = () => {
+                  const file = input.files?.[0];
                   if (file) handlePhotoUpload(file);
                 };
                 input.click();
@@ -217,7 +227,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
         </div>
       )}
 
-      {activePhotoId === 'new' && selectedCategory && (
+      {activePhotoId && selectedCategory && (
         <CameraModal
           label={`Photo: ${selectedCategory}`}
           onCapture={handlePhotoCapture}
@@ -228,8 +238,8 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   );
 }
 
-function extractWallLabels(measurements: Record<string, unknown>): string[] {
-  const walls = measurements.walls as Record<string, { label?: string }> | undefined;
+function extractWallLabels(measurements: object): string[] {
+  const walls = (measurements as { walls?: Record<string, { label?: string }> }).walls;
   if (!walls) return [];
   return Object.values(walls)
     .map(w => w?.label || '')

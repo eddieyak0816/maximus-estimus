@@ -21,6 +21,10 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
     async function startCamera() {
       try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error('Camera access is not supported in this browser or context.');
+        }
+
         console.log('Requesting camera access...');
         let stream: MediaStream | null = null;
 
@@ -47,19 +51,7 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
         console.log('Stream acquired, setting up video element');
         streamRef.current = stream;
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream as unknown as MediaStream;
-
-          // Simple approach: just show the camera immediately
-          // The video will play automatically with autoPlay + playsInline
-          setTimeout(() => {
-            if (mounted) {
-              console.log('Showing camera');
-              setStage('camera');
-            }
-          }, 100);
-        }
+        setStage('camera');
       } catch (err) {
         if (mounted) {
           console.error('Camera error:', err);
@@ -79,6 +71,17 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (stage !== 'camera' || !video || !stream) return;
+
+    video.srcObject = stream;
+    video.play().catch(err => {
+      console.warn('Camera video playback did not start automatically:', err);
+    });
+  }, [stage]);
 
   function handleCapture() {
     if (!videoRef.current || !canvasRef.current) return;
@@ -132,6 +135,11 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
   function cleanup() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
     }
     if (previewSrc) URL.revokeObjectURL(previewSrc);
     onClose();
