@@ -18,21 +18,38 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let timeout2Id: ReturnType<typeof setTimeout> | undefined;
 
     async function startCamera() {
       try {
         let stream: MediaStream | null = null;
 
         try {
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
-            audio: false,
-          });
+          stream = await Promise.race([
+            navigator.mediaDevices.getUserMedia({
+              video: { facingMode: 'environment' },
+              audio: false,
+            }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Camera request timeout')), 30000)
+            ),
+          ]);
         } catch {
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false,
-          });
+          try {
+            stream = await Promise.race([
+              navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false,
+              }),
+              new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('Camera request timeout')), 30000)
+              ),
+            ]);
+          } catch (e) {
+            console.error('Both camera attempts failed:', e);
+            throw e;
+          }
         }
 
         if (!mounted) {
@@ -49,6 +66,8 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
             if (mounted) {
               console.log('Showing camera view');
               setStage('camera');
+              if (timeoutId) clearTimeout(timeoutId);
+              if (timeout2Id) clearTimeout(timeout2Id);
             }
           };
 
@@ -83,13 +102,17 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
             showCamera();
           };
 
-          // Fallback: show camera after 1 second regardless
-          const timeoutId = setTimeout(() => {
-            console.log('Timeout - forcing camera view');
+          // First fallback: show camera after 200ms
+          timeoutId = setTimeout(() => {
+            console.log('200ms timeout - showing camera');
             showCamera();
-          }, 1000);
+          }, 200);
 
-          return () => clearTimeout(timeoutId);
+          // Second fallback: show camera after 800ms if still loading
+          timeout2Id = setTimeout(() => {
+            console.log('800ms timeout - forcing camera view regardless');
+            showCamera();
+          }, 800);
         }
       } catch (err) {
         if (mounted) {
@@ -105,6 +128,8 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (timeout2Id) clearTimeout(timeout2Id);
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
@@ -180,6 +205,9 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
           <div className="modal-body camera-loading">
             <div className="spinner"></div>
             <p>Requesting camera access…</p>
+            <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: '1rem' }}>
+              On your phone, tap "Allow" when prompted
+            </p>
           </div>
         )}
 
