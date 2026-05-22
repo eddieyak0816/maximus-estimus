@@ -18,106 +18,52 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    let timeout2Id: ReturnType<typeof setTimeout> | undefined;
 
     async function startCamera() {
       try {
+        console.log('Requesting camera access...');
         let stream: MediaStream | null = null;
 
+        // Try environment-facing camera first (back camera on phone)
         try {
-          stream = await Promise.race([
-            navigator.mediaDevices.getUserMedia({
-              video: { facingMode: 'environment' },
-              audio: false,
-            }),
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error('Camera request timeout')), 30000)
-            ),
-          ]);
-        } catch {
-          try {
-            stream = await Promise.race([
-              navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: false,
-              }),
-              new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('Camera request timeout')), 30000)
-              ),
-            ]);
-          } catch (e) {
-            console.error('Both camera attempts failed:', e);
-            throw e;
-          }
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false,
+          });
+        } catch (e) {
+          console.log('Environment camera failed, trying any camera:', e);
+          // Fall back to any available camera
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
         }
 
-        if (!mounted) {
-          stream.getTracks().forEach(t => t.stop());
+        if (!mounted || !stream) {
+          console.log('Component unmounted or no stream');
+          stream?.getTracks().forEach(t => t.stop());
           return;
         }
 
+        console.log('Stream acquired, setting up video element');
         streamRef.current = stream;
+
         if (videoRef.current) {
-          console.log('Setting video srcObject with stream tracks:', stream.getTracks().length);
           videoRef.current.srcObject = stream as unknown as MediaStream;
 
-          const showCamera = () => {
+          // Simple approach: just show the camera immediately
+          // The video will play automatically with autoPlay + playsInline
+          setTimeout(() => {
             if (mounted) {
-              console.log('Showing camera view');
+              console.log('Showing camera');
               setStage('camera');
-              if (timeoutId) clearTimeout(timeoutId);
-              if (timeout2Id) clearTimeout(timeout2Id);
             }
-          };
-
-          const playVideo = async () => {
-            try {
-              if (videoRef.current && mounted) {
-                console.log('Attempting to play video');
-                const playPromise = videoRef.current.play();
-                if (playPromise && typeof playPromise.then === 'function') {
-                  await playPromise;
-                }
-                showCamera();
-              }
-            } catch (e) {
-              console.error('Video play error:', e);
-              showCamera();
-            }
-          };
-
-          videoRef.current.onloadedmetadata = () => {
-            console.log('Video metadata loaded');
-            playVideo();
-          };
-
-          videoRef.current.oncanplay = () => {
-            console.log('Video can play');
-            playVideo();
-          };
-
-          videoRef.current.onplay = () => {
-            console.log('Video is playing');
-            showCamera();
-          };
-
-          // First fallback: show camera after 200ms
-          timeoutId = setTimeout(() => {
-            console.log('200ms timeout - showing camera');
-            showCamera();
-          }, 200);
-
-          // Second fallback: show camera after 800ms if still loading
-          timeout2Id = setTimeout(() => {
-            console.log('800ms timeout - forcing camera view regardless');
-            showCamera();
-          }, 800);
+          }, 100);
         }
       } catch (err) {
         if (mounted) {
           console.error('Camera error:', err);
-          const msg = err instanceof Error ? err.message : 'Camera access denied or not available';
+          const msg = err instanceof Error ? err.message : 'Camera not available';
           setError(msg);
           setStage('error');
         }
@@ -128,8 +74,6 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
     return () => {
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
-      if (timeout2Id) clearTimeout(timeout2Id);
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
