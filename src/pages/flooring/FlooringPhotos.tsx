@@ -56,6 +56,26 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
     setActiveRoomId(null);
   }
 
+  async function handlePhotoUpload(file: File, roomId?: string, type?: 'overview' | 'condition' | keyof FP) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    try {
+      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      const photoId = await savePhoto(assessmentId, jobId, `${roomId || type}`, blob);
+
+      if (roomId && type) {
+        updateRoomPhoto(roomId, type as 'overview' | 'condition', photoId);
+      } else if (type) {
+        u(type as keyof FP, photoId);
+      }
+    } catch (err) {
+      console.error('Failed to upload photo:', err);
+      alert('Failed to upload photo');
+    }
+  }
+
   async function handlePhotoRemove(roomId: string | null, type: 'overview' | 'condition' | keyof FP) {
     if (roomId) {
       const photoId = roomPhotos[roomId]?.[type as 'overview' | 'condition'] as string;

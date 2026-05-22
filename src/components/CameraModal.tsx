@@ -21,10 +21,19 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-          audio: false,
-        });
+        let stream: MediaStream | null = null;
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false,
+          });
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
+        }
 
         if (!mounted) {
           stream.getTracks().forEach(t => t.stop());
@@ -34,6 +43,11 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.onloadedmetadata = () => {
+            if (videoRef.current) {
+              videoRef.current.play().catch(console.error);
+            }
+          };
         }
         setStage('camera');
       } catch (err) {
@@ -58,14 +72,25 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
   function handleCapture() {
     if (!videoRef.current || !canvasRef.current) return;
 
-    const ctx = canvasRef.current.getContext('2d');
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvasRef.current.width = videoRef.current.videoWidth;
-    canvasRef.current.height = videoRef.current.videoHeight;
-    ctx.drawImage(videoRef.current, 0, 0);
+    const width = video.videoWidth || video.width;
+    const height = video.videoHeight || video.height;
 
-    canvasRef.current.toBlob((blob) => {
+    if (width === 0 || height === 0) {
+      setError('Camera not ready. Please wait a moment and try again.');
+      setStage('error');
+      return;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(video, 0, 0, width, height);
+
+    canvas.toBlob((blob) => {
       if (blob) {
         const url = URL.createObjectURL(blob);
         setPreviewSrc(url);
@@ -80,6 +105,9 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
       if (blob) {
         onCapture(blob);
         cleanup();
+      } else {
+        setError('Failed to process photo. Please try again.');
+        setStage('error');
       }
     }, 'image/jpeg', 0.85);
   }

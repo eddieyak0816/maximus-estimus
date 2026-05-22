@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getPhotoUrl } from '../utils/photoStorage';
 
 interface Props {
@@ -6,12 +6,14 @@ interface Props {
   note?: string;
   photoId?: string;
   onOpenCamera: () => void;
+  onFileSelected?: (file: File) => void;
   onRemove?: () => void;
 }
 
-export default function PhotoItem({ label, note, photoId, onOpenCamera, onRemove }: Props) {
+export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove }: Props) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const captured = !!photoId;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!photoId) {
@@ -29,6 +31,14 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onRemove
       if (thumbUrl) URL.revokeObjectURL(thumbUrl);
     };
   }, [photoId]);
+
+  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file && onFileSelected) {
+      onFileSelected(file);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
 
   return (
     <div className="photo-item">
@@ -54,6 +64,20 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onRemove
         <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={onOpenCamera}>
           {captured ? 'Retake' : '📷 Take'}
         </button>
+        {onFileSelected && (
+          <>
+            <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={() => fileInputRef.current?.click()}>
+              {captured ? '📁 Replace' : '📁 Upload'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelected}
+              style={{ display: 'none' }}
+            />
+          </>
+        )}
         {captured && onRemove && (
           <button className="photo-btn remove" onClick={onRemove} title="Delete photo">
             ✕

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { savePhoto, deletePhoto } from '../utils/photoStorage';
 import type { CustomPhoto } from '../types';
@@ -16,6 +16,7 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
   const [newPhotoLabel, setNewPhotoLabel] = useState('');
   const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
   const [showLabelForm, setShowLabelForm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleAddCustomPhoto(blob: Blob) {
     if (!newPhotoLabel.trim()) {
@@ -52,6 +53,38 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
         console.error('Failed to delete custom photo:', err);
         alert('Failed to delete photo');
       }
+    }
+  }
+
+  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!newPhotoLabel.trim()) {
+      alert('Please enter a label for the photo');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    try {
+      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      const photoId = await savePhoto(assessmentId, jobId, `custom-${uuidv4()}`, blob);
+      const newPhoto: CustomPhoto = {
+        id: uuidv4(),
+        label: newPhotoLabel.trim(),
+        photoId,
+      };
+      onUpdate([...photos, newPhoto]);
+      setNewPhotoLabel('');
+      setShowLabelForm(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (err) {
+      console.error('Failed to upload photo:', err);
+      alert('Failed to upload photo');
     }
   }
 
@@ -101,11 +134,18 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
               style={{ flex: 1 }}
               onClick={() => setActivePhotoId('new')}
             >
-              Take Photo
+              📷 Take Photo
+            </button>
+            <button
+              className="btn btn-primary"
+              style={{ flex: 1 }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              📁 Upload Photo
             </button>
             <button
               className="btn btn-ghost"
-              style={{ flex: 1 }}
+              style={{ flex: 0.6 }}
               onClick={() => {
                 setShowLabelForm(false);
                 setNewPhotoLabel('');
@@ -114,6 +154,13 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
               Cancel
             </button>
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelected}
+            style={{ display: 'none' }}
+          />
         </div>
       )}
 

@@ -43,6 +43,21 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
     setActivePhotoKey(null);
   }
 
+  async function handlePhotoUpload(photoKey: keyof KP, file: File) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    try {
+      const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      const photoId = await savePhoto(assessmentId, jobId, String(photoKey), blob);
+      u(photoKey, photoId);
+    } catch (err) {
+      console.error('Failed to upload photo:', err);
+      alert('Failed to upload photo');
+    }
+  }
+
   async function handlePhotoRemove(photoKey: keyof KP) {
     const photoId = data[photoKey] as string;
     if (photoId) {
@@ -79,6 +94,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Wide angle from doorway"
         photoId={data.roomEntrance}
         onOpenCamera={() => setActivePhotoKey('roomEntrance')}
+        onFileSelected={(file) => handlePhotoUpload('roomEntrance', file)}
         onRemove={() => handlePhotoRemove('roomEntrance')}
       />
       <PhotoItem
@@ -86,6 +102,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Capture the whole space"
         photoId={data.roomCorner}
         onOpenCamera={() => setActivePhotoKey('roomCorner')}
+        onFileSelected={(file) => handlePhotoUpload('roomCorner', file)}
         onRemove={() => handlePhotoRemove('roomCorner')}
       />
       <PhotoItem
@@ -93,6 +110,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Full floor condition and material"
         photoId={data.floor}
         onOpenCamera={() => setActivePhotoKey('floor')}
+        onFileSelected={(file) => handlePhotoUpload('floor', file)}
         onRemove={() => handlePhotoRemove('floor')}
       />
 
@@ -106,6 +124,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
             note="Full wall shot captures everything"
             photoId={data[photoKey] as string}
             onOpenCamera={() => setActivePhotoKey(photoKey)}
+            onFileSelected={(file) => handlePhotoUpload(photoKey, file)}
             onRemove={() => handlePhotoRemove(photoKey)}
           />
         );
@@ -119,6 +138,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
             note="All sides visible if possible"
             photoId={data.island}
             onOpenCamera={() => setActivePhotoKey('island')}
+            onFileSelected={(file) => handlePhotoUpload('island', file)}
             onRemove={() => handlePhotoRemove('island')}
           />
         </>
@@ -131,18 +151,21 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
             label="Upper cabinets — full view"
             photoId={data.cabUppers}
             onOpenCamera={() => setActivePhotoKey('cabUppers')}
+            onFileSelected={(file) => handlePhotoUpload('cabUppers', file)}
             onRemove={() => handlePhotoRemove('cabUppers')}
           />
           <PhotoItem
             label="Base cabinets — full view"
             photoId={data.cabBase}
             onOpenCamera={() => setActivePhotoKey('cabBase')}
+            onFileSelected={(file) => handlePhotoUpload('cabBase', file)}
             onRemove={() => handlePhotoRemove('cabBase')}
           />
           <PhotoItem
             label="Tall / pantry cabinet — full view"
             photoId={data.cabTall}
             onOpenCamera={() => setActivePhotoKey('cabTall')}
+            onFileSelected={(file) => handlePhotoUpload('cabTall', file)}
             onRemove={() => handlePhotoRemove('cabTall')}
           />
         </>
@@ -154,6 +177,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Cracks, water damage, uneven surfaces"
         photoId={data.problemAreas}
         onOpenCamera={() => setActivePhotoKey('problemAreas')}
+        onFileSelected={(file) => handlePhotoUpload('problemAreas', file)}
         onRemove={() => handlePhotoRemove('problemAreas')}
       />
       <PhotoItem
@@ -161,6 +185,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Document anything affecting install"
         photoId={data.unusual}
         onOpenCamera={() => setActivePhotoKey('unusual')}
+        onFileSelected={(file) => handlePhotoUpload('unusual', file)}
         onRemove={() => handlePhotoRemove('unusual')}
       />
       <PhotoItem
@@ -168,6 +193,7 @@ export default function KitchenPhotos({ data, measurements, assessmentId, jobId,
         note="Only if relevant to this job"
         photoId={data.electricalPanel}
         onOpenCamera={() => setActivePhotoKey('electricalPanel')}
+        onFileSelected={(file) => handlePhotoUpload('electricalPanel', file)}
         onRemove={() => handlePhotoRemove('electricalPanel')}
       />
 
