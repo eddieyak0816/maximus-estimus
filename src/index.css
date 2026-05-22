@@ -1176,6 +1176,29 @@ input, select, textarea { font-family: var(--font); }
 .sub-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .sub-card-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); flex: 1; }
 .sub-card-actions { display: flex; gap: 6px; }
+.wall-piece-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.8fr) 34px;
+  gap: 8px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+.wall-piece-row .meas-field { margin-bottom: 0; }
+.wall-piece-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  margin-top: 2px;
+  border-top: 1px solid var(--border);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.wall-piece-total strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
 .sub-section-label {
   font-size: var(--font-size-xs); font-weight: 800; letter-spacing: 0.8px;
   text-transform: uppercase; color: var(--text-muted);

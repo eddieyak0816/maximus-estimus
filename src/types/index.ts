@@ -54,9 +54,16 @@ export interface ApplianceOnWall {
   corner?: 'Left' | 'Right';
 }
 
+export interface WallLengthPiece {
+  id: string;
+  label?: string;
+  length?: string;
+}
+
 export interface WallData {
   name?: string;
   length?: string;
+  lengthPieces?: WallLengthPiece[];
   ceilOvr?: boolean;
   ceilH?: string;
   sH?: string;

@@ -28,7 +28,7 @@ export default function MeasInput({ label, value = '', onChange, hint }: Props) 
 
   return (
     <div className="meas-field">
-      <div className="meas-label">{label}</div>
+      {label && <div className="meas-label">{label}</div>}
       {hint && <div className="meas-hint">{hint}</div>}
       <div className="meas-input-row">
         <input

@@ -3,7 +3,34 @@ import Toggle from './Toggle';
 import MeasInput from './MeasInput';
 import ChevronIcon from './ChevronIcon';
 import DropdownSelect from './DropdownSelect';
-import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall } from '../types';
+import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall, WallLengthPiece } from '../types';
+
+function newWallLengthPiece(index: number): WallLengthPiece {
+  return { id: crypto.randomUUID(), label: `Piece ${index + 1}` };
+}
+
+function parseMeasurementToInches(value?: string): number {
+  const raw = (value || '').trim().toLowerCase();
+  if (!raw) return 0;
+
+  const feetInches = raw.match(/^(\d+(?:\.\d+)?)\s*'\s*(\d+(?:\.\d+)?)?\s*"?$/);
+  if (feetInches) {
+    return (parseFloat(feetInches[1]) * 12) + (parseFloat(feetInches[2] || '0') || 0);
+  }
+
+  const number = parseFloat(raw.replace(/[^0-9.]/g, ''));
+  if (isNaN(number)) return 0;
+  return raw.includes("'") || raw.includes('ft') ? number * 12 : number;
+}
+
+function formatInches(inches: number): string {
+  return Number.isInteger(inches) ? `${inches}"` : `${inches.toFixed(1)}"`;
+}
+
+function formatFeet(inches: number): string {
+  const feet = inches / 12;
+  return `${Number.isInteger(feet) ? feet : Number(feet.toFixed(2))}'`;
+}
 
 // ── Window card ───────────────────────────────────────────────────────────────
 function WindowCard({ win, index, onUpdate, onRemove }: {
@@ -218,10 +245,22 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const addDoor = () => u('doors', [...(data.doors || []), { type: 'Door' as const }]);
   const addOutlet = () => u('outlets', [...(data.outlets || []), { type: 'Outlet' as const }]);
   const addAppliance = () => u('appliances', [...(data.appliances || []), { name: '' }]);
+  const addLengthPiece = () => {
+    const pieces = data.lengthPieces || [];
+    u('lengthPieces', [...pieces, newWallLengthPiece(pieces.length)]);
+  };
+  const updateLengthPiece = (pieceId: string, patch: Partial<WallLengthPiece>) => {
+    u('lengthPieces', (data.lengthPieces || []).map(p => p.id === pieceId ? { ...p, ...patch } : p));
+  };
+  const removeLengthPiece = (pieceId: string) => {
+    u('lengthPieces', (data.lengthPieces || []).filter(p => p.id !== pieceId));
+  };
 
   const done = !!data.length;
   const appCount = (data.appliances || []).filter(a => a.name).length;
   const displayName = data.name || `Wall ${wall}`;
+  const lengthPieces = data.lengthPieces || [];
+  const lengthTotalInches = lengthPieces.reduce((sum, piece) => sum + parseMeasurementToInches(piece.length), 0);
 
   const toggleOpen = () => { if (!renaming) setOpen(o => !o); };
 
@@ -267,6 +306,44 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
       {open && (
         <div className="wall-body">
           <MeasInput label="Wall Length" value={data.length} onChange={v => u('length', v)} />
+
+          <div className="wall-sub-section">
+            <div className="wall-sub-section-header">
+              <span className="tiny-label">Wall length pieces</span>
+              <button className="chip-btn" onClick={addLengthPiece}>+ Add Piece</button>
+            </div>
+            {lengthPieces.length > 0 && (
+              <div className="sub-card">
+                {lengthPieces.map((piece, index) => (
+                  <div key={piece.id} className="wall-piece-row">
+                    <input
+                      className="input input-sm"
+                      placeholder={`Piece ${index + 1}`}
+                      value={piece.label || ''}
+                      onChange={e => updateLengthPiece(piece.id, { label: e.target.value })}
+                    />
+                    <MeasInput
+                      label=""
+                      value={piece.length}
+                      onChange={v => updateLengthPiece(piece.id, { length: v })}
+                    />
+                    <button className="remove-btn" onClick={() => removeLengthPiece(piece.id)}>x</button>
+                  </div>
+                ))}
+                <div className="wall-piece-total">
+                  <span>Total</span>
+                  <strong>{formatInches(lengthTotalInches)} / {formatFeet(lengthTotalInches)}</strong>
+                </div>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  disabled={lengthTotalInches <= 0}
+                  onClick={() => u('length', formatFeet(lengthTotalInches))}
+                >
+                  Use total as wall length
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Ceiling override */}
           <div className="toggle-row">
