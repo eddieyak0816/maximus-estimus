@@ -1796,8 +1796,12 @@ input, select, textarea { font-family: var(--font); }
 .camera-view video,
 .camera-view img {
   width: 100%;
+  height: auto;
+  min-height: 300px;
   max-height: 500px;
   border-radius: var(--radius);
+  background: #000;
+  display: block;
 }
 .camera-controls {
   display: flex;

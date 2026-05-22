@@ -42,12 +42,16 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
         streamRef.current = stream;
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject = stream as MediaStream;
 
           const playVideo = async () => {
             try {
               if (videoRef.current && mounted) {
-                await videoRef.current.play();
+                console.log('Video element ready, attempting to play');
+                const playPromise = videoRef.current.play();
+                if (playPromise) {
+                  await playPromise;
+                }
                 if (mounted) setStage('camera');
               }
             } catch (e) {
@@ -56,15 +60,22 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
             }
           };
 
-          if (videoRef.current.readyState >= 2) {
-            playVideo();
-          } else {
-            videoRef.current.onloadedmetadata = playVideo;
-            videoRef.current.oncanplay = playVideo;
-          }
+          // Ensure the video starts playing
+          setTimeout(() => {
+            if (videoRef.current && videoRef.current.readyState >= 2 && mounted) {
+              console.log('Video metadata loaded, playing...');
+              playVideo();
+            }
+          }, 100);
+
+          videoRef.current.onloadedmetadata = playVideo;
+          videoRef.current.oncanplay = playVideo;
 
           const timeoutId = setTimeout(() => {
-            if (mounted) playVideo();
+            if (mounted) {
+              console.log('Camera timeout fallback - showing camera view');
+              setStage('camera');
+            }
           }, 2000);
 
           return () => clearTimeout(timeoutId);
@@ -167,7 +178,15 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
               autoPlay
               playsInline
               muted
-              style={{ width: '100%', maxHeight: '500px', objectFit: 'cover' }}
+              style={{
+                width: '100%',
+                height: '400px',
+                minHeight: '300px',
+                objectFit: 'cover',
+                backgroundColor: '#000',
+                borderRadius: '8px',
+                display: 'block'
+              }}
             />
             <div className="camera-controls">
               <button className="btn btn-primary" onClick={handleCapture}>
