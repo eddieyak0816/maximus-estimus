@@ -129,10 +129,12 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
             <PhotoItem label="Full room overview" note="Wide shot of the whole floor area"
               photoId={rp.overview}
               onOpenCamera={() => { setActiveRoomId(room.id); setActivePhotoKey('overview'); }}
+              onFileSelected={(file) => handlePhotoUpload(file, room.id, 'overview')}
               onRemove={() => handlePhotoRemove(room.id, 'overview')} />
             <PhotoItem label="Existing flooring condition" note="Close-up of current floor material"
               photoId={rp.condition}
               onOpenCamera={() => { setActiveRoomId(room.id); setActivePhotoKey('condition'); }}
+              onFileSelected={(file) => handlePhotoUpload(file, room.id, 'condition')}
               onRemove={() => handlePhotoRemove(room.id, 'condition')} />
           </div>
         );
@@ -144,6 +146,7 @@ export default function FlooringPhotos({ data, measurements, assessmentId, jobId
           <PhotoItem label="Stairs — full view" note="All stair treads and risers visible"
             photoId={data.stairs}
             onOpenCamera={() => { setActiveRoomId(null); setActivePhotoKey('stairs'); }}
+            onFileSelected={(file) => handlePhotoUpload(file, undefined, 'stairs')}
             onRemove={() => handlePhotoRemove(null, 'stairs')} />
         </>
       )}
