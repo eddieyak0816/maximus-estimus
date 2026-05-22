@@ -27,11 +27,6 @@ function formatInches(inches: number): string {
   return Number.isInteger(inches) ? `${inches}"` : `${inches.toFixed(1)}"`;
 }
 
-function formatFeet(inches: number): string {
-  const feet = inches / 12;
-  return `${Number.isInteger(feet) ? feet : Number(feet.toFixed(2))}'`;
-}
-
 // ── Window card ───────────────────────────────────────────────────────────────
 function WindowCard({ win, index, onUpdate, onRemove }: {
   win: WindowData; index: number;
@@ -332,12 +327,12 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                 ))}
                 <div className="wall-piece-total">
                   <span>Total</span>
-                  <strong>{formatInches(lengthTotalInches)} / {formatFeet(lengthTotalInches)}</strong>
+                  <strong>{formatInches(lengthTotalInches)}</strong>
                 </div>
                 <button
                   className="btn btn-ghost btn-sm"
                   disabled={lengthTotalInches <= 0}
-                  onClick={() => u('length', formatFeet(lengthTotalInches))}
+                  onClick={() => u('length', formatInches(lengthTotalInches))}
                 >
                   Use total as wall length
                 </button>
