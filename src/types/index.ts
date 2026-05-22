@@ -182,21 +182,7 @@ export interface CustomPhoto {
 }
 
 export interface KitchenPhotos {
-  roomEntrance?: string;
-  roomCorner?: string;
-  floor?: string;
-  wallA?: string; wallB?: string; wallC?: string; wallD?: string;
-  island?: string;
-  desk?: string;
-  cabUppers?: string;
-  cabBase?: string;
-  cabTall?: string;
-  problemAreas?: string;
-  unusual?: string;
-  electricalPanel?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface KitchenAssessment {
@@ -285,23 +271,7 @@ export interface BathroomQuestions {
 }
 
 export interface BathroomPhotos {
-  roomEntrance?: string;
-  roomCorner?: string;
-  floor?: string;
-  wallA?: string;
-  wallB?: string;
-  wallC?: string;
-  wallD?: string;
-  tub?: string;
-  shower?: string;
-  showerFloor?: string;
-  vanity?: string;
-  toilet?: string;
-  linenCloset?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface BathroomAssessment {
@@ -361,11 +331,7 @@ export interface FlooringQuestions {
 }
 
 export interface FlooringPhotos {
-  roomPhotos: Record<string, { overview?: string; condition?: string }>;
-  stairs?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface FlooringAssessment {
@@ -398,14 +364,7 @@ export interface LivingRoomQuestions {
 }
 
 export interface LivingRoomPhotos {
-  roomOverview?: string;
-  roomCorner?: string;
-  flooring?: string;
-  lighting?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface LivingRoomAssessment {
@@ -439,14 +398,7 @@ export interface BedroomQuestions {
 }
 
 export interface BedroomPhotos {
-  roomOverview?: string;
-  roomCorner?: string;
-  closets?: string;
-  flooring?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface BedroomAssessment {
@@ -481,14 +433,7 @@ export interface DeckQuestions {
 }
 
 export interface DeckPhotos {
-  overallView?: string;
-  deckSurface?: string;
-  railing?: string;
-  access?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface DeckAssessment {
@@ -521,12 +466,7 @@ export interface PaintingQuestions {
 }
 
 export interface PaintingPhotos {
-  roomOverview?: string;
-  roomCorner?: string;
-  problemAreas?: string;
-  catchAll?: string;
-  catchAllNotes?: string;
-  customPhotos?: CustomPhoto[];
+  photos: CustomPhoto[];
 }
 
 export interface PaintingAssessment {

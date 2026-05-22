@@ -128,30 +128,30 @@ export default function CustomPhotosSection({ photos = [], assessmentId, jobId, 
             maxLength={100}
             autoFocus
           />
-          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
             <button
               className="btn btn-primary"
-              style={{ flex: 1 }}
+              style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
               onClick={() => setActivePhotoId('new')}
             >
-              📷 Take Photo
+              📷 Take
             </button>
             <button
               className="btn btn-primary"
-              style={{ flex: 1 }}
+              style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
               onClick={() => fileInputRef.current?.click()}
             >
-              📁 Upload Photo
+              📁 Upload
             </button>
             <button
               className="btn btn-ghost"
-              style={{ flex: 0.6 }}
+              style={{ flex: '0 1 auto', minWidth: '60px' }}
               onClick={() => {
                 setShowLabelForm(false);
                 setNewPhotoLabel('');
               }}
             >
-              Cancel
+              ✕
             </button>
           </div>
           <input
