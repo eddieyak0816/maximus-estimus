@@ -42,47 +42,59 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
         streamRef.current = stream;
         if (videoRef.current) {
-          videoRef.current.srcObject = stream as MediaStream;
+          console.log('Setting video srcObject with stream tracks:', stream.getTracks().length);
+          videoRef.current.srcObject = stream as unknown as MediaStream;
+
+          const showCamera = () => {
+            if (mounted) {
+              console.log('Showing camera view');
+              setStage('camera');
+            }
+          };
 
           const playVideo = async () => {
             try {
               if (videoRef.current && mounted) {
-                console.log('Video element ready, attempting to play');
+                console.log('Attempting to play video');
                 const playPromise = videoRef.current.play();
-                if (playPromise) {
+                if (playPromise && typeof playPromise.then === 'function') {
                   await playPromise;
                 }
-                if (mounted) setStage('camera');
+                showCamera();
               }
             } catch (e) {
-              console.error('Play error:', e);
-              if (mounted) setStage('camera');
+              console.error('Video play error:', e);
+              showCamera();
             }
           };
 
-          // Ensure the video starts playing
-          setTimeout(() => {
-            if (videoRef.current && videoRef.current.readyState >= 2 && mounted) {
-              console.log('Video metadata loaded, playing...');
-              playVideo();
-            }
-          }, 100);
+          videoRef.current.onloadedmetadata = () => {
+            console.log('Video metadata loaded');
+            playVideo();
+          };
 
-          videoRef.current.onloadedmetadata = playVideo;
-          videoRef.current.oncanplay = playVideo;
+          videoRef.current.oncanplay = () => {
+            console.log('Video can play');
+            playVideo();
+          };
 
+          videoRef.current.onplay = () => {
+            console.log('Video is playing');
+            showCamera();
+          };
+
+          // Fallback: show camera after 1 second regardless
           const timeoutId = setTimeout(() => {
-            if (mounted) {
-              console.log('Camera timeout fallback - showing camera view');
-              setStage('camera');
-            }
-          }, 2000);
+            console.log('Timeout - forcing camera view');
+            showCamera();
+          }, 1000);
 
           return () => clearTimeout(timeoutId);
         }
       } catch (err) {
         if (mounted) {
-          const msg = err instanceof Error ? err.message : 'Camera access denied';
+          console.error('Camera error:', err);
+          const msg = err instanceof Error ? err.message : 'Camera access denied or not available';
           setError(msg);
           setStage('error');
         }
