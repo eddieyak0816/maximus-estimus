@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 17, 2026 (Morning)  
+> **Last Updated:** May 22, 2026 (Afternoon)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅**
 
 ---
 
@@ -97,6 +97,38 @@
     - CheckOpt rows: 48px min-height
   - Responsive layouts on mobile: Page padding reduced, cards wrap/stack, buttons full-width, outlet rows stack on 480px
   - App works reliably on field contractors' phones (iPhone/Android, 375px+)
+
+- **Photos Interface Redesign & Mobile Camera Fixes (May 22):**
+  - **Unified Photos Tab:** Replaced all job-specific photo pages (Kitchen, Bathroom, Flooring, Painting, Living Room, Bedroom, Deck) with single reusable PhotosTab component
+  - **Simplified UX:** Photos now use dropdown-based interface instead of long predefined checklist
+    - Dropdown populated with wall names from measurements + default categories (Room Overview, Floor, Problem Areas, Lighting, Electrical, etc.) + "Other" custom option
+    - Users simply tap "➕ Add Photo", select category from dropdown, upload/take photo
+    - No more scrolling through 20+ photo items
+    - Flexible: users can add unlimited photos per job, tagged as needed
+  - **Mobile Camera Fixed:** 
+    - Added fallback camera constraints (if `facingMode: 'environment'` fails, tries any available camera)
+    - Improved stream initialization with proper `onloadedmetadata` and `oncanplay` handlers
+    - Added 1-second timeout fallback to show camera view even if metadata loads slowly
+    - Better error messages for permission denied/camera unavailable
+    - Video element now has explicit min-height (300px) to ensure visibility
+  - **Photo Upload Feature:**
+    - Added "📁 Upload Photo" button to all photo interfaces (alongside "📷 Take Photo")
+    - Users can upload from device storage/camera roll without using web camera
+    - Works on all job types equally
+    - File input with image-only filtering
+  - **Responsive Button Fix:**
+    - Fixed CustomPhotosSection buttons overflowing on mobile
+    - Buttons now wrap on small screens with proper flex layout
+    - Shortened button text (Take/Upload/✕) for mobile fit
+  - **Data Model Change:**
+    - Simplified all `*Photos` interfaces from individual fields to single array: `photos: CustomPhoto[]`
+    - Example: `KitchenPhotos` changed from `{roomEntrance?, wallA?, wallB?, ...}` to `{photos: CustomPhoto[]}`
+    - All photo pages now use same data structure, enabling reusable PhotosTab component
+
+- **Opening Trim Size Enhancement (May 22):**
+  - Added trim width measurements to Openings (doors without type-specific trim were hidden)
+  - Openings now show Left Side, Right Side, Top trim fields alongside regular Door measurements
+  - Consistent with Door trim UI
 
 ### 🔲 Next Up (Priority Order)
 
@@ -245,7 +277,12 @@ src/
 │   ├── estimateEngine.ts       # Auto-generate line items from measurements
 │   ├── defaultPriceGuide.ts    # Seed data for 7 price categories
 │   └── photoStorage.ts         # IndexedDB photo save/load/delete
-├── components/                 # Reusable UI components (Toggle, MeasInput, WallSection, etc.)
+├── components/                 # Reusable UI components
+│   ├── PhotosTab.tsx           # Unified photo interface (dropdown-based, all job types)
+│   ├── PhotoItem.tsx           # Individual photo with take/upload/delete options
+│   ├── CameraModal.tsx         # Device camera capture + preview
+│   ├── CustomPhotosSection.tsx # Legacy custom photos (deprecated, use PhotosTab)
+│   └── ...                     # Toggle, MeasInput, WallSection, etc.
 ├── pages/
 │   ├── Dashboard.tsx           # Home: assessment list + stats
 │   ├── CustomerInfoPage.tsx    # Client info + team member assignment
@@ -255,13 +292,14 @@ src/
 │   ├── EstimatePage.tsx        # Generate/view/edit estimates
 │   ├── PriceGuidePage.tsx      # Edit costs + markups
 │   ├── GalleryPage.tsx         # Cabinet styles + swatches
-│   ├── kitchen/                # Kitchen-specific forms
-│   ├── bathroom/               # Bathroom-specific forms
-│   ├── flooring/               # Flooring-specific forms
+│   ├── kitchen/                # Kitchen-specific measurements + questions; uses PhotosTab for photos
+│   ├── bathroom/               # Bathroom-specific measurements + questions; uses PhotosTab for photos
+│   ├── flooring/               # Flooring-specific measurements + questions; uses PhotosTab for photos
+│   ├── painting/               # Painting measurements + questions; uses PhotosTab for photos
+│   ├── living-room/            # Living room template; uses PhotosTab for photos
+│   ├── bedroom/                # Bedroom template; uses PhotosTab for photos
+│   ├── deck/                   # Deck template; uses PhotosTab for photos
 │   ├── other/                  # "Other" job type (free-text tabs)
-│   ├── living-room/            # NEW: Room template (in progress)
-│   ├── bedroom/                # NEW: Room template (in progress)
-│   ├── deck/                   # NEW: Room template (in progress)
 │   └── forms/                  # LEGACY: Unused, safe to delete
 ├── index.css                   # All styles + CSS variables
 └── main.tsx                    # React entry point
