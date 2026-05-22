@@ -136,7 +136,6 @@ export default function AssessmentDetail() {
       return <FlooringPhotos data={floor.photos}
         measurements={floor.measurements}
         assessmentId={id!} jobId={activeJob.id}
-        hasStairs={!!floor.questions.stairNosing}
         onUpdate={p => updateFlooring({ ...floor, photos: p })} />;
     }
 
@@ -151,6 +150,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateLivingRoom({ ...lr, questions: q })} />;
       }
       return <LivingRoomPhotos data={lr.photos}
+        measurements={lr.measurements}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateLivingRoom({ ...lr, photos: p })} />;
     }
@@ -166,6 +166,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBedroom({ ...br, questions: q })} />;
       }
       return <BedroomPhotos data={br.photos}
+        measurements={br.measurements}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateBedroom({ ...br, photos: p })} />;
     }
@@ -181,6 +182,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateDeck({ ...dk, questions: q })} />;
       }
       return <DeckPhotos data={dk.photos}
+        measurements={dk.measurements}
         assessmentId={id!} jobId={activeJob.id}
         onUpdate={p => updateDeck({ ...dk, photos: p })} />;
     }

@@ -224,44 +224,22 @@ function KitchenQuestionsSection({ q, assessmentId }: { q: KitchenQuestions; ass
   );
 }
 
-function KitchenPhotosSection({ p, m, assessmentId }: { p: KitchenPhotos; m: KitchenMeasurements; assessmentId: string }) {
+function KitchenPhotosSection({ p, assessmentId }: { p: KitchenPhotos; assessmentId: string }) {
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const hasAnyCabinets = Object.values(m.walls).some(w => w.hasUpperCabs || w.hasBaseCabs || w.hasTallCab);
-  const items = [
-    { label: 'Room — from entrance', photoId: p.roomEntrance },
-    { label: 'Room — opposite corner', photoId: p.roomCorner },
-    { label: 'Floor overview', photoId: p.floor },
-    { label: 'Wall A', photoId: p.wallA },
-    { label: 'Wall B', photoId: p.wallB },
-    { label: 'Wall C', photoId: p.wallC },
-    { label: 'Wall D', photoId: p.wallD },
-    ...(m.hasIsland ? [{ label: 'Island', photoId: p.island }] : []),
-    ...(m.hasDesk ? [{ label: 'Desk', photoId: p.desk }] : []),
-    ...(hasAnyCabinets ? [
-      { label: 'Upper cabinets', photoId: p.cabUppers },
-      { label: 'Base cabinets', photoId: p.cabBase },
-      { label: 'Tall cabinet', photoId: p.cabTall },
-    ] : []),
-    { label: 'Problem areas', photoId: p.problemAreas },
-    { label: 'Unusual items', photoId: p.unusual },
-    { label: 'Electrical panel', photoId: p.electricalPanel },
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -376,42 +354,22 @@ function BathroomQuestionsSection({ q, assessmentId }: { q: BathroomQuestions; a
   );
 }
 
-function BathroomPhotosSection({ p, m, assessmentId }: { p: BathroomPhotos; m: BathroomMeasurements; assessmentId: string }) {
+function BathroomPhotosSection({ p, assessmentId }: { p: BathroomPhotos; assessmentId: string }) {
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const items = [
-    { label: 'Room — from entrance', photoId: p.roomEntrance },
-    { label: 'Room — opposite corner', photoId: p.roomCorner },
-    { label: 'Floor overview', photoId: p.floor },
-    { label: 'Wall A', photoId: p.wallA },
-    { label: 'Wall B', photoId: p.wallB },
-    { label: 'Wall C', photoId: p.wallC },
-    { label: 'Wall D', photoId: p.wallD },
-    ...(m.hasTub ? [{ label: 'Tub', photoId: p.tub }] : []),
-    ...(m.hasShower ? [
-      { label: 'Shower', photoId: p.shower },
-      { label: 'Shower floor/drain', photoId: p.showerFloor },
-    ] : []),
-    { label: 'Vanity', photoId: p.vanity },
-    { label: 'Toilet area', photoId: p.toilet },
-    ...(m.hasLinenCloset ? [{ label: 'Linen closet', photoId: p.linenCloset }] : []),
-    { label: 'Problem areas', photoId: p.problemAreas },
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -532,34 +490,22 @@ function FlooringQuestionsSection({ q, assessmentId }: { q: FlooringQuestions; a
   );
 }
 
-function FlooringPhotosSection({ p, m, q, assessmentId }: { p: FlooringPhotos; m: FlooringMeasurements; q: FlooringQuestions; assessmentId: string }) {
+function FlooringPhotosSection({ p, assessmentId }: { p: FlooringPhotos; assessmentId: string }) {
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const items = [
-    ...m.rooms.flatMap(room => {
-      const rp = p.roomPhotos[room.id] || {};
-      return [
-        { label: `${room.label} — Overview`, photoId: rp.overview },
-        { label: `${room.label} — Condition`, photoId: rp.condition },
-      ];
-    }),
-    ...(q.stairNosing ? [{ label: 'Stairs', photoId: p.stairs }] : []),
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -606,27 +552,18 @@ function LivingRoomPhotosSection({ p, assessmentId }: { p: LivingRoomPhotos; ass
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const items = [
-    { label: 'Room — full overview', photoId: p.roomOverview },
-    { label: 'Room — opposite corner', photoId: p.roomCorner },
-    { label: 'Flooring condition', photoId: p.flooring },
-    { label: 'Lighting fixtures', photoId: p.lighting },
-    { label: 'Problem areas', photoId: p.problemAreas },
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -674,27 +611,18 @@ function BedroomPhotosSection({ p, assessmentId }: { p: BedroomPhotos; assessmen
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const items = [
-    { label: 'Room — full overview', photoId: p.roomOverview },
-    { label: 'Room — opposite corner', photoId: p.roomCorner },
-    { label: 'Closets', photoId: p.closets },
-    { label: 'Flooring condition', photoId: p.flooring },
-    { label: 'Problem areas', photoId: p.problemAreas },
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -745,27 +673,18 @@ function DeckPhotosSection({ p, assessmentId }: { p: DeckPhotos; assessmentId: s
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const items = [
-    { label: 'Overall view', photoId: p.overallView },
-    { label: 'Deck surface', photoId: p.deckSurface },
-    { label: 'Railing', photoId: p.railing },
-    { label: 'Access / stairs', photoId: p.access },
-    { label: 'Problem areas', photoId: p.problemAreas },
-    { label: 'Catch-all', photoId: p.catchAll },
-  ];
-  const takenCount = items.filter(i => i.photoId).length;
+  const photos = p.photos || [];
   return (
     <SectionCard
       title="Photos"
-      subtitle={`${takenCount} / ${items.length} captured`}
+      subtitle={`${photos.length} captured`}
       action={editBtn}
     >
       <div className="photo-checklist">
-        {items.map(item => (
-          <PhotoItem key={item.label} label={item.label} photoId={item.photoId} />
+        {photos.map(photo => (
+          <PhotoItem key={photo.id} label={photo.label} photoId={photo.photoId} />
         ))}
       </div>
-      <Row label="Catch-all Notes" value={p.catchAllNotes} />
     </SectionCard>
   );
 }
@@ -815,21 +734,21 @@ function JobSection({ job, assessmentId }: { job: JobInstance; assessmentId: str
         <>
           <KitchenMeasurementsSection m={job.kitchen.measurements} assessmentId={assessmentId} />
           <KitchenQuestionsSection q={job.kitchen.questions} assessmentId={assessmentId} />
-          <KitchenPhotosSection p={job.kitchen.photos} m={job.kitchen.measurements} assessmentId={assessmentId} />
+          <KitchenPhotosSection p={job.kitchen.photos} assessmentId={assessmentId} />
         </>
       )}
       {job.type === 'Bathroom' && job.bathroom && (
         <>
           <BathroomMeasurementsSection m={job.bathroom.measurements} assessmentId={assessmentId} />
           <BathroomQuestionsSection q={job.bathroom.questions} assessmentId={assessmentId} />
-          <BathroomPhotosSection p={job.bathroom.photos} m={job.bathroom.measurements} assessmentId={assessmentId} />
+          <BathroomPhotosSection p={job.bathroom.photos} assessmentId={assessmentId} />
         </>
       )}
       {job.type === 'Flooring' && job.flooring && (
         <>
           <FlooringMeasurementsSection m={job.flooring.measurements} assessmentId={assessmentId} />
           <FlooringQuestionsSection q={job.flooring.questions} assessmentId={assessmentId} />
-          <FlooringPhotosSection p={job.flooring.photos} m={job.flooring.measurements} q={job.flooring.questions} assessmentId={assessmentId} />
+          <FlooringPhotosSection p={job.flooring.photos} assessmentId={assessmentId} />
         </>
       )}
       {job.type === 'Living Room' && job.livingRoom && (

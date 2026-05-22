@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { savePhoto, deletePhoto } from '../utils/photoStorage';
 import PhotoItem from './PhotoItem';
@@ -7,7 +7,7 @@ import type { CustomPhoto } from '../types';
 
 interface Props {
   photos: CustomPhoto[];
-  measurements: Record<string, unknown>;
+  measurements?: any;
   assessmentId: string;
   jobId: string;
   onUpdate: (photos: CustomPhoto[]) => void;
@@ -19,7 +19,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [selectedCategory, setSelectedCategory] = useState('');
 
   // Extract wall names from measurements
-  const wallNames = extractWallLabels(measurements);
+  const wallNames = extractWallLabels(measurements || {});
 
   // Default photo categories
   const defaultCategories = [

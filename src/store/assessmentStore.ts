@@ -15,7 +15,7 @@ function emptyKitchen(): KitchenAssessment {
   return {
     measurements: { walls: { A: {}, B: {}, C: {}, D: {} }, soffitSame: true },
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
@@ -23,7 +23,7 @@ function emptyBathroom(): BathroomAssessment {
   return {
     measurements: { walls: { A: {}, B: {}, C: {}, D: {} }, soffitSame: true },
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
@@ -31,7 +31,7 @@ function emptyFlooring(): FlooringAssessment {
   return {
     measurements: { rooms: [{ id: uuidv4(), label: 'Room 1', parts: [], transitions: [], trims: [] }] },
     questions: {},
-    photos: { roomPhotos: {} },
+    photos: { photos: [] },
   };
 }
 
@@ -39,7 +39,7 @@ function emptyPainting(): PaintingAssessment {
   return {
     measurements: { floorMeasurements: [], trimMeasurements: [] },
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
@@ -47,7 +47,7 @@ function emptyLivingRoom(): LivingRoomAssessment {
   return {
     measurements: {},
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
@@ -55,7 +55,7 @@ function emptyBedroom(): BedroomAssessment {
   return {
     measurements: {},
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
@@ -63,7 +63,7 @@ function emptyDeck(): DeckAssessment {
   return {
     measurements: {},
     questions: {},
-    photos: {},
+    photos: { photos: [] },
   };
 }
 
