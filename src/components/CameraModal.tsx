@@ -43,13 +43,32 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            if (videoRef.current) {
-              videoRef.current.play().catch(console.error);
+
+          const playVideo = async () => {
+            try {
+              if (videoRef.current && mounted) {
+                await videoRef.current.play();
+                if (mounted) setStage('camera');
+              }
+            } catch (e) {
+              console.error('Play error:', e);
+              if (mounted) setStage('camera');
             }
           };
+
+          if (videoRef.current.readyState >= 2) {
+            playVideo();
+          } else {
+            videoRef.current.onloadedmetadata = playVideo;
+            videoRef.current.oncanplay = playVideo;
+          }
+
+          const timeoutId = setTimeout(() => {
+            if (mounted) playVideo();
+          }, 2000);
+
+          return () => clearTimeout(timeoutId);
         }
-        setStage('camera');
       } catch (err) {
         if (mounted) {
           const msg = err instanceof Error ? err.message : 'Camera access denied';
