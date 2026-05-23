@@ -10,6 +10,7 @@ import PriceGuidePage from './pages/PriceGuidePage';
 import EstimatePage from './pages/EstimatePage';
 import SummaryView from './pages/SummaryView';
 import LoginPage from './pages/LoginPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminDropdownsPage from './pages/AdminDropdownsPage';
 import { useAssessmentStore } from './store/assessmentStore';
@@ -127,6 +128,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceGuidePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />
