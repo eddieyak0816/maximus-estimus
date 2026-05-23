@@ -2,7 +2,7 @@
 
 > **Last Updated:** May 22, 2026 (Afternoon)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅ + Room Templates Complete ✅**
+> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅ + Room Templates Complete ✅ + Role-Based Job Visibility ✅ + Admin Dashboard Hub ✅**
 
 ---
 
@@ -183,7 +183,13 @@
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
 
-- [ ] Admin dashboard page (owner access only)
+- [x] **Admin dashboard page at `/admin` (May 22, 2026)** — Unified hub for all admin functions
+  - Section cards for Users, Dropdowns, Price Guide, Cabinet Gallery (each links to existing pages)
+  - App stats row: total assessments, team member count, logged-in user name
+  - Admin-gated with access denied for non-admins
+  - Replaces scattered admin links on Dashboard with single "🛠️ Admin Panel" button
+  - Responsive 2-column grid layout (stacks on mobile)
+  - Hover effects on cards for visual feedback
 - [ ] Manage job types (add/remove, custom checklists)
 - [ ] Manage team members (centralized list)
 - [ ] Manage price guide (move from `/price-guide` to admin)
