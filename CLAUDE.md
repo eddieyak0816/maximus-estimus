@@ -2,7 +2,7 @@
 
 > **Last Updated:** May 22, 2026 (Afternoon)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅**
+> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅ + Room Templates Complete ✅**
 
 ---
 
@@ -136,6 +136,14 @@
   - Combined total displays in inches and automatically fills the main Wall Length field
   - Undo last removes the most recent piece for fast correction
   - Existing simple Wall Length entry remains available for straightforward walls
+
+- **Room Templates: Living Room, Bedroom, Deck (May 15 completed, verified May 22):**
+  - **Living Room:** Measurements (ceiling height, windows, doors, outlets, flooring, lighting notes) + Questions (scope, timeline, flooring included, lighting work, referral, special notes) + Photos (PhotosTab)
+  - **Bedroom:** Measurements (ceiling height, closets, closet notes, windows, doors, outlets, flooring) + Questions (scope, timeline, flooring, closet work, referral, special notes) + Photos (PhotosTab)
+  - **Deck:** Measurements (length, width, auto-calculated sqft, height, existing condition, railing toggle, access notes) + Questions (scope, timeline, existing deck, railing, referral, special notes) + Photos (PhotosTab)
+  - All three room types fully wired into AssessmentDetail routing, JobTypePage job picker, and SummaryView rendering
+  - All three share consistent patterns: `u()` helper for updates, collapsible sections, PhotosTab integration
+  - Data persists independently per room type; syncs to Supabase with other jobs
 
 ### 🔲 Next Up (Priority Order)
 
