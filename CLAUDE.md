@@ -145,20 +145,15 @@
   - All three share consistent patterns: `u()` helper for updates, collapsible sections, PhotosTab integration
   - Data persists independently per room type; syncs to Supabase with other jobs
 
+- **Role-Based Job Visibility (May 15 completed, verified May 22):**
+  - Dashboard.tsx: `visibleAssessments = user?.isAdmin ? assessments : assessments.filter(a => a.creatorId === user?.id)`
+  - Page title switches: "All Assessments" (admin) vs "My Assessments" (regular user)
+  - `App.tsx` `NewRedirect`: `createAssessment(user.id)` stamps creator ID on every new assessment
+  - `AuthContext.tsx`: `PinUser.isAdmin` non-optional boolean, sourced from Supabase `is_admin` column, persisted in localStorage
+  - `Assessment.creatorId`: required `string` field, set at creation, never overwritten
+  - Creator name badge displays for each assessment showing who created it
+
 ### 🔲 Next Up (Priority Order)
-
-#### 🔲 Role-Based Job Visibility
-**Goal:** Restrict job visibility based on user role.
-
-- [ ] Regular users see only jobs they created/entered
-- [ ] Admins see all jobs across the team
-- [ ] Dashboard filters assessments by creator (unless user is admin)
-- [ ] Modify Dashboard.tsx to check `isAdmin` flag and filter accordingly
-- **Acceptance Criteria:**
-  - Non-admin user logs in → sees only their own assessments
-  - Admin user logs in → sees all team assessments
-  - When creating new assessment, creator is automatically recorded
-  - Assessments show which user created them (for admin view)
 
 #### ✅ Configurable Dropdown Lists (COMPLETE — May 15, 2026 Evening)
 **Goal:** Allow admins to create and manage dropdown options for labels throughout the app instead of free-text inputs.
