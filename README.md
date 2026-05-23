@@ -66,7 +66,7 @@ src/
 │   ├── CollapseSection.tsx        # Collapsible section wrapper
 │   ├── CheckOpt.tsx               # Multiple-choice option button
 │   ├── PhotoItem.tsx              # Photo checklist row with camera stub
-│   ├── WallSection.tsx            # Full per-wall measurement block
+│   ├── WallSection.tsx            # Full per-wall measurement block with quick-add length pieces
 │   ├── FormField.tsx              # (legacy — unused)
 │   └── SectionCard.tsx            # (legacy — unused)
 │
@@ -188,6 +188,8 @@ JobInstance {
 - Job Type Selection: Kitchen, Bathroom, Flooring, Other, + custom labels
 - Multi-job support: each assessment can hold multiple kitchen/bathroom/flooring jobs
 - Full assessment detail forms for Kitchen, Bathroom, Flooring, and Other job types
+- Living Room, Bedroom, Deck, and Painting job templates
+- Additive wall-length pieces for Kitchen/Bathroom walls: quick add, inches total, auto-fill wall length, undo last
 - Cabinet Style Gallery: 4 styles with color swatches and customer link input
 - Price Guide: editable cost database by category (labor + material tiers)
 - Basic estimate auto-generation from measurements + price guide
@@ -222,9 +224,9 @@ JobInstance {
 
 ## What's Next (Priority Order)
 
-- **Room Templates** (PRIORITY 1) — Living Room, Bedroom, Deck with pre-built measurement/question/photo checklists
-- Admin Panel — Manage job types, price guide, team members, cabinet gallery
-- Backend & Cloud Sync — Move from localStorage to Supabase/Firebase
+- Role-Based Job Visibility — regular users see their own jobs, admins see all
+- Sync Hardening — durable retry/outbox and visible save/sync status
+- Admin Panel Expansion — Manage job types, price guide, team members, cabinet gallery
 - PDF Export & Email — Professional job reports
 - Mobile Apps — iOS and Android (React Native or PWA)
 

@@ -1,7 +1,7 @@
 # Maximus Estimus — AI Developer Handoff (May 14, 2026)
 
 ## TL;DR
-**Maximus Estimus** is a field measurement app for kitchen designers. Phase 1 (local field workflow) + Phase 5 (cloud sync) are complete. Team members now log in and see shared assessments across devices. **Next task:** Build room templates (Living Room, Bedroom, Deck) as alternate job types to Kitchen/Bathroom/Flooring.
+**Maximus Estimus** is a field measurement app for kitchen designers. Phase 1 (local field workflow) + Phase 5 (cloud sync) are complete. Team members now log in and see shared assessments across devices. Room templates and wall length quick-add pieces are complete. **Next task:** Role-based job visibility and sync hardening.
 
 ---
 
@@ -11,8 +11,10 @@
 - ✅ **Core app works**: Assessments, measurements, questions, photos, estimates, summary reports
 - ✅ **Cloud sync works**: Supabase backend, team authentication, shared data across devices
 - ✅ **Photos work**: Capture via camera, store in Supabase Storage, see from any device
+- ✅ **Room templates work**: Living Room, Bedroom, and Deck job types are implemented
+- ✅ **Wall length quick-add works**: Kitchen/Bathroom walls support additive piece entry, inches total, auto-fill, and undo last
 - ✅ **Deployed**: Live at https://eddieyak0816.github.io/maximus-estimus/
-- 🔲 **Not done**: Room templates, admin panel, PDF export, mobile apps
+- 🔲 **Not done**: Role-based visibility, sync hardening, admin panel expansion, PDF export, mobile apps
 
 ### Technology
 | Tech | Why | How to Learn |
@@ -103,8 +105,10 @@ Read these files in order:
 4. **src/App.tsx** — Routing and auth setup
 5. **src/pages/AssessmentDetail.tsx** — How a kitchen assessment works (reference for building room templates)
 
-### 3. Next Task: Build Room Templates
-The user (Eddie) explicitly chose this as Priority 1. You'll add 3 new room types:
+### 3. Next Task: Role-Based Visibility / Sync Hardening
+Room templates are already implemented. Current priority: regular users should see only their own assessments, admins should see all assessments, and failed assessment/photo sync should have visible status plus retry/outbox behavior.
+
+The notes below are historical context for the room templates that are now complete:
 
 #### What to Build
 - **Living Room**: ceiling height, window count, door count, outlet count, flooring type, lighting notes
@@ -171,17 +175,14 @@ Copy the pattern from **KitchenMeasurements.tsx** → **LivingRoomMeasurements.t
 
 ---
 
-## Acceptance Criteria for Room Templates
+## Acceptance Criteria for Current Next Work
 
 Done when:
-- ✓ User can select "Living Room", "Bedroom", or "Deck" from job type picker
-- ✓ Each room type shows its own measurement form with correct fields
-- ✓ Each room type shows its own questions form
-- ✓ Each room type shows its own photo checklist
-- ✓ Data saves to Supabase (check dashboard to verify)
-- ✓ Photos upload and appear in summary view
-- ✓ Summary view displays room template data correctly
-- ✓ Multi-job assessment works (can have Kitchen + Living Room in one assessment)
+- ✓ Non-admin user sees only their own assessments
+- ✓ Admin user sees all assessments
+- ✓ Dashboard still displays creator information
+- ✓ Failed sync has visible user status/retry path
+- ✓ Existing room templates and wall length quick-add still work
 - ✓ No TypeScript errors (`npm run build` passes)
 - ✓ Live on GitHub Pages (workflow passes)
 
@@ -191,7 +192,7 @@ Done when:
 
 - **Photos require internet to upload** — Offline queuing not yet implemented
 - **No real-time subscriptions** — Refresh needed to see other users' changes
-- **No role-based access** — All users see all data (that's Sprint 4 Admin Panel)
+- **Role-based access incomplete** — All users may still see all data until the next visibility work is finished
 - **No PDF export** — Coming in Sprint 6
 - **No mobile app** — Coming in Sprint 7
 

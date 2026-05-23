@@ -1176,14 +1176,24 @@ input, select, textarea { font-family: var(--font); }
 .sub-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .sub-card-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); flex: 1; }
 .sub-card-actions { display: flex; gap: 6px; }
-.wall-piece-row {
+.wall-piece-card { margin-top: 0; }
+.wall-piece-add-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.8fr) 34px;
+  grid-template-columns: minmax(0, 1fr) 64px auto;
   gap: 8px;
-  align-items: start;
-  margin-bottom: 8px;
+  align-items: center;
 }
-.wall-piece-row .meas-field { margin-bottom: 0; }
+.wall-piece-equation {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
 .wall-piece-total {
   display: flex;
   justify-content: space-between;

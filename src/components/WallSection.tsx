@@ -233,22 +233,36 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [soffitOpen, setSoffitOpen] = useState(true);
   const [sinkOpen, setSinkOpen] = useState(true);
   const [cabsOpen, setCabsOpen] = useState(true);
+  const [pieceDraft, setPieceDraft] = useState('');
+  const [pieceUnit, setPieceUnit] = useState<'"' | "'">('"');
   const dropdownRef = useRef<any>(null);
+  const pieceInputRef = useRef<HTMLInputElement>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
 
   const addWin = () => u('windows', [...(data.windows || []), {}]);
   const addDoor = () => u('doors', [...(data.doors || []), { type: 'Door' as const }]);
   const addOutlet = () => u('outlets', [...(data.outlets || []), { type: 'Outlet' as const }]);
   const addAppliance = () => u('appliances', [...(data.appliances || []), { name: '' }]);
+  const syncLengthPieces = (pieces: WallLengthPiece[]) => {
+    const totalInches = pieces.reduce((sum, piece) => sum + parseMeasurementToInches(piece.length), 0);
+    onUpdate({ ...data, lengthPieces: pieces, length: totalInches > 0 ? formatInches(totalInches) : '' });
+  };
   const addLengthPiece = () => {
+    const raw = pieceDraft.trim().replace(/['"]/g, '');
+    if (!raw) {
+      pieceInputRef.current?.focus();
+      return;
+    }
+
     const pieces = data.lengthPieces || [];
-    u('lengthPieces', [...pieces, newWallLengthPiece(pieces.length)]);
+    syncLengthPieces([...pieces, { ...newWallLengthPiece(pieces.length), length: `${raw}${pieceUnit}` }]);
+    setPieceDraft('');
+    requestAnimationFrame(() => pieceInputRef.current?.focus());
   };
-  const updateLengthPiece = (pieceId: string, patch: Partial<WallLengthPiece>) => {
-    u('lengthPieces', (data.lengthPieces || []).map(p => p.id === pieceId ? { ...p, ...patch } : p));
-  };
-  const removeLengthPiece = (pieceId: string) => {
-    u('lengthPieces', (data.lengthPieces || []).filter(p => p.id !== pieceId));
+  const undoLengthPiece = () => {
+    const pieces = data.lengthPieces || [];
+    if (pieces.length === 0) return;
+    syncLengthPieces(pieces.slice(0, -1));
   };
 
   const done = !!data.length;
@@ -305,39 +319,44 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
           <div className="wall-sub-section">
             <div className="wall-sub-section-header">
               <span className="tiny-label">Wall length pieces</span>
-              <button className="chip-btn" onClick={addLengthPiece}>+ Add Piece</button>
             </div>
-            {lengthPieces.length > 0 && (
-              <div className="sub-card">
-                {lengthPieces.map((piece, index) => (
-                  <div key={piece.id} className="wall-piece-row">
-                    <input
-                      className="input input-sm"
-                      placeholder={`Piece ${index + 1}`}
-                      value={piece.label || ''}
-                      onChange={e => updateLengthPiece(piece.id, { label: e.target.value })}
-                    />
-                    <MeasInput
-                      label=""
-                      value={piece.length}
-                      onChange={v => updateLengthPiece(piece.id, { length: v })}
-                    />
-                    <button className="remove-btn" onClick={() => removeLengthPiece(piece.id)}>x</button>
-                  </div>
-                ))}
-                <div className="wall-piece-total">
-                  <span>Total</span>
-                  <strong>{formatInches(lengthTotalInches)}</strong>
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  disabled={lengthTotalInches <= 0}
-                  onClick={() => u('length', formatInches(lengthTotalInches))}
-                >
-                  Use total as wall length
-                </button>
+            <div className="sub-card wall-piece-card">
+              <div className="wall-piece-add-row">
+                <input
+                  ref={pieceInputRef}
+                  className="input input-sm"
+                  placeholder="Next piece"
+                  value={pieceDraft}
+                  onChange={e => setPieceDraft(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addLengthPiece();
+                    }
+                  }}
+                  inputMode="decimal"
+                />
+                <select className="meas-unit" value={pieceUnit} onChange={e => setPieceUnit(e.target.value as '"' | "'")}>
+                  <option value={`"`}>in</option>
+                  <option value={`'`}>ft</option>
+                </select>
+                <button className="btn btn-primary btn-sm" onClick={addLengthPiece}>Add</button>
               </div>
-            )}
+              {lengthPieces.length > 0 && (
+                <>
+                  <div className="wall-piece-equation">
+                    {lengthPieces.map(piece => piece.length).filter(Boolean).join(' + ')}
+                  </div>
+                  <div className="wall-piece-total">
+                    <span>Total</span>
+                    <strong>{formatInches(lengthTotalInches)}</strong>
+                  </div>
+                  <button className="btn btn-ghost btn-sm" onClick={undoLengthPiece}>
+                    Undo last
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Ceiling override */}

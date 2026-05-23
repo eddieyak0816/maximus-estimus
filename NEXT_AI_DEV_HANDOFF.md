@@ -37,6 +37,7 @@
 
 ### What's Complete ✅
 - **Room Templates:** Living Room, Bedroom, Deck fully implemented
+- **Wall Length Quick-Add:** Kitchen/Bathroom walls support additive piece entry with inches total, auto-fill wall length, and undo last
 - **Admin-Only Visibility:** Admins see all assessments, users see only their own (by creatorId)
 - **PIN-Based Auth:** 4-12 digit PIN login with super admin controls
 - **Dropdown Management:** 8 configurable dropdown lists (appliances, materials, etc.)

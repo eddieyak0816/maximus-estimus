@@ -1,5 +1,7 @@
 # 🧪 Room Templates Testing Log
 
+> Status note, May 22, 2026: Room Templates remain complete. A newer field workflow improvement added additive wall-length quick-add pieces for Kitchen/Bathroom walls, with inches total, auto-fill Wall Length, and undo last. Current remaining work is role-based visibility, sync hardening, PDF/export, and mobile app packaging.
+
 **Date Started:** May 15, 2026  
 **Tester:** Claude Code AI + Eddie (Project Lead)  
 **Status:** IN PROGRESS  

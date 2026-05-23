@@ -2,7 +2,7 @@
 
 > **Last Updated:** May 22, 2026 (Afternoon)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅**
+> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅**
 
 ---
 
@@ -130,25 +130,16 @@
   - Openings now show Left Side, Right Side, Top trim fields alongside regular Door measurements
   - Consistent with Door trim UI
 
+- **Wall Length Quick-Add Pieces (May 22):**
+  - Kitchen/Bathroom wall length now supports additive pieces under each Wall Length field
+  - Field user enters one "Next piece" value, taps Add or presses Enter, and the input clears/refocuses
+  - Combined total displays in inches and automatically fills the main Wall Length field
+  - Undo last removes the most recent piece for fast correction
+  - Existing simple Wall Length entry remains available for straightforward walls
+
 ### 🔲 Next Up (Priority Order)
 
-#### PRIORITY 1: Room Templates (Starting Next)
-**Goal:** Add flexibility for non-kitchen jobs (Living Room, Bedroom, Deck).
-
-- [ ] Build 3 room templates with pre-made measurement/question/photo checklists
-  - **Living Room:** ceiling height, windows, doors, outlets, flooring notes, lighting notes
-  - **Bedroom:** ceiling height, closets, windows, doors, outlets, flooring notes
-  - **Deck/Outdoor:** dimensions, height, existing condition, railing, access notes
-- [ ] Wire into job type selector (same UX as Kitchen/Bathroom/Flooring)
-- [ ] File structure: `src/pages/living-room/`, `src/pages/bedroom/`, `src/pages/deck/`
-- **Acceptance Criteria:**
-  - User can select "Living Room", "Bedroom", or "Deck" as a job type
-  - Each template shows its own measurement form, questions, and photo checklist
-  - Data saves independently per room template
-  - Summary view displays room template data correctly
-  - Photos tied to room template items work (camera integration)
-
-#### 🔲 Role-Based Job Visibility (After Flooring Testing)
+#### 🔲 Role-Based Job Visibility
 **Goal:** Restrict job visibility based on user role.
 
 - [ ] Regular users see only jobs they created/entered
@@ -506,6 +497,12 @@ npm run lint       # Run ESLint
 - "Same as wall length" button copies the wall's length into soffit width
 - When a wall is renamed, the soffit label updates too
 
+### Additive Wall Length Pieces
+- Under each Kitchen/Bathroom Wall Length field, users can add wall pieces one at a time
+- Add or Enter appends the next piece, clears the input, and refocuses for fast measuring
+- Piece totals display in inches only and automatically populate the main Wall Length field
+- Undo last removes the most recent piece without managing a list
+
 ### Appliances & Plumbing Per Wall
 - Appliances are standalone (location can be on any wall)
 - Plumbing (sink) is tied to a specific wall
@@ -723,7 +720,7 @@ A: Not yet. Phase 1 only uses localStorage (single device). Sprint 5 adds cloud 
 4. **Run `npm run dev`** and test the app manually
 5. **Look at a completed feature** (e.g., Kitchen Measurements) to understand code patterns
 6. **Review the Zustand store** (this is where all state lives)
-7. **Start on the next task** (Room Templates Priority 1, or ask Eddie for clarification)
+7. **Start on the next task** (Role-Based Job Visibility, sync hardening, or ask Eddie for clarification)
 
 ---
 

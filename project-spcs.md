@@ -1,6 +1,6 @@
 # 🏛️ Maximus Estimus — Master Project Spec & Roadmap
 > **Living Document** — Updated continuously as the project evolves.
-> Last Updated: May 4, 2026 — Sprints 1, 2, 3 complete; Summary/Report View built; Real Photo Capture complete; next: Room Templates
+> Last Updated: May 22, 2026 — Core field workflow, cloud sync, room templates, mobile camera/photo fixes, and wall length quick-add pieces complete; next: role-based visibility, PDF/export, and sync hardening
 
 ---
 
@@ -116,7 +116,7 @@
 - **Team member roster:** Global list of team members stored separately in Zustand; Customer Info shows a dropdown with an "Other…" option and an inline manage panel to add/remove names
 - Job Type Selection: pill-based type selector, custom labels, add multiple jobs, remove jobs
 - Assessment Detail: job switcher tab row (only shown for multi-job assessments), tabbed Measure / Questions / Photos per active job
-- Kitchen Measurements: ceiling height, soffit (global + per-wall override with shortcut "= Same as wall length"), walls A-D with length, windows, doors, outlets, cabinet notes; appliances, plumbing, island, existing cabinets, desk — all with toggles and collapsible sections
+- Kitchen Measurements: ceiling height, soffit (global + per-wall override with shortcut "= Same as wall length"), walls A-D with length plus additive wall-length quick-add pieces, windows, doors, outlets, cabinet notes; appliances, plumbing, island, existing cabinets, desk — all with toggles and collapsible sections
 - Kitchen Questions: all 19 questions implemented with multi-choice, dropdowns, date pickers, notes
 - Kitchen Photos: conditional photo checklist (island/desk/cabinets sections gated by measurement toggles), progress bar
 - Cabinet Style Gallery: 4 cabinet styles with color swatches and customer link input
@@ -139,6 +139,7 @@
 - **WallSection — collapsible sink:** After enabling "Sink / Plumbing on this wall?", a yellow collapsible `SINK / PLUMBING — [wall name]` header appears that hides/shows all plumbing fields.
 - **WallSection — collapsible existing cabinets:** Existing Cabinets sub-section within each wall body now has a collapsible ▲▼ header.
 - **WallSection — appliance accordions:** Appliances are now accordion cards — selecting a type expands dimensions and corner/distance fields; ▲▼ button collapses detail.
+- **WallSection — wall length pieces:** Wall length now supports additive quick-entry pieces. Field users can type the next piece, press Enter/Add, see an inches-only combined total, auto-fill Wall Length from the total, and undo the last piece.
 - **Kitchen Island — sub-section accordions:** Island content broken into 7 distinct collapsible sub-sections: Dimensions, Distance from Walls, Countertop Overhang, Sink, Cooktop, Outlets, Levels. Each uses `sub-card` styling (distinct background + border) so sections are visually separated.
 - **Kitchen Island — feature collapse:** When a feature toggle (Sink, Cooktop, Outlets, Levels) is turned on, a yellow collapsible header appears to hide/show the detail fields.
 - **Kitchen Island — "Existing or New?" at top:** Status pills moved to the top of island content (before Dimensions) so it's the first thing captured.
@@ -185,14 +186,12 @@
 - **Updated Summary View** — Displays actual photo thumbnails instead of ✓/○ checkmarks
 - **CSS additions** — Camera modal, thumbnail display, spinner animation
 
-### ❌ Not Yet Built (Priority Order for Field Workflow)
-- **Room templates** (Living Room, Bedroom, Deck) — Custom pre-built forms for non-kitchen/bath jobs — PRIORITY 1
-- Admin Panel — Sprint 4 (manage job types, price guide, team members, markup settings, cabinet gallery)
+### ❌ Not Yet Built / Remaining Work (Priority Order for Field Workflow)
+- Role-based job visibility — non-admin users should see only their own assessments; admins should see all
+- Sync hardening — durable outbox/retry status for assessment and photo sync, conflict awareness, and visible sync health
 - PDF export — Sprint 6
 - Email from app — Sprint 6
-- Backend / cloud database — Sprint 5
-- Team data sharing — Sprint 5
-- Authentication / user accounts — Sprint 5
+- Admin Panel expansion — deeper management for job types, cabinet gallery, roles, and configuration
 - Cleanup: `src/pages/forms/` are unused legacy files, safe to delete (ClientForm.tsx, RoomForm.tsx, CabinetForm.tsx, ApplianceForm.tsx, MaterialsForm.tsx, CostForm.tsx)
 
 ---
@@ -213,6 +212,7 @@
 - [x] Multi-job model: each assessment holds multiple JobInstance objects, each with independent label and data
 - [x] Rebuild Kitchen Measurements as per full spec (per-wall, windows, doors, outlets, appliances, plumbing, island, existing cabinets, desk)
 - [x] Soffit "same as wall length" shortcut button
+- [x] Additive wall-length pieces with quick add, inches total, auto-fill wall length, and undo last
 - [x] Build Kitchen Questions tab (all 19 questions)
 - [x] Build Kitchen Photos tab (per-item checklist with conditional sections)
 - [x] Assessment tab structure: Measurements · Questions · Photos
@@ -277,15 +277,15 @@
   - [x] Display captured photos in summary view (thumbnails instead of ✓/○)
   - [x] Delete capability for captured photos
 
-### 🔲 Core Field Workflow Phase 3 — Room Templates
+### ✅ Core Field Workflow Phase 3 — Room Templates *(Complete)*
 > Goal: Add flexibility for non-kitchen jobs.
-> **PRIORITY 1.** Templates expand job flexibility beyond Kitchen/Bathroom/Flooring.
+> Templates expand job flexibility beyond Kitchen/Bathroom/Flooring.
 
-- [ ] **Room templates** — Pre-built measurement/question/photo checklists for common room types
-  - [ ] Living Room template (ceiling height, windows, doors, outlets, flooring, lighting notes)
-  - [ ] Bedroom template (ceiling height, closets, windows, doors, outlets, flooring)
-  - [ ] Deck/Outdoor template (dimensions, height, existing condition, railing, access notes)
-  - [ ] Wire templates into job type selection (same UX as Kitchen/Bathroom/Flooring)
+- [x] **Room templates** — Pre-built measurement/question/photo checklists for common room types
+  - [x] Living Room template (ceiling height, windows, doors, outlets, flooring, lighting notes)
+  - [x] Bedroom template (ceiling height, closets, windows, doors, outlets, flooring)
+  - [x] Deck/Outdoor template (dimensions, height, existing condition, railing, access notes)
+  - [x] Wire templates into job type selection (same UX as Kitchen/Bathroom/Flooring)
 
 ---
 
