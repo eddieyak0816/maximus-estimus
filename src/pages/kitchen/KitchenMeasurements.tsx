@@ -11,9 +11,10 @@ const WALL_LABELS = ['A','B','C','D'] as const;
 interface Props {
   data: KM;
   onUpdate: (d: KM) => void;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
-export default function KitchenMeasurements({ data, onUpdate }: Props) {
+export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture }: Props) {
   const u = (f: keyof KM, v: unknown) => onUpdate({ ...data, [f]: v });
 
   const [iDimsOpen, setIDimsOpen] = useState(true);
@@ -66,7 +67,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
 
       {/* ── Per-Wall ── */}
       <CollapseSection title="📏 Walls" accent defaultOpen>
-        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse.</p>
+        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse. Tap the 📷 icon to capture a wall photo.</p>
         {WALL_LABELS.map(w => (
           <WallSection
             key={w}
@@ -77,6 +78,7 @@ export default function KitchenMeasurements({ data, onUpdate }: Props) {
             soffitSame={data.soffitSame}
             globalSoffitH={data.soffitH}
             globalSoffitD={data.soffitD}
+            onWallPhotoCapture={onWallPhotoCapture}
           />
         ))}
       </CollapseSection>

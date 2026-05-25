@@ -3,6 +3,7 @@ import type { DeckMeasurements } from '../../types';
 interface Props {
   data: DeckMeasurements;
   onUpdate: (d: DeckMeasurements) => void;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
 function SecHead({ title }: { title: string }) {

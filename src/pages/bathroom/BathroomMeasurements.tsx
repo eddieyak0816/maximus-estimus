@@ -9,9 +9,10 @@ const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
 interface Props {
   data: BM;
   onUpdate: (d: BM) => void;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
-export default function BathroomMeasurements({ data, onUpdate }: Props) {
+export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCapture }: Props) {
   const u = (f: keyof BM, v: unknown) => onUpdate({ ...data, [f]: v });
 
   return (
@@ -55,7 +56,7 @@ export default function BathroomMeasurements({ data, onUpdate }: Props) {
 
       {/* ── Walls ── */}
       <CollapseSection title="📏 Walls" accent defaultOpen>
-        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse.</p>
+        <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse. Tap the 📷 icon to capture a wall photo.</p>
         {WALL_LABELS.map(w => (
           <WallSection
             key={w}
@@ -66,6 +67,7 @@ export default function BathroomMeasurements({ data, onUpdate }: Props) {
             soffitSame={data.soffitSame}
             globalSoffitH={data.soffitH}
             globalSoffitD={data.soffitD}
+            onWallPhotoCapture={onWallPhotoCapture}
           />
         ))}
       </CollapseSection>

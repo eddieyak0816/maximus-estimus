@@ -7,6 +7,7 @@ import type { FlooringMeasurements as FM, FlooringRoom, FlooringPart } from '../
 interface Props {
   data: FM;
   onUpdate: (d: FM) => void;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
 function parseFtIn(val: string = ''): number {

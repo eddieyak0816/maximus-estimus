@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import { savePhoto } from '../utils/photoStorage';
 import StatusBadge from '../components/StatusBadge';
 import KitchenMeasurements from './kitchen/KitchenMeasurements';
 import KitchenQuestions from './kitchen/KitchenQuestions';
@@ -104,6 +106,71 @@ export default function AssessmentDetail() {
     updateJobOther(id!, activeJob.id, other);
   };
 
+  const handleWallPhotoCapture = async (wallName: string, blob: Blob) => {
+    if (!activeJob) return;
+    try {
+      const photoId = await savePhoto(id!, activeJob.id, `photo-${uuidv4()}`, blob);
+      if (activeJob.type === 'Kitchen') {
+        const kitchen = activeJob.kitchen;
+        updateKitchen({
+          ...kitchen,
+          photos: {
+            ...kitchen.photos,
+            photos: [...(kitchen.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      } else if (activeJob.type === 'Bathroom') {
+        const bathroom = activeJob.bathroom;
+        updateBathroom({
+          ...bathroom,
+          photos: {
+            ...bathroom.photos,
+            photos: [...(bathroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      } else if (activeJob.type === 'Flooring') {
+        const flooring = activeJob.flooring;
+        updateFlooring({
+          ...flooring,
+          photos: {
+            ...flooring.photos,
+            photos: [...(flooring.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      } else if (activeJob.type === 'Living Room') {
+        const livingRoom = activeJob.livingRoom;
+        updateLivingRoom({
+          ...livingRoom,
+          photos: {
+            ...livingRoom.photos,
+            photos: [...(livingRoom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      } else if (activeJob.type === 'Bedroom') {
+        const bedroom = activeJob.bedroom;
+        updateBedroom({
+          ...bedroom,
+          photos: {
+            ...bedroom.photos,
+            photos: [...(bedroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      } else if (activeJob.type === 'Deck') {
+        const deck = activeJob.deck;
+        updateDeck({
+          ...deck,
+          photos: {
+            ...deck.photos,
+            photos: [...(deck.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+          },
+        });
+      }
+    } catch (err) {
+      console.error('Failed to capture wall photo:', err);
+      alert('Failed to save wall photo');
+    }
+  };
+
   const renderTabContent = () => {
     if (!activeJob) return null;
 
@@ -111,7 +178,8 @@ export default function AssessmentDetail() {
       const bath = activeJob.bathroom!;
       if (activeTab === 'measurements') {
         return <BathroomMeasurements data={bath.measurements}
-          onUpdate={m => updateBathroom({ ...bath, measurements: m })} />;
+          onUpdate={m => updateBathroom({ ...bath, measurements: m })}
+          onWallPhotoCapture={handleWallPhotoCapture} />;
       }
       if (activeTab === 'questions') {
         return <BathroomQuestions data={bath.questions}
@@ -127,7 +195,8 @@ export default function AssessmentDetail() {
       const floor = activeJob.flooring!;
       if (activeTab === 'measurements') {
         return <FlooringMeasurements data={floor.measurements}
-          onUpdate={m => updateFlooring({ ...floor, measurements: m })} />;
+          onUpdate={m => updateFlooring({ ...floor, measurements: m })}
+          onWallPhotoCapture={handleWallPhotoCapture} />;
       }
       if (activeTab === 'questions') {
         return <FlooringQuestions data={floor.questions}
@@ -143,7 +212,8 @@ export default function AssessmentDetail() {
       const lr = activeJob.livingRoom!;
       if (activeTab === 'measurements') {
         return <LivingRoomMeasurements data={lr.measurements}
-          onUpdate={m => updateLivingRoom({ ...lr, measurements: m })} />;
+          onUpdate={m => updateLivingRoom({ ...lr, measurements: m })}
+          onWallPhotoCapture={handleWallPhotoCapture} />;
       }
       if (activeTab === 'questions') {
         return <LivingRoomQuestions data={lr.questions}
@@ -159,7 +229,8 @@ export default function AssessmentDetail() {
       const br = activeJob.bedroom!;
       if (activeTab === 'measurements') {
         return <BedroomMeasurements data={br.measurements}
-          onUpdate={m => updateBedroom({ ...br, measurements: m })} />;
+          onUpdate={m => updateBedroom({ ...br, measurements: m })}
+          onWallPhotoCapture={handleWallPhotoCapture} />;
       }
       if (activeTab === 'questions') {
         return <BedroomQuestions data={br.questions}
@@ -175,7 +246,8 @@ export default function AssessmentDetail() {
       const dk = activeJob.deck!;
       if (activeTab === 'measurements') {
         return <DeckMeasurements data={dk.measurements}
-          onUpdate={m => updateDeck({ ...dk, measurements: m })} />;
+          onUpdate={m => updateDeck({ ...dk, measurements: m })}
+          onWallPhotoCapture={handleWallPhotoCapture} />;
       }
       if (activeTab === 'questions') {
         return <DeckQuestions data={dk.questions}
@@ -196,7 +268,8 @@ export default function AssessmentDetail() {
     // Kitchen (default)
     if (activeTab === 'measurements') {
       return <KitchenMeasurements data={activeJob.kitchen.measurements}
-        onUpdate={m => updateKitchen({ ...activeJob.kitchen, measurements: m })} />;
+        onUpdate={m => updateKitchen({ ...activeJob.kitchen, measurements: m })}
+        onWallPhotoCapture={handleWallPhotoCapture} />;
     }
     if (activeTab === 'questions') {
       return <KitchenQuestions data={activeJob.kitchen.questions}

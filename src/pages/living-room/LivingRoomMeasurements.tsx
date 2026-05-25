@@ -3,6 +3,7 @@ import type { LivingRoomMeasurements } from '../../types';
 interface Props {
   data: LivingRoomMeasurements;
   onUpdate: (d: LivingRoomMeasurements) => void;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
 function SecHead({ title }: { title: string }) {

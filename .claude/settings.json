@@ -14,7 +14,9 @@
       "Bash(Get-ChildItem \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\\\\src\\\\pages\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(findstr \":5174\")",
-      "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)",
+      "Bash(tee /tmp/dev-log.txt)",
+      "Bash(curl -s http://localhost:5175/maximus-estimus/)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Eddie\\.claude\\plans"

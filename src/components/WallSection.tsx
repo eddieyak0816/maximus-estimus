@@ -3,6 +3,7 @@ import Toggle from './Toggle';
 import MeasInput from './MeasInput';
 import ChevronIcon from './ChevronIcon';
 import DropdownSelect from './DropdownSelect';
+import CameraModal from './CameraModal';
 import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall, WallLengthPiece } from '../types';
 
 function newWallLengthPiece(index: number): WallLengthPiece {
@@ -225,9 +226,10 @@ interface WallProps {
   soffitSame?: boolean;
   globalSoffitH?: string;
   globalSoffitD?: string;
+  onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
 }
 
-export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD }: WallProps) {
+export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD, onWallPhotoCapture }: WallProps) {
   const [open, setOpen] = useState(true);
   const [renaming, setRenaming] = useState(false);
   const [soffitOpen, setSoffitOpen] = useState(true);
@@ -235,6 +237,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [cabsOpen, setCabsOpen] = useState(true);
   const [pieceDraft, setPieceDraft] = useState('');
   const [pieceUnit, setPieceUnit] = useState<'"' | "'">('"');
+  const [showWallCamera, setShowWallCamera] = useState(false);
+  const [capturingWall, setCapturingWall] = useState(false);
   const dropdownRef = useRef<any>(null);
   const pieceInputRef = useRef<HTMLInputElement>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
@@ -246,6 +250,18 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const syncLengthPieces = (pieces: WallLengthPiece[]) => {
     const totalInches = pieces.reduce((sum, piece) => sum + parseMeasurementToInches(piece.length), 0);
     onUpdate({ ...data, lengthPieces: pieces, length: totalInches > 0 ? formatInches(totalInches) : '' });
+  };
+  const handleWallPhotoCapture = async (blob: Blob) => {
+    if (!onWallPhotoCapture) return;
+    setCapturingWall(true);
+    try {
+      await onWallPhotoCapture(displayName, blob);
+      setShowWallCamera(false);
+    } catch (err) {
+      console.error('Failed to capture wall photo:', err);
+    } finally {
+      setCapturingWall(false);
+    }
   };
   const addLengthPiece = () => {
     const raw = pieceDraft.trim().replace(/['"]/g, '');
@@ -305,6 +321,12 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                   onClick={e => { e.stopPropagation(); setRenaming(true); }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                 </button>
+                {onWallPhotoCapture && (
+                  <button className="icon-btn" title="Take wall photo"
+                    onClick={e => { e.stopPropagation(); setShowWallCamera(true); }}>
+                    📷
+                  </button>
+                )}
               </div>}
           <div className="wall-sub">
             {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}
@@ -546,6 +568,14 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
               onChange={e => u('cabinetNotes', e.target.value)} />
           </div>
         </div>
+      )}
+
+      {showWallCamera && (
+        <CameraModal
+          label={`Photo: ${displayName}`}
+          onCapture={handleWallPhotoCapture}
+          onClose={() => setShowWallCamera(false)}
+        />
       )}
     </div>
   );
