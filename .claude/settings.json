@@ -16,7 +16,9 @@
       "Bash(findstr \":5174\")",
       "PowerShell(Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue)",
       "Bash(tee /tmp/dev-log.txt)",
-      "Bash(curl -s http://localhost:5175/maximus-estimus/)"
+      "Bash(curl -s http://localhost:5175/maximus-estimus/)",
+      "Bash(findstr \":5175\")",
+      "Bash(findstr \":517\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Eddie\\.claude\\plans"

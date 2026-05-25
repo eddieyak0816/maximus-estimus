@@ -238,7 +238,6 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [pieceDraft, setPieceDraft] = useState('');
   const [pieceUnit, setPieceUnit] = useState<'"' | "'">('"');
   const [showWallCamera, setShowWallCamera] = useState(false);
-  const [capturingWall, setCapturingWall] = useState(false);
   const dropdownRef = useRef<any>(null);
   const pieceInputRef = useRef<HTMLInputElement>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
@@ -253,14 +252,11 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   };
   const handleWallPhotoCapture = async (blob: Blob) => {
     if (!onWallPhotoCapture) return;
-    setCapturingWall(true);
     try {
       await onWallPhotoCapture(displayName, blob);
       setShowWallCamera(false);
     } catch (err) {
       console.error('Failed to capture wall photo:', err);
-    } finally {
-      setCapturingWall(false);
     }
   };
   const addLengthPiece = () => {

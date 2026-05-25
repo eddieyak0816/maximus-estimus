@@ -111,57 +111,51 @@ export default function AssessmentDetail() {
     try {
       const photoId = await savePhoto(id!, activeJob.id, `photo-${uuidv4()}`, blob);
       if (activeJob.type === 'Kitchen') {
-        const kitchen = activeJob.kitchen;
         updateKitchen({
-          ...kitchen,
+          ...activeJob.kitchen,
           photos: {
-            ...kitchen.photos,
-            photos: [...(kitchen.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.kitchen.photos,
+            photos: [...(activeJob.kitchen.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
-      } else if (activeJob.type === 'Bathroom') {
-        const bathroom = activeJob.bathroom;
+      } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
         updateBathroom({
-          ...bathroom,
+          ...activeJob.bathroom,
           photos: {
-            ...bathroom.photos,
-            photos: [...(bathroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.bathroom.photos,
+            photos: [...(activeJob.bathroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
-      } else if (activeJob.type === 'Flooring') {
-        const flooring = activeJob.flooring;
+      } else if (activeJob.type === 'Flooring' && activeJob.flooring) {
         updateFlooring({
-          ...flooring,
+          ...activeJob.flooring,
           photos: {
-            ...flooring.photos,
-            photos: [...(flooring.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.flooring.photos,
+            photos: [...(activeJob.flooring.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
-      } else if (activeJob.type === 'Living Room') {
-        const livingRoom = activeJob.livingRoom;
+      } else if (activeJob.type === 'Living Room' && activeJob.livingRoom) {
         updateLivingRoom({
-          ...livingRoom,
+          ...activeJob.livingRoom,
           photos: {
-            ...livingRoom.photos,
-            photos: [...(livingRoom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.livingRoom.photos,
+            photos: [...(activeJob.livingRoom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
-      } else if (activeJob.type === 'Bedroom') {
-        const bedroom = activeJob.bedroom;
+      } else if (activeJob.type === 'Bedroom' && activeJob.bedroom) {
         updateBedroom({
-          ...bedroom,
+          ...activeJob.bedroom,
           photos: {
-            ...bedroom.photos,
-            photos: [...(bedroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.bedroom.photos,
+            photos: [...(activeJob.bedroom.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
-      } else if (activeJob.type === 'Deck') {
-        const deck = activeJob.deck;
+      } else if (activeJob.type === 'Deck' && activeJob.deck) {
         updateDeck({
-          ...deck,
+          ...activeJob.deck,
           photos: {
-            ...deck.photos,
-            photos: [...(deck.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
+            ...activeJob.deck.photos,
+            photos: [...(activeJob.deck.photos?.photos || []), { id: uuidv4(), label: wallName, photoId }],
           },
         });
       }
