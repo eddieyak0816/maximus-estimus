@@ -238,12 +238,23 @@
 - [ ] Android build + Google Play submission
 - [ ] Test camera integration on device
 
-#### Phase 2: AI Estimator
-**Locked until Phase 1 complete.** Will use Claude API to:
-- Auto-populate estimate line items
+#### Phase 2: AI Estimator & Measurement Extraction
+**Locked until Phase 1 complete.** Will use Claude API for two key features:
+
+**AI Measurement Extraction from Photos:**
+- Analyze wall photos to automatically extract measurement data
+- Detect and extract: wall length, window/door dimensions & locations, outlet/switch positions, appliance locations, sink presence, cabinet types & dimensions, ceiling/soffit details, material/finish info
+- Pre-fill measurement form fields with AI estimates + confidence indicators
+- User verifies/adjusts values before saving
+- Saves field teams 60-80% measurement entry time
+- Works on single wide photo or multiple angled photos for better accuracy
+
+**AI Estimate Generation:**
+- Auto-populate estimate line items from measurements
 - Flag missing items (e.g., "You have 14 ft of upper cabinets — did you include crown molding?")
-- Suggest related items based on measurements
+- Suggest related items based on measurements & room type
 - Generate professional project plans
+- Highlight potential design/material recommendations
 
 ---
 
