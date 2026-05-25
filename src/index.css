@@ -998,6 +998,55 @@ input, select, textarea { font-family: var(--font); }
 .photo-catchall-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-secondary); }
 .photo-catchall-sub { font-size: var(--font-size-sm); color: var(--text-muted); }
 
+/* ===== ImageModal ===== */
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.image-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.image-modal-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+.image-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 10000;
+}
+.image-modal-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
 /* ===== Assessment Tab (shared) ===== */
 .assess-tab { padding-bottom: 32px; }
 .assess-hint { font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: 8px; }
