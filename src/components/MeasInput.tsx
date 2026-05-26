@@ -8,7 +8,8 @@ interface Props {
 }
 
 export default function MeasInput({ label, value = '', onChange, hint }: Props) {
-  const [unit, setUnit] = useState<'"' | "'">(`"`);
+  const detectUnit = (v: string): '"' | "'" => v.includes("'") ? "'" : '"';
+  const [unit, setUnit] = useState<'"' | "'">(detectUnit(value));
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!onChange) return;
@@ -40,8 +41,8 @@ export default function MeasInput({ label, value = '', onChange, hint }: Props) 
           inputMode="decimal"
         />
         <select className="meas-unit" value={unit} onChange={handleUnitChange}>
-          <option value={`"`}>″</option>
-          <option value={`'`}>′</option>
+          <option value={`"`}>in</option>
+          <option value={`'`}>ft</option>
         </select>
       </div>
     </div>

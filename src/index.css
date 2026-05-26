@@ -858,7 +858,7 @@ input, select, textarea { font-family: var(--font); }
 .meas-label { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
 .meas-hint { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 4px; }
 .meas-input-row { display: flex; gap: 6px; }
-.meas-input { flex: 1; padding: 8px 10px; font-size: var(--font-size-base); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text-primary); background: var(--bg-subtle); outline: none; }
+.meas-input { width: 80px; min-width: 60px; padding: 8px 10px; font-size: var(--font-size-base); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text-primary); background: var(--bg-subtle); outline: none; }
 .meas-input:focus { border-color: var(--brand-yellow); box-shadow: 0 0 0 3px rgb(245 196 42 / 0.12); }
 .meas-unit { padding: 8px 10px; font-size: var(--font-size-sm); font-weight: 600; border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--brand-yellow); background: var(--bg-subtle); cursor: pointer; white-space: nowrap; }
 .meas-unit:hover { background: var(--surface-raised); }
