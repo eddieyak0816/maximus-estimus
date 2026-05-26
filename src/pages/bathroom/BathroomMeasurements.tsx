@@ -69,6 +69,7 @@ export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCaptur
             globalSoffitH={data.soffitH}
             globalSoffitD={data.soffitD}
             onWallPhotoCapture={onWallPhotoCapture}
+            startClosed={startClosed}
           />
         ))}
       </CollapseSection>

@@ -80,6 +80,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
             globalSoffitH={data.soffitH}
             globalSoffitD={data.soffitD}
             onWallPhotoCapture={onWallPhotoCapture}
+            startClosed={startClosed}
           />
         ))}
       </CollapseSection>

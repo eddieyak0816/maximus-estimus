@@ -29,11 +29,12 @@ function formatInches(inches: number): string {
 }
 
 // ── Window card ───────────────────────────────────────────────────────────────
-function WindowCard({ win, index, onUpdate, onRemove }: {
+function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
   win: WindowData; index: number;
   onUpdate: (v: WindowData) => void; onRemove: () => void;
+  startClosed?: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!startClosed);
   const u = (f: keyof WindowData, v: string) => onUpdate({ ...win, [f]: v });
   return (
     <div className="sub-card">
@@ -85,11 +86,12 @@ function WindowCard({ win, index, onUpdate, onRemove }: {
 }
 
 // ── Door card ─────────────────────────────────────────────────────────────────
-function DoorCard({ door, index, onUpdate, onRemove }: {
+function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
   door: DoorData; index: number;
   onUpdate: (v: DoorData) => void; onRemove: () => void;
+  startClosed?: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!startClosed);
   const u = (f: keyof DoorData, v: string) => onUpdate({ ...door, [f]: v } as DoorData);
   const title = door.type === 'Opening' ? `Opening ${index + 1}` : `Door ${index + 1}`;
   return (
@@ -145,11 +147,12 @@ function DoorCard({ door, index, onUpdate, onRemove }: {
 }
 
 // ── Appliance card ────────────────────────────────────────────────────────────
-function ApplianceCard({ app, onUpdate, onRemove }: {
+function ApplianceCard({ app, onUpdate, onRemove, startClosed = false }: {
   app: ApplianceOnWall;
   onUpdate: (v: ApplianceOnWall) => void; onRemove: () => void;
+  startClosed?: boolean;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!startClosed);
   return (
     <div className="sub-card">
       <div className="sub-card-header">
@@ -227,14 +230,15 @@ interface WallProps {
   globalSoffitH?: string;
   globalSoffitD?: string;
   onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
+  startClosed?: boolean;
 }
 
-export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD, onWallPhotoCapture }: WallProps) {
-  const [open, setOpen] = useState(true);
+export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD, onWallPhotoCapture, startClosed = false }: WallProps) {
+  const [open, setOpen] = useState(!startClosed);
   const [renaming, setRenaming] = useState(false);
-  const [soffitOpen, setSoffitOpen] = useState(true);
-  const [sinkOpen, setSinkOpen] = useState(true);
-  const [cabsOpen, setCabsOpen] = useState(true);
+  const [soffitOpen, setSoffitOpen] = useState(!startClosed);
+  const [sinkOpen, setSinkOpen] = useState(!startClosed);
+  const [cabsOpen, setCabsOpen] = useState(!startClosed);
   const [pieceDraft, setPieceDraft] = useState('');
   const [pieceUnit, setPieceUnit] = useState<'"' | "'">('"');
   const [showWallCamera, setShowWallCamera] = useState(false);
@@ -426,7 +430,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             {(data.windows || []).map((w, i) => (
               <WindowCard key={i} win={w} index={i}
                 onUpdate={v => { const a = [...(data.windows || [])]; a[i] = v; u('windows', a); }}
-                onRemove={() => u('windows', (data.windows || []).filter((_, x) => x !== i))} />
+                onRemove={() => u('windows', (data.windows || []).filter((_, x) => x !== i))}
+                startClosed={startClosed} />
             ))}
           </div>
 
@@ -439,7 +444,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             {(data.doors || []).map((d, i) => (
               <DoorCard key={i} door={d} index={i}
                 onUpdate={v => { const a = [...(data.doors || [])]; a[i] = v; u('doors', a); }}
-                onRemove={() => u('doors', (data.doors || []).filter((_, x) => x !== i))} />
+                onRemove={() => u('doors', (data.doors || []).filter((_, x) => x !== i))}
+                startClosed={startClosed} />
             ))}
           </div>
 
@@ -465,7 +471,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
             {(data.appliances || []).map((app, i) => (
               <ApplianceCard key={i} app={app}
                 onUpdate={v => { const a = [...(data.appliances || [])]; a[i] = v; u('appliances', a); }}
-                onRemove={() => u('appliances', (data.appliances || []).filter((_, x) => x !== i))} />
+                onRemove={() => u('appliances', (data.appliances || []).filter((_, x) => x !== i))}
+                startClosed={startClosed} />
             ))}
           </div>
 
