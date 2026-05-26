@@ -15,6 +15,7 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import AdminDropdownsPage from './pages/AdminDropdownsPage';
 import { useAssessmentStore } from './store/assessmentStore';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { FontScaleProvider } from './contexts/FontScaleContext';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -164,9 +165,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter basename="/maximus-estimus/">
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <FontScaleProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </FontScaleProvider>
     </BrowserRouter>
   );
 }

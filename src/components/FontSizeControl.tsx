@@ -1,27 +1,35 @@
-import { useFontSize, type FontSize } from '../hooks/useFontSize';
+import { useFontScale } from '../contexts/FontScaleContext';
 
 export default function FontSizeControl() {
-  const { fontSize, setFontSize } = useFontSize();
-
-  const sizes: Array<{ label: string; value: FontSize }> = [
-    { label: 'A-', value: 'small' },
-    { label: 'A', value: 'normal' },
-    { label: 'A+', value: 'large' },
-  ];
+  const { scale, increment, decrement, reset } = useFontScale();
+  const isDefault = Math.abs(scale - 1) < 0.01;
 
   return (
     <div className="font-size-control">
-      {sizes.map(({ label, value }) => (
-        <button
-          key={value}
-          onClick={() => setFontSize(value)}
-          className={`font-size-btn ${fontSize === value ? 'active' : ''}`}
-          title={`${value.charAt(0).toUpperCase() + value.slice(1)} font size`}
-          aria-label={`${value} font size`}
-        >
-          {label}
-        </button>
-      ))}
+      <button
+        onClick={decrement}
+        className="font-size-btn"
+        title="Decrease font size (10%)"
+        aria-label="Decrease font size"
+      >
+        A−
+      </button>
+      <button
+        onClick={reset}
+        className={`font-size-btn ${isDefault ? 'active' : ''}`}
+        title="Reset to default font size"
+        aria-label="Reset font size"
+      >
+        A
+      </button>
+      <button
+        onClick={increment}
+        className="font-size-btn"
+        title="Increase font size (10%)"
+        aria-label="Increase font size"
+      >
+        A+
+      </button>
     </div>
   );
 }
