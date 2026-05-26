@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 26, 2026 (Evening)  
+> **Last Updated:** May 26, 2026 (Evening - Session 2)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Accordions Start Closed ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
 
 ---
 
@@ -185,6 +185,19 @@
   - Applies to 30+ MeasInput instances across Kitchen, Bathroom, Island, Living Room, Bedroom, Deck
   - Files changed: src/components/MeasInput.tsx, src/index.css
   - Improves mobile UX: forms no longer require horizontal scrolling, compact measurement sections
+
+- **All Accordions Start Closed on Measure Tab (May 26 evening - Session 2):**
+  - When user switches to "📏 Measure" tab, all accordion sections start in collapsed state
+  - Propagates `startClosed` prop through entire component hierarchy:
+    - AssessmentDetail.tsx → KitchenMeasurements, BathroomMeasurements (+ all other measurement types)
+    - Measurement components → WallSection for each wall
+    - WallSection → WindowCard, DoorCard, ApplianceCard sub-components
+  - Uses React key change strategy: when switching to Measure tab, `key='measurements-tab'` forces component remount, resetting all useState hooks
+  - Main sections (Room Globals, Walls, Island, Tub, Shower, etc.) initialize with `defaultOpen={!startClosed}`
+  - Island sub-sections (Dimensions, Clearances, Overhang, Sink, Cooktop, Outlets, Levels) initialize with `useState(!startClosed)`
+  - Wall sub-cards (Windows, Doors, Appliances, Outlets) and their details initialize with `useState(!startClosed)`
+  - User can open sections as needed; accordion state resets fresh when switching tabs
+  - Files modified: AssessmentDetail.tsx, KitchenMeasurements.tsx, BathroomMeasurements.tsx, WallSection.tsx
 
 ### 🔲 Next Up (Priority Order)
 
