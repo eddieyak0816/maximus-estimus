@@ -4,7 +4,8 @@
       "Bash(grep -n \"migrateAssessment\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\store\\\\\\\\assessmentStore.ts\")",
       "Bash(grep -n \"const walls = m.walls\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\utils\\\\\\\\estimateEngine.ts\")",
       "Bash(grep -n \"onRemove\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\components\\\\\\\\WallSection.tsx\")",
-      "Bash(grep -B 2 -A 5 \"onRemove &&\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\components\\\\\\\\WallSection.tsx\")"
+      "Bash(grep -B 2 -A 5 \"onRemove &&\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\components\\\\\\\\WallSection.tsx\")",
+      "Bash(grep -E \"\\\\.tsx$\")"
     ]
   }
 }
