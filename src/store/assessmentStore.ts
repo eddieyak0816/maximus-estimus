@@ -4,7 +4,7 @@ import type {
   Assessment, AssessmentStatus, JobType, JobInstance,
   KitchenAssessment, BathroomAssessment, FlooringAssessment, PaintingAssessment, OtherAssessment,
   LivingRoomAssessment, BedroomAssessment, DeckAssessment,
-  PriceCategory, MarkupSettings, EstimateData,
+  PriceCategory, MarkupSettings, EstimateData, WallData,
 } from '../types';
 import { defaultPriceGuide, DEFAULT_MARKUP } from '../utils/defaultPriceGuide';
 import { pushAssessment, deleteAssessmentRemote, pushTeamMembers, pushMarkupSettings, pushPriceGuide, pullAllAssessments, pullTeamMembers, pullMarkupSettings, pullPriceGuide } from '../utils/supabaseSync';
