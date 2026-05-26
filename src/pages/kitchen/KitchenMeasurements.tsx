@@ -12,23 +12,24 @@ interface Props {
   data: KM;
   onUpdate: (d: KM) => void;
   onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
+  startClosed?: boolean;
 }
 
-export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture }: Props) {
+export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture, startClosed = false }: Props) {
   const u = (f: keyof KM, v: unknown) => onUpdate({ ...data, [f]: v });
 
-  const [iDimsOpen, setIDimsOpen] = useState(true);
-  const [iClearOpen, setIClearOpen] = useState(true);
-  const [iOvhgOpen, setIOvhgOpen] = useState(true);
-  const [iSinkOpen, setISinkOpen] = useState(true);
-  const [iCooktopOpen, setICooktopOpen] = useState(true);
-  const [iOutletOpen, setIOutletOpen] = useState(true);
-  const [iLevelsOpen, setILevelsOpen] = useState(true);
+  const [iDimsOpen, setIDimsOpen] = useState(!startClosed);
+  const [iClearOpen, setIClearOpen] = useState(!startClosed);
+  const [iOvhgOpen, setIOvhgOpen] = useState(!startClosed);
+  const [iSinkOpen, setISinkOpen] = useState(!startClosed);
+  const [iCooktopOpen, setICooktopOpen] = useState(!startClosed);
+  const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
+  const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
 
   return (
     <div className="assess-tab">
       {/* ── Room Globals ── */}
-      <CollapseSection title="🌐 Room Globals" accent defaultOpen>
+      <CollapseSection title="🌐 Room Globals" accent defaultOpen={!startClosed}>
         <MeasInput label="Overall Ceiling Height" value={data.ceilingHeight} onChange={v => u('ceilingHeight', v)} />
         <div className="toggle-row">
           <span className="toggle-label">Soffit Present?</span>
@@ -66,7 +67,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
       </CollapseSection>
 
       {/* ── Per-Wall ── */}
-      <CollapseSection title="📏 Walls" accent defaultOpen>
+      <CollapseSection title="📏 Walls" accent defaultOpen={!startClosed}>
         <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse. Tap the 📷 icon to capture a wall photo.</p>
         {WALL_LABELS.map(w => (
           <WallSection

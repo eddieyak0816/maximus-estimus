@@ -168,12 +168,16 @@ export default function AssessmentDetail() {
   const renderTabContent = () => {
     if (!activeJob) return null;
 
+    const measurementsKey = activeTab === 'measurements' ? 'measurements-tab' : undefined;
+    const startClosed = activeTab === 'measurements';
+
     if (activeJob.type === 'Bathroom') {
       const bath = activeJob.bathroom!;
       if (activeTab === 'measurements') {
-        return <BathroomMeasurements data={bath.measurements}
+        return <BathroomMeasurements key={measurementsKey} data={bath.measurements}
           onUpdate={m => updateBathroom({ ...bath, measurements: m })}
-          onWallPhotoCapture={handleWallPhotoCapture} />;
+          onWallPhotoCapture={handleWallPhotoCapture}
+          startClosed={startClosed} />;
       }
       if (activeTab === 'questions') {
         return <BathroomQuestions data={bath.questions}
@@ -188,7 +192,7 @@ export default function AssessmentDetail() {
     if (activeJob.type === 'Flooring') {
       const floor = activeJob.flooring!;
       if (activeTab === 'measurements') {
-        return <FlooringMeasurements data={floor.measurements}
+        return <FlooringMeasurements key={measurementsKey} data={floor.measurements}
           onUpdate={m => updateFlooring({ ...floor, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
@@ -205,7 +209,7 @@ export default function AssessmentDetail() {
     if (activeJob.type === 'Living Room') {
       const lr = activeJob.livingRoom!;
       if (activeTab === 'measurements') {
-        return <LivingRoomMeasurements data={lr.measurements}
+        return <LivingRoomMeasurements key={measurementsKey} data={lr.measurements}
           onUpdate={m => updateLivingRoom({ ...lr, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
@@ -222,7 +226,7 @@ export default function AssessmentDetail() {
     if (activeJob.type === 'Bedroom') {
       const br = activeJob.bedroom!;
       if (activeTab === 'measurements') {
-        return <BedroomMeasurements data={br.measurements}
+        return <BedroomMeasurements key={measurementsKey} data={br.measurements}
           onUpdate={m => updateBedroom({ ...br, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
@@ -239,7 +243,7 @@ export default function AssessmentDetail() {
     if (activeJob.type === 'Deck') {
       const dk = activeJob.deck!;
       if (activeTab === 'measurements') {
-        return <DeckMeasurements data={dk.measurements}
+        return <DeckMeasurements key={measurementsKey} data={dk.measurements}
           onUpdate={m => updateDeck({ ...dk, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
@@ -261,9 +265,10 @@ export default function AssessmentDetail() {
 
     // Kitchen (default)
     if (activeTab === 'measurements') {
-      return <KitchenMeasurements data={activeJob.kitchen.measurements}
+      return <KitchenMeasurements key={measurementsKey} data={activeJob.kitchen.measurements}
         onUpdate={m => updateKitchen({ ...activeJob.kitchen, measurements: m })}
-        onWallPhotoCapture={handleWallPhotoCapture} />;
+        onWallPhotoCapture={handleWallPhotoCapture}
+        startClosed={startClosed} />;
     }
     if (activeTab === 'questions') {
       return <KitchenQuestions data={activeJob.kitchen.questions}
