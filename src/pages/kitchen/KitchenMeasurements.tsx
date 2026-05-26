@@ -6,7 +6,10 @@ import WallSection from '../../components/WallSection';
 import ChevronIcon from '../../components/ChevronIcon';
 import type { KitchenMeasurements as KM } from '../../types';
 
-const WALL_LABELS = ['A','B','C','D'] as const;
+function wallLabel(i: number): string {
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return i < 26 ? A[i] : A[Math.floor(i / 26) - 1] + A[i % 26];
+}
 
 interface Props {
   data: KM;
@@ -51,11 +54,11 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
               <span className="toggle-label">Same on all walls?</span>
               <Toggle on={!!data.soffitSame} onToggle={() => {
                 if (data.soffitSame) {
-                  // Turning per-wall overrides ON — pre-fill each wall with global H and D
-                  const walls = { ...data.walls };
-                  for (const w of ['A', 'B', 'C', 'D'] as const) {
-                    walls[w] = { ...walls[w], sH: walls[w].sH || data.soffitH || '', sD: walls[w].sD || data.soffitD || '' };
-                  }
+                  const walls = (data.walls || []).map(w => ({
+                    ...w,
+                    sH: w.sH || data.soffitH || '',
+                    sD: w.sD || data.soffitD || '',
+                  }));
                   onUpdate({ ...data, soffitSame: false, walls });
                 } else {
                   u('soffitSame', true);
@@ -69,20 +72,37 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
       {/* ── Per-Wall ── */}
       <CollapseSection title="📏 Walls" accent defaultOpen={!startClosed}>
         <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse. Tap the 📷 icon to capture a wall photo.</p>
-        {WALL_LABELS.map(w => (
-          <WallSection
-            key={w}
-            wall={w}
-            data={data.walls?.[w] || {}}
-            onUpdate={v => onUpdate({ ...data, walls: { ...data.walls, [w]: v } })}
-            globalHasSoffit={data.hasSoffit}
-            soffitSame={data.soffitSame}
-            globalSoffitH={data.soffitH}
-            globalSoffitD={data.soffitD}
-            onWallPhotoCapture={onWallPhotoCapture}
-            startClosed={startClosed}
-          />
-        ))}
+        {(data.walls || []).map((wallData, i) => {
+          const label = wallLabel(i);
+          return (
+            <WallSection
+              key={i}
+              wall={label}
+              data={wallData}
+              onUpdate={v => {
+                const next = [...(data.walls || [])];
+                next[i] = v;
+                onUpdate({ ...data, walls: next });
+              }}
+              onRemove={i >= 4 ? () => {
+                onUpdate({ ...data, walls: (data.walls || []).filter((_, idx) => idx !== i) });
+              } : undefined}
+              globalHasSoffit={data.hasSoffit}
+              soffitSame={data.soffitSame}
+              globalSoffitH={data.soffitH}
+              globalSoffitD={data.soffitD}
+              onWallPhotoCapture={onWallPhotoCapture}
+              startClosed={startClosed}
+            />
+          );
+        })}
+        <button
+          className="btn btn-ghost btn-sm"
+          style={{ marginTop: 10, width: '100%' }}
+          onClick={() => onUpdate({ ...data, walls: [...(data.walls || []), {}] })}
+        >
+          ➕ Add Wall {wallLabel((data.walls || []).length)}
+        </button>
       </CollapseSection>
 
       {/* ── Island ── */}

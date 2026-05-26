@@ -230,10 +230,11 @@ interface WallProps {
   globalSoffitH?: string;
   globalSoffitD?: string;
   onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
+  onRemove?: () => void;
   startClosed?: boolean;
 }
 
-export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD, onWallPhotoCapture, startClosed = false }: WallProps) {
+export default function WallSection({ wall, data, onUpdate, globalHasSoffit, soffitSame, globalSoffitH, globalSoffitD, onWallPhotoCapture, onRemove, startClosed = false }: WallProps) {
   const [open, setOpen] = useState(!startClosed);
   const [renaming, setRenaming] = useState(false);
   const [soffitOpen, setSoffitOpen] = useState(!startClosed);
@@ -325,6 +326,13 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                   <button className="icon-btn" title="Take wall photo"
                     onClick={e => { e.stopPropagation(); setShowWallCamera(true); }}>
                     📷
+                  </button>
+                )}
+                {onRemove && (
+                  <button className="icon-btn" title="Remove wall"
+                    onClick={e => { e.stopPropagation(); onRemove(); }}
+                    style={{ color: 'var(--danger, #ef4444)' }}>
+                    ✕
                   </button>
                 )}
               </div>}

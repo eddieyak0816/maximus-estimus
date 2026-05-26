@@ -4,7 +4,10 @@ import CollapseSection from '../../components/CollapseSection';
 import WallSection from '../../components/WallSection';
 import type { BathroomMeasurements as BM } from '../../types';
 
-const WALL_LABELS = ['A', 'B', 'C', 'D'] as const;
+function wallLabel(i: number): string {
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return i < 26 ? A[i] : A[Math.floor(i / 26) - 1] + A[i % 26];
+}
 
 interface Props {
   data: BM;
@@ -41,10 +44,11 @@ export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCaptur
               <span className="toggle-label">Same on all walls?</span>
               <Toggle on={!!data.soffitSame} onToggle={() => {
                 if (data.soffitSame) {
-                  const walls = { ...data.walls };
-                  for (const w of ['A', 'B', 'C', 'D'] as const) {
-                    walls[w] = { ...walls[w], sH: walls[w].sH || data.soffitH || '', sD: walls[w].sD || data.soffitD || '' };
-                  }
+                  const walls = (data.walls || []).map(w => ({
+                    ...w,
+                    sH: w.sH || data.soffitH || '',
+                    sD: w.sD || data.soffitD || '',
+                  }));
                   onUpdate({ ...data, soffitSame: false, walls });
                 } else {
                   u('soffitSame', true);
@@ -58,20 +62,37 @@ export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCaptur
       {/* ── Walls ── */}
       <CollapseSection title="📏 Walls" accent defaultOpen={!startClosed}>
         <p className="assess-hint">Tap the pencil icon to rename a wall. Tap the chevron to expand or collapse. Tap the 📷 icon to capture a wall photo.</p>
-        {WALL_LABELS.map(w => (
-          <WallSection
-            key={w}
-            wall={w}
-            data={data.walls?.[w] || {}}
-            onUpdate={v => onUpdate({ ...data, walls: { ...data.walls, [w]: v } })}
-            globalHasSoffit={data.hasSoffit}
-            soffitSame={data.soffitSame}
-            globalSoffitH={data.soffitH}
-            globalSoffitD={data.soffitD}
-            onWallPhotoCapture={onWallPhotoCapture}
-            startClosed={startClosed}
-          />
-        ))}
+        {(data.walls || []).map((wallData, i) => {
+          const label = wallLabel(i);
+          return (
+            <WallSection
+              key={i}
+              wall={label}
+              data={wallData}
+              onUpdate={v => {
+                const next = [...(data.walls || [])];
+                next[i] = v;
+                onUpdate({ ...data, walls: next });
+              }}
+              onRemove={i >= 4 ? () => {
+                onUpdate({ ...data, walls: (data.walls || []).filter((_, idx) => idx !== i) });
+              } : undefined}
+              globalHasSoffit={data.hasSoffit}
+              soffitSame={data.soffitSame}
+              globalSoffitH={data.soffitH}
+              globalSoffitD={data.soffitD}
+              onWallPhotoCapture={onWallPhotoCapture}
+              startClosed={startClosed}
+            />
+          );
+        })}
+        <button
+          className="btn btn-ghost btn-sm"
+          style={{ marginTop: 10, width: '100%' }}
+          onClick={() => onUpdate({ ...data, walls: [...(data.walls || []), {}] })}
+        >
+          ➕ Add Wall {wallLabel((data.walls || []).length)}
+        </button>
       </CollapseSection>
 
       {/* ── Tub ── */}
@@ -122,10 +143,13 @@ export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCaptur
       <CollapseSection title="🪥 Vanity & Sink" defaultOpen>
         <div className="tiny-label" style={{ marginBottom: 6 }}>Which wall?</div>
         <div className="pill-group" style={{ marginBottom: 12 }}>
-          {WALL_LABELS.map(w => (
-            <button key={w} className={`pill${data.vanityWall === w ? ' active' : ''}`}
-              onClick={() => u('vanityWall', w)}>Wall {w}</button>
-          ))}
+          {(data.walls || []).map((_, i) => {
+            const label = wallLabel(i);
+            return (
+              <button key={i} className={`pill${data.vanityWall === label ? ' active' : ''}`}
+                onClick={() => u('vanityWall', label)}>Wall {label}</button>
+            );
+          })}
         </div>
         <MeasInput label="Location from Nearest Corner" value={data.vanityLoc} onChange={v => u('vanityLoc', v)} />
         <MeasInput label="Vanity Width" value={data.vanityW} onChange={v => u('vanityW', v)} />

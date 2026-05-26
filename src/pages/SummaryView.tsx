@@ -19,6 +19,11 @@ import type {
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
+function wallLabel(i: number): string {
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return i < 26 ? A[i] : A[Math.floor(i / 26) - 1] + A[i % 26];
+}
+
 function Row({ label, value }: { label: string; value?: string | number | boolean | null }) {
   if (value === undefined || value === null || value === '' || value === 0) return null;
   const display = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
@@ -157,7 +162,7 @@ function KitchenMeasurementsSection({ m, assessmentId }: { m: KitchenMeasurement
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const populatedWalls = (['A', 'B', 'C', 'D'] as const).filter(k => m.walls[k]?.length);
+  const populatedWalls = (m.walls || []).map((w, i) => ({ w, i })).filter(({ w }) => w.length);
   return (
     <SectionCard title="Measurements" action={editBtn}>
       <Row label="Ceiling Height" value={m.ceilingHeight} />
@@ -168,8 +173,8 @@ function KitchenMeasurementsSection({ m, assessmentId }: { m: KitchenMeasurement
           <Row label="Soffit Width" value={m.soffitW} />
         </>
       )}
-      {populatedWalls.map(k => (
-        <WallSummary key={k} wallKey={k} wall={m.walls[k]} />
+      {populatedWalls.map(({ w, i }) => (
+        <WallSummary key={i} wallKey={wallLabel(i)} wall={w} />
       ))}
       {m.hasIsland && (
         <>
@@ -250,7 +255,7 @@ function BathroomMeasurementsSection({ m, assessmentId }: { m: BathroomMeasureme
   const editBtn = (
     <Link to={`/assessment/${assessmentId}`} className="btn btn-ghost btn-sm">Edit</Link>
   );
-  const populatedWalls = (['A', 'B', 'C', 'D'] as const).filter(k => m.walls[k]?.length);
+  const populatedWalls = (m.walls || []).map((w, i) => ({ w, i })).filter(({ w }) => w.length);
   return (
     <SectionCard title="Measurements" action={editBtn}>
       <Row label="Ceiling Height" value={m.ceilingHeight} />
@@ -261,8 +266,8 @@ function BathroomMeasurementsSection({ m, assessmentId }: { m: BathroomMeasureme
           <Row label="Soffit Width" value={m.soffitW} />
         </>
       )}
-      {populatedWalls.map(k => (
-        <WallSummary key={k} wallKey={k} wall={m.walls[k]} />
+      {populatedWalls.map(({ w, i }) => (
+        <WallSummary key={i} wallKey={wallLabel(i)} wall={w} />
       ))}
       {m.hasTub && (
         <>

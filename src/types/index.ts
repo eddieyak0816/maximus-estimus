@@ -97,8 +97,6 @@ export interface WallData {
   tallCabD?: string;
 }
 
-export type WallMap = { A: WallData; B: WallData; C: WallData; D: WallData };
-
 // ── Kitchen ───────────────────────────────────────────────────────────────────
 export interface KitchenMeasurements {
   ceilingHeight?: string;
@@ -107,7 +105,7 @@ export interface KitchenMeasurements {
   soffitD?: string;
   soffitW?: string;
   soffitSame?: boolean;
-  walls: WallMap;
+  walls: WallData[];
   // Island
   hasIsland?: boolean;
   iLen?: string;
@@ -206,7 +204,7 @@ export interface BathroomMeasurements {
   soffitD?: string;
   soffitW?: string;
   soffitSame?: boolean;
-  walls: WallMap;
+  walls: WallData[];
   // Tub
   hasTub?: boolean;
   tubLen?: string;

@@ -106,7 +106,7 @@ export function generateEstimate(
     // ── Kitchen ───────────────────────────────────────────────────────────────
     if (job.type === 'Kitchen') {
       const m = job.kitchen.measurements;
-      const walls = [m.walls.A, m.walls.B, m.walls.C, m.walls.D];
+      const walls = m.walls || [];
 
       let upperLF = 0, baseLF = 0, tallCount = 0;
       let counterSqFt = 0, backsplashSqFt = 0;

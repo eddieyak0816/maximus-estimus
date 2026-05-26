@@ -13,7 +13,7 @@ const STORAGE_KEY = 'maximus-estimus-v3';
 
 function emptyKitchen(): KitchenAssessment {
   return {
-    measurements: { walls: { A: {}, B: {}, C: {}, D: {} }, soffitSame: true },
+    measurements: { walls: [{}, {}, {}, {}], soffitSame: true },
     questions: {},
     photos: { photos: [] },
   };
@@ -21,7 +21,7 @@ function emptyKitchen(): KitchenAssessment {
 
 function emptyBathroom(): BathroomAssessment {
   return {
-    measurements: { walls: { A: {}, B: {}, C: {}, D: {} }, soffitSame: true },
+    measurements: { walls: [{}, {}, {}, {}], soffitSame: true },
     questions: {},
     photos: { photos: [] },
   };
@@ -116,7 +116,7 @@ function load(): StoredData {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     return {
-      assessments: raw.assessments || [],
+      assessments: (raw.assessments || []).map(migrateAssessment),
       teamMembers: raw.teamMembers || [],
       priceGuide: raw.priceGuide || defaultPriceGuide(),
       markupSettings: raw.markupSettings || DEFAULT_MARKUP,
@@ -128,6 +128,35 @@ function load(): StoredData {
 
 function save(assessments: Assessment[], teamMembers: string[], priceGuide: PriceCategory[], markupSettings: MarkupSettings) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ assessments, teamMembers, priceGuide, markupSettings }));
+}
+
+function migrateWalls(walls: unknown): WallData[] {
+  if (Array.isArray(walls)) return walls as WallData[];
+  if (walls && typeof walls === 'object') {
+    return ['A', 'B', 'C', 'D'].map(k => (walls as Record<string, WallData>)[k] ?? {});
+  }
+  return [{}, {}, {}, {}];
+}
+
+function migrateAssessment(a: Assessment): Assessment {
+  return {
+    ...a,
+    jobs: a.jobs.map(job => ({
+      ...job,
+      ...(job.kitchen ? {
+        kitchen: {
+          ...job.kitchen,
+          measurements: { ...job.kitchen.measurements, walls: migrateWalls(job.kitchen.measurements.walls) },
+        }
+      } : {}),
+      ...(job.bathroom ? {
+        bathroom: {
+          ...job.bathroom,
+          measurements: { ...job.bathroom.measurements, walls: migrateWalls(job.bathroom.measurements.walls) },
+        }
+      } : {}),
+    })),
+  };
 }
 
 interface Store {
@@ -405,7 +434,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       set(s => {
         // When online, Supabase is the source of truth — use it directly, don't merge with stale local data
         const newState = {
-          assessments: assessments,
+          assessments: assessments.map(migrateAssessment),
           teamMembers: teamMembers || s.teamMembers,
           markupSettings: markupSettings || s.markupSettings,
           priceGuide: priceGuide || s.priceGuide,

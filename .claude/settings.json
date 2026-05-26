@@ -20,7 +20,11 @@
       "Bash(findstr \":5175\")",
       "Bash(findstr \":517\")",
       "Bash(Start-Sleep -Seconds 5)",
-      "Bash(Get-Content \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\g--My-Drive-Maximus-Digital-Marketing-Maximus-Estimus\\\\16e0b762-2f67-498e-bccf-cbecb4945c60\\\\tasks\\\\bgrfkld4x.output\" -Tail 10)"
+      "Bash(Get-Content \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\g--My-Drive-Maximus-Digital-Marketing-Maximus-Estimus\\\\16e0b762-2f67-498e-bccf-cbecb4945c60\\\\tasks\\\\bgrfkld4x.output\" -Tail 10)",
+      "Bash(find \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\.claude\\\\\\\\skills\" -type f)",
+      "Bash(curl -s -w \"\\\\nStatus: %{http_code}\\\\n\" http://localhost:5179/maximus-estimus/)",
+      "Bash(grep -n \"Add Wall\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\kitchen\\\\\\\\KitchenMeasurements.tsx\")",
+      "Bash(grep -A 3 \"onRemove=\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\pages\\\\\\\\kitchen\\\\\\\\KitchenMeasurements.tsx\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Eddie\\.claude\\plans"
