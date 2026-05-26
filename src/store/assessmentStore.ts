@@ -91,6 +91,7 @@ export function emptyAssessment(creatorId: string = ''): Assessment {
     createdAt: now,
     updatedAt: now,
     creatorId,
+    assignedToUserId: undefined,
     client: {
       firstName: '', lastName: '', address: '', phone: '', email: '',
       notes: '', teamMember: '', visitDate: new Date().toISOString().split('T')[0],

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { savePhoto } from '../utils/photoStorage';
 import StatusBadge from '../components/StatusBadge';
 import KitchenMeasurements from './kitchen/KitchenMeasurements';
@@ -47,14 +49,31 @@ type TabId = (typeof TABS)[number]['id'];
 export default function AssessmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const {
-    getAssessment, setStatus,
+    getAssessment, setStatus, updateAssessment,
     updateJobKitchen, updateJobBathroom, updateJobFlooring, updateJobLivingRoom, updateJobBedroom, updateJobDeck, updateJobOther,
   } = useAssessmentStore();
 
   const assessment = id ? getAssessment(id) : undefined;
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('measurements');
+  const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
+  const [showReassignDropdown, setShowReassignDropdown] = useState(false);
+
+  // Load users for reassignment (admin only)
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    async function loadUsers() {
+      const { data, error } = await supabase
+        .from('pin_users')
+        .select('id,first_name,last_name');
+      if (!error && data) {
+        setUsers(data.map(u => ({ id: u.id, firstName: u.first_name, lastName: u.last_name })));
+      }
+    }
+    loadUsers();
+  }, [user?.isAdmin]);
 
   if (!assessment) {
     return (
@@ -304,6 +323,48 @@ export default function AssessmentDetail() {
               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
             ))}
           </select>
+          {user?.isAdmin && (
+            <div style={{ position: 'relative' }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowReassignDropdown(!showReassignDropdown)}>
+                {assessment.assignedToUserId
+                  ? `Assigned: ${users.find(u => u.id === assessment.assignedToUserId)?.firstName || 'User'}`
+                  : 'Assign'}
+              </button>
+              {showReassignDropdown && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                  background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
+                  borderRadius: 6, zIndex: 1000, minWidth: 180,
+                }}>
+                  <div style={{ padding: 8 }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: '100%', justifyContent: 'flex-start', marginBottom: 4 }}
+                      onClick={() => {
+                        updateAssessment(id!, { assignedToUserId: undefined });
+                        setShowReassignDropdown(false);
+                      }}
+                    >
+                      Unassigned
+                    </button>
+                    {users.map(u => (
+                      <button
+                        key={u.id}
+                        className="btn btn-ghost btn-sm"
+                        style={{ width: '100%', justifyContent: 'flex-start', marginBottom: 4 }}
+                        onClick={() => {
+                          updateAssessment(id!, { assignedToUserId: u.id });
+                          setShowReassignDropdown(false);
+                        }}
+                      >
+                        {u.firstName} {u.lastName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/assessment/${id}/client`)}>
             Edit Info
           </button>

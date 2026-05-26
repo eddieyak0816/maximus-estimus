@@ -1,16 +1,34 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAssessmentStore } from '../store/assessmentStore';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import DropdownSelect from '../components/DropdownSelect';
 import type { ClientInfo } from '../types';
 
 export default function CustomerInfoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { getAssessment, updateAssessment, deleteAssessment } = useAssessmentStore();
   const [hasClientName, setHasClientName] = useState(false);
+  const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
 
   const assessment = id ? getAssessment(id) : undefined;
+
+  // Load users for assignment dropdown (admin only)
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    async function loadUsers() {
+      const { data, error } = await supabase
+        .from('pin_users')
+        .select('id,first_name,last_name');
+      if (!error && data) {
+        setUsers(data.map(u => ({ id: u.id, firstName: u.first_name, lastName: u.last_name })));
+      }
+    }
+    loadUsers();
+  }, [user?.isAdmin]);
 
   // If user navigates away without filling in a client name, delete the blank assessment
   useEffect(() => {
@@ -86,6 +104,25 @@ export default function CustomerInfoPage() {
             allowCustom={true}
           />
         </div>
+
+        {/* Assign to team member (admin only) */}
+        {user?.isAdmin && (
+          <div className="form-field">
+            <label className="form-label">Assign to Team Member</label>
+            <select
+              className="input"
+              value={assessment.assignedToUserId || ''}
+              onChange={e => updateAssessment(id!, { assignedToUserId: e.target.value || undefined })}
+            >
+              <option value="">Unassigned</option>
+              {users.map(u => (
+                <option key={u.id} value={u.id}>
+                  {u.firstName} {u.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="form-field">
           <label className="form-label">Visit Date</label>

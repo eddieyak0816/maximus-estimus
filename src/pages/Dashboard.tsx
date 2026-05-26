@@ -62,10 +62,13 @@ export default function Dashboard() {
     }
   }
 
-  // Filter assessments: admins see all, regular users see only their own
+  // Filter assessments: admins see all, regular users see their own + assigned
   const visibleAssessments = user?.isAdmin
     ? assessments
-    : assessments.filter(a => a.creatorId === user?.id);
+    : assessments.filter(a =>
+        a.creatorId === user?.id ||
+        a.assignedToUserId === user?.id
+      );
 
   const counts = {
     total: visibleAssessments.length,
@@ -79,7 +82,7 @@ export default function Dashboard() {
       <div className="page-header">
         <div>
           <h1 className="page-title">
-            {user?.isAdmin ? 'All Assessments' : 'My Assessments'}
+            {user?.isAdmin ? 'All Assessments' : 'My Assessments & Assigned Work'}
           </h1>
           <p className="page-subtitle">Maximus Construction NJ LLC</p>
           {user && <p className="page-subtitle" style={{ fontSize: '0.875rem', marginTop: '4px', opacity: 0.8 }}>👤 {user.firstName} {user.lastName}</p>}
@@ -155,7 +158,12 @@ export default function Dashboard() {
                     {a.jobs.length > 0 && <span className="meta-sep">·</span>}
                     {a.creatorId && (
                       <>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 {creatorMap[a.creatorId] || a.creatorId.substring(0, 8)}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                          👤 {creatorMap[a.creatorId] || a.creatorId.substring(0, 8)}
+                          {a.assignedToUserId && a.assignedToUserId !== a.creatorId && (
+                            <> → {creatorMap[a.assignedToUserId] || a.assignedToUserId.substring(0, 8)}</>
+                          )}
+                        </span>
                         <span className="meta-sep">·</span>
                       </>
                     )}
