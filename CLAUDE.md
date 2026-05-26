@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 26, 2026 (Afternoon)  
+> **Last Updated:** May 26, 2026 (Evening)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
 
 ---
 
@@ -177,6 +177,15 @@
   - Accessibility improvement for users with vision challenges
   - Preference saved across sessions
 
+- **Measurement Input UI Improvement (May 26 evening):**
+  - Narrowed all measurement inputs from flex: 1 (stretch-to-fill) to width: 80px
+  - Accommodates 3-digit measurements without taking up entire row width
+  - Fixed unit dropdown state initialization to detect unit from stored value (so "feet" values show "ft" on reload)
+  - Updated unit dropdown labels from Unicode symbols (″/′) to plain text (in/ft) for better mobile readability
+  - Applies to 30+ MeasInput instances across Kitchen, Bathroom, Island, Living Room, Bedroom, Deck
+  - Files changed: src/components/MeasInput.tsx, src/index.css
+  - Improves mobile UX: forms no longer require horizontal scrolling, compact measurement sections
+
 ### 🔲 Next Up (Priority Order)
 
 #### ✅ Configurable Dropdown Lists (COMPLETE — May 15, 2026 Evening)
@@ -204,6 +213,17 @@
 - Special notes categories
 - See DROPDOWNS_INTEGRATION_GUIDE.md for implementation details
 
+#### ✅ Measurement Input UI Improvement (COMPLETE — May 26, 2026 Evening)
+**Goal:** Make measurement inputs narrower and add unit selector dropdown.
+
+**Completed:**
+- [x] Narrowed all measurement inputs from flex: 1 to width: 80px
+- [x] Unit dropdown labels changed from Unicode symbols (″/′) to plain text (in/ft)
+- [x] Fixed unit state initialization to detect unit from stored value on reload
+- [x] Applies to 30+ MeasInput instances across all room types
+- [x] Responsive on mobile (375px+)
+- [x] Form layouts no longer require horizontal scrolling
+
 #### 🔲 Feature 2: Dynamic Wall Count (5+ Walls) — NEXT
 **Goal:** Allow users to add more walls beyond the hardcoded A, B, C, D limit.
 
@@ -229,21 +249,6 @@
 - ✓ Estimates generate correctly for all walls
 - ✓ Persist to Supabase
 - ✓ Works on Kitchen, Bathroom (and any other wall-based pages)
-
-#### 🔲 Measurement Input UI Improvement
-**Goal:** Make measurement inputs narrower and add unit selector dropdown.
-
-**Scope:**
-- Narrow measurement input fields (80-100px for typical 3-digit values)
-- Add unit dropdown (inches/feet) next to each input
-- Keep inputs + dropdown inline using flexbox
-- Responsive: maintain layout on all screen sizes (desktop, tablet, phone)
-
-**Benefits:**
-- Saves space on mobile
-- Prevents input errors ("14'" vs "14 feet")
-- Cleaner form appearance
-- Addresses Eddie's feedback on wall length inputs being oversized
 
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
