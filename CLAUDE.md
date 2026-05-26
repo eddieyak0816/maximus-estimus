@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 22, 2026 (Afternoon)  
+> **Last Updated:** May 26, 2026 (Afternoon)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Admin Panel MVP Live + All UX Polish Done ✅ + Creator Tracking & Dashboard Display Working ✅ + Data Sync Fixed ✅ + **Photos Interface Redesigned ✅ + Mobile Camera Fixed ✅ + Photo Upload Feature ✅ + Wall Length Quick-Add Pieces ✅ + Room Templates Complete ✅ + Role-Based Job Visibility ✅ + Admin Dashboard Hub ✅**
+> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
 
 ---
 
@@ -153,6 +153,30 @@
   - `Assessment.creatorId`: required `string` field, set at creation, never overwritten
   - Creator name badge displays for each assessment showing who created it
 
+- **Wall Photo Capture from Measurements (May 26):**
+  - 📷 camera icon next to each wall name in Kitchen/Bathroom measurements
+  - Click icon → camera opens with wall name pre-selected as photo category
+  - Photo auto-tagged with wall name (e.g., "Wall A", "Wall B")
+  - Photos appear in Photos tab with wall names as labels
+  - Works on all measurement pages (Kitchen, Bathroom, Flooring, etc.)
+  - Files: WallSection.tsx (camera icon + modal), AssessmentDetail.tsx (handler), KitchenMeasurements.tsx, BathroomMeasurements.tsx
+
+- **Photo Viewer Modal with "View" Button (May 26):**
+  - Created ImageModal.tsx component for full-screen image viewing
+  - PhotoItem now shows "View" button to open captured photos in modal
+  - Click thumbnail → opens full-size photo (not camera)
+  - Close with ✕ button or Esc key
+  - Improves photo review workflow on field
+
+- **Cumulative Font Scaling (May 26):**
+  - A+ button → increases font size 10% each click (cumulative, unlimited)
+  - A− button → decreases font size 10% each click
+  - A button → resets to default (100%)
+  - FontScaleContext.tsx manages state + localStorage persistence
+  - CSS --font-scale variable applies to all font sizes
+  - Accessibility improvement for users with vision challenges
+  - Preference saved across sessions
+
 ### 🔲 Next Up (Priority Order)
 
 #### ✅ Configurable Dropdown Lists (COMPLETE — May 15, 2026 Evening)
@@ -179,6 +203,47 @@
 - Room names/labels
 - Special notes categories
 - See DROPDOWNS_INTEGRATION_GUIDE.md for implementation details
+
+#### 🔲 Feature 2: Dynamic Wall Count (5+ Walls) — NEXT
+**Goal:** Allow users to add more walls beyond the hardcoded A, B, C, D limit.
+
+**Scope:**
+- Replace hardcoded WALL_LABELS array with dynamic wall count
+- Add "➕ Add Wall" button below Wall D to create E, F, G, etc.
+- Remove button for user-added walls
+- Auto-naming based on letter sequence
+- Photo handling (wall photos tagged with auto-generated names)
+- Estimate generation updates (works with any wall count)
+
+**Files to modify:**
+- `src/pages/kitchen/KitchenMeasurements.tsx` — convert static map to dynamic state
+- `src/pages/bathroom/BathroomMeasurements.tsx` — same pattern
+- `src/types/index.ts` — KitchenMeasurements.walls structure (currently fixed record, convert to array or dynamic)
+- `src/store/assessmentStore.ts` — update actions to handle wall add/remove
+- `src/utils/estimateEngine.ts` — ensure estimate generation loops correctly
+
+**Acceptance Criteria:**
+- ✓ Users can add walls beyond D
+- ✓ Walls auto-name (E, F, G, H, etc.)
+- ✓ Wall photos work with new walls
+- ✓ Estimates generate correctly for all walls
+- ✓ Persist to Supabase
+- ✓ Works on Kitchen, Bathroom (and any other wall-based pages)
+
+#### 🔲 Measurement Input UI Improvement
+**Goal:** Make measurement inputs narrower and add unit selector dropdown.
+
+**Scope:**
+- Narrow measurement input fields (80-100px for typical 3-digit values)
+- Add unit dropdown (inches/feet) next to each input
+- Keep inputs + dropdown inline using flexbox
+- Responsive: maintain layout on all screen sizes (desktop, tablet, phone)
+
+**Benefits:**
+- Saves space on mobile
+- Prevents input errors ("14'" vs "14 feet")
+- Cleaner form appearance
+- Addresses Eddie's feedback on wall length inputs being oversized
 
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
