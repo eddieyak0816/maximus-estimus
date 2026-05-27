@@ -35,7 +35,17 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
   startClosed?: boolean;
 }) {
   const [open, setOpen] = useState(!startClosed);
-  const u = (f: keyof WindowData, v: string) => onUpdate({ ...win, [f]: v });
+  const [syncTrim, setSyncTrim] = useState(false);
+  const u = (f: keyof WindowData, v: string) => {
+    const updated = { ...win, [f]: v };
+    if (syncTrim && ['trimLeft', 'trimRight', 'trimTop', 'trimBottom'].includes(f)) {
+      updated.trimLeft = v;
+      updated.trimRight = v;
+      updated.trimTop = v;
+      updated.trimBottom = v;
+    }
+    onUpdate(updated);
+  };
   return (
     <div className="sub-card">
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
@@ -63,6 +73,10 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
         <div className="tiny-label" style={{ marginTop: 8 }}>Sill Height from Countertop</div>
         <input className="input input-sm" placeholder='0"' value={win.sillHeight || ''} onChange={e => u('sillHeight', e.target.value)} />
         <div className="sub-section-label" style={{ marginTop: 10 }}>TRIM WIDTH</div>
+        <div className="toggle-row" style={{ marginBottom: 10 }}>
+          <span className="toggle-label">Sync all trim sizes?</span>
+          <Toggle on={syncTrim} onToggle={() => setSyncTrim(o => !o)} />
+        </div>
         <div className="grid-2">
           {([
             ['Left Side', 'trimLeft'],
@@ -92,7 +106,16 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
   startClosed?: boolean;
 }) {
   const [open, setOpen] = useState(!startClosed);
-  const u = (f: keyof DoorData, v: string) => onUpdate({ ...door, [f]: v } as DoorData);
+  const [syncTrim, setSyncTrim] = useState(false);
+  const u = (f: keyof DoorData, v: string) => {
+    const updated = { ...door, [f]: v } as DoorData;
+    if (syncTrim && ['trimLeft', 'trimRight', 'trimTop'].includes(f)) {
+      updated.trimLeft = v;
+      updated.trimRight = v;
+      updated.trimTop = v;
+    }
+    onUpdate(updated);
+  };
   const title = door.type === 'Opening' ? `Opening ${index + 1}` : `Door ${index + 1}`;
   return (
     <div className="sub-card">
@@ -129,6 +152,10 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
           ))}
         </div>
         <div className="sub-section-label">TRIM WIDTH</div>
+        <div className="toggle-row" style={{ marginBottom: 10 }}>
+          <span className="toggle-label">Sync all trim sizes?</span>
+          <Toggle on={syncTrim} onToggle={() => setSyncTrim(o => !o)} />
+        </div>
         <div className="grid-2">
           {([
             ['Left Side', 'trimLeft'],

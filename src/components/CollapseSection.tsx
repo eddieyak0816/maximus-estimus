@@ -5,12 +5,13 @@ interface Props {
   children: React.ReactNode;
   defaultOpen?: boolean;
   accent?: boolean;
+  id?: string;
 }
 
-export default function CollapseSection({ title, children, defaultOpen = true, accent = false }: Props) {
+export default function CollapseSection({ title, children, defaultOpen = true, accent = false, id }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="collapse-section">
+    <div className="collapse-section" id={id}>
       <button
         className={`collapse-header${accent ? ' collapse-header-accent' : ''}${open ? ' open' : ''}`}
         onClick={() => setOpen(!open)}

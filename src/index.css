@@ -597,6 +597,16 @@ input, select, textarea { font-family: var(--font); }
 }
 .tab-btn:hover { color: var(--text-secondary); }
 .tab-btn.active { color: var(--brand-yellow); border-bottom-color: var(--brand-yellow); }
+.tab-btn.has-content:not(.active) {
+  color: var(--brand-yellow);
+  opacity: 0.85;
+  font-weight: 700;
+  background: rgba(245, 196, 42, 0.08);
+}
+.tab-btn.has-content:not(.active):hover {
+  opacity: 1;
+  background: rgba(245, 196, 42, 0.12);
+}
 
 /* ===== Cost Form ===== */
 .cost-grid { display: flex; flex-direction: column; }
@@ -893,6 +903,46 @@ input, select, textarea { font-family: var(--font); }
 .chevron-icon svg { width: 16px; height: 16px; fill: currentColor; }
 .chevron-icon.open { transform: rotate(180deg); }
 .collapse-body { padding: 16px; border-top: 1px solid var(--border-subtle); }
+
+/* ===== QuestionsSectionAnchors ===== */
+.section-anchors {
+  background: rgba(31, 48, 150, 0.12);
+  border: 1px solid rgba(31, 48, 150, 0.25);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.section-anchors-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.section-anchors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.section-anchor-link {
+  display: inline-block;
+  padding: 6px 12px;
+  background: rgba(31, 48, 150, 0.25);
+  border: 1px solid rgba(31, 48, 150, 0.4);
+  border-radius: var(--radius);
+  color: var(--brand-blue-light);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.section-anchor-link:hover {
+  background: rgba(31, 48, 150, 0.35);
+  border-color: rgba(31, 48, 150, 0.6);
+  color: var(--brand-yellow);
+}
 
 /* ===== CheckOpt ===== */
 .check-opt {

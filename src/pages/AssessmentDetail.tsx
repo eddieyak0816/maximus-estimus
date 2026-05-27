@@ -26,6 +26,7 @@ import DeckQuestions from './deck/DeckQuestions';
 import DeckPhotos from './deck/DeckPhotos';
 import OtherTabs from './other/OtherTabs';
 import { formatDate } from '../utils/calculations';
+import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   AssessmentStatus, KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
@@ -182,6 +183,27 @@ export default function AssessmentDetail() {
       console.error('Failed to capture wall photo:', err);
       alert('Failed to save wall photo');
     }
+  };
+
+  const questionsHaveContent = () => {
+    if (!activeJob) return false;
+
+    if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
+      return hasQuestionsContent(activeJob.kitchen.questions);
+    } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
+      return hasQuestionsContent(activeJob.bathroom.questions);
+    } else if (activeJob.type === 'Flooring' && activeJob.flooring) {
+      return hasQuestionsContent(activeJob.flooring.questions);
+    } else if (activeJob.type === 'Painting' && activeJob.painting) {
+      return hasQuestionsContent(activeJob.painting.questions);
+    } else if (activeJob.type === 'Living Room' && activeJob.livingRoom) {
+      return hasQuestionsContent(activeJob.livingRoom.questions);
+    } else if (activeJob.type === 'Bedroom' && activeJob.bedroom) {
+      return hasQuestionsContent(activeJob.bedroom.questions);
+    } else if (activeJob.type === 'Deck' && activeJob.deck) {
+      return hasQuestionsContent(activeJob.deck.questions);
+    }
+    return false;
   };
 
   const renderTabContent = () => {
@@ -419,8 +441,9 @@ export default function AssessmentDetail() {
             {TABS.map(t => (
               <button
                 key={t.id}
-                className={`tab-btn${activeTab === t.id ? ' active' : ''}`}
+                className={`tab-btn${activeTab === t.id ? ' active' : ''}${t.id === 'questions' && questionsHaveContent() ? ' has-content' : ''}`}
                 onClick={() => setActiveTab(t.id)}
+                title={t.id === 'questions' && questionsHaveContent() ? 'This tab has content' : ''}
               >
                 {t.label}
               </button>
