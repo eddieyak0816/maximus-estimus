@@ -556,6 +556,12 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                   <span className="toggle-label">Base cabinets?</span>
                   <Toggle on={!!data.hasBaseCabs} onToggle={() => u('hasBaseCabs', !data.hasBaseCabs)} />
                 </div>
+                {data.hasBaseCabs && (
+                  <div className="plumbing-box">
+                    <MeasInput label="Base Cabinet Height" value={data.baseCabH} onChange={v => u('baseCabH', v)} />
+                    <MeasInput label="Base Cabinet Depth" value={data.baseCabD} onChange={v => u('baseCabD', v)} />
+                  </div>
+                )}
                 <div className="toggle-row">
                   <span className="toggle-label">Tall / pantry cabinet?</span>
                   <Toggle on={!!data.hasTallCab} onToggle={() => u('hasTallCab', !data.hasTallCab)} />

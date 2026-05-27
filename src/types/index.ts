@@ -92,6 +92,8 @@ export interface WallData {
   upperCabH?: string;
   upperCabD?: string;
   hasBaseCabs?: boolean;
+  baseCabH?: string;
+  baseCabD?: string;
   hasTallCab?: boolean;
   tallCabH?: string;
   tallCabD?: string;

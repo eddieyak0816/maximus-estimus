@@ -5,7 +5,10 @@
       "Bash(grep -n \"const walls = m.walls\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\utils\\\\\\\\estimateEngine.ts\")",
       "Bash(grep -n \"onRemove\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\components\\\\\\\\WallSection.tsx\")",
       "Bash(grep -B 2 -A 5 \"onRemove &&\" \"g:\\\\\\\\My Drive\\\\\\\\Maximus Digital Marketing\\\\\\\\Maximus Estimus\\\\\\\\src\\\\\\\\components\\\\\\\\WallSection.tsx\")",
-      "Bash(grep -E \"\\\\.tsx$\")"
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(Start-Sleep -Seconds 4)",
+      "Bash(Write-Host \"Server should be ready\")",
+      "Bash(npx playwright *)"
     ]
   }
 }
