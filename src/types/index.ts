@@ -151,6 +151,7 @@ export interface KitchenMeasurements {
 }
 
 export interface KitchenQuestions {
+  visibleQuestions?: string[];
   scope?: string[];
   reason?: string[];
   reasonOther?: string;
@@ -257,6 +258,7 @@ export interface BathroomMeasurements {
 }
 
 export interface BathroomQuestions {
+  visibleQuestions?: string[];
   scope?: string[];
   timeline?: string;
   targetDate?: string;
@@ -321,6 +323,7 @@ export interface FlooringMeasurements {
 }
 
 export interface FlooringQuestions {
+  visibleQuestions?: string[];
   material?: string[];
   customMaterial?: string;
   removeExisting?: boolean;
@@ -358,6 +361,7 @@ export interface LivingRoomMeasurements {
 }
 
 export interface LivingRoomQuestions {
+  visibleQuestions?: string[];
   renovationScope?: string[];
   timeline?: string;
   targetDate?: string;
@@ -392,6 +396,7 @@ export interface BedroomMeasurements {
 }
 
 export interface BedroomQuestions {
+  visibleQuestions?: string[];
   renovationScope?: string[];
   timeline?: string;
   targetDate?: string;
@@ -427,6 +432,7 @@ export interface DeckMeasurements {
 }
 
 export interface DeckQuestions {
+  visibleQuestions?: string[];
   renovationScope?: string[];
   timeline?: string;
   targetDate?: string;
@@ -462,6 +468,7 @@ export interface PaintingMeasurements {
 }
 
 export interface PaintingQuestions {
+  visibleQuestions?: string[];
   scope?: string[];
   timeline?: string;
   targetDate?: string;

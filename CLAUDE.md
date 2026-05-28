@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 26, 2026 (Evening - Session 2)  
+> **Last Updated:** May 28, 2026 (Session 3 continued)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Accordions Start Closed ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Accordions Start Closed ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅ + Trim Sync Toggle ✅ + Accordion Content Highlighting ✅ + Adaptive Button Layout ✅ + Camera Upload Choice ✅ + Optional/Customizable Questions ✅
 
 ---
 
@@ -198,6 +198,65 @@
   - Wall sub-cards (Windows, Doors, Appliances, Outlets) and their details initialize with `useState(!startClosed)`
   - User can open sections as needed; accordion state resets fresh when switching tabs
   - Files modified: AssessmentDetail.tsx, KitchenMeasurements.tsx, BathroomMeasurements.tsx, WallSection.tsx
+
+- **Base Cabinet Height & Depth (May 26 evening - Session 2):**
+  - Added `baseCabH` and `baseCabD` fields to WallData type
+  - Existing Cabinets section now shows height/depth inputs for base cabinets when toggle enabled
+  - Consistent with upper and tall cabinet UI patterns
+  - Files modified: src/types/index.ts, src/components/WallSection.tsx
+
+- **Trim Copy/Paste Toggle for Windows & Doors (May 27-28):**
+  - Added "Sync all trim sizes?" toggle in Window and Door trim sections
+  - When enabled, entering one trim measurement syncs to all trim fields (Left, Right, Top, Bottom)
+  - Windows: Syncs trimLeft, trimRight, trimTop, trimBottom
+  - Doors: Syncs trimLeft, trimRight, trimTop
+  - Uses local state per window/door card
+  - Files modified: src/components/WallSection.tsx
+
+- **Accordion Content Highlighting (May 27-28):**
+  - Top-level accordions now show subtle blue background + left border when they contain data
+  - Visible on ALL tabs (Questions, Measurements, Photos, etc.)
+  - Created `sectionHasContent()` helper to detect populated fields
+  - Applied to all 20 question sections in KitchenQuestions
+  - Pattern can be applied to other question pages (Bathroom, Flooring, etc.)
+  - Files created: src/utils/hasQuestionsContent.ts
+  - Files modified: src/components/CollapseSection.tsx, src/index.css, src/pages/kitchen/KitchenQuestions.tsx, src/pages/AssessmentDetail.tsx
+
+- **Questions Tab Content Indicator (May 27-28):**
+  - Questions tab now highlights in golden yellow when it contains data
+  - Non-active Questions tab shows: golden text color + semi-transparent yellow background
+  - Added `questionsHaveContent()` function in AssessmentDetail.tsx to detect any populated fields
+  - Works for all assessment types (Kitchen, Bathroom, Flooring, Painting, Living Room, Bedroom, Deck)
+  - Files modified: src/pages/AssessmentDetail.tsx, src/index.css
+
+- **Anchor Navigation for Populated Accordion Sections (May 27-28):**
+  - Added "Quick Links:" bar at top of Questions tab showing only sections with content
+  - Links allow smooth scrolling to sections with data
+  - Created QuestionsSectionAnchors.tsx component
+  - Updated CollapseSection to accept `id` prop for anchor targeting
+  - All 20 Kitchen question sections now have unique IDs for anchor navigation
+  - Pattern established for applying to other question pages
+  - Files created: src/components/QuestionsSectionAnchors.tsx
+  - Files modified: src/components/CollapseSection.tsx, src/index.css, src/pages/kitchen/KitchenQuestions.tsx
+
+- **Adaptive Button Layout for Larger Font Sizes (May 27-28):**
+  - Added `flex-wrap: wrap` to all inline button rows to prevent overflow when text size increases
+  - Fixed elements: toggle-row, overhang-row, enable-row, outlet-row, soffit-override-header, wall-name-row, wall-sub-section-header, sub-card-header, sub-card-actions
+  - Buttons now wrap to next line instead of disappearing off-screen with A+ font scaling
+  - Files modified: src/index.css
+
+- **Camera Modal with Choice Screen (May 27-28):**
+  - CameraModal now shows initial choice screen: "📷 Take Photo" or "📁 Upload Photo"
+  - Removed separate upload buttons; consolidated into one modal flow
+  - Upload handler converts image to JPEG blob with 0.85 quality before saving
+  - Wall photo button (📷) now opens modal with both options
+  - Files modified: src/components/CameraModal.tsx
+
+- **Bathroom Wall Names in Vanity Section (May 27-28):**
+  - Fixed vanity wall selector buttons to use custom wall names instead of hardcoded A, B, C, D
+  - Now shows `wall.name || label` (custom name with fallback to generated label)
+  - Data persistence works correctly with renamed walls
+  - Files modified: src/pages/bathroom/BathroomMeasurements.tsx
 
 ### 🔲 Next Up (Priority Order)
 
