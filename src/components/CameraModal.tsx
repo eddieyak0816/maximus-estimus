@@ -6,14 +6,15 @@ interface Props {
   onClose: () => void;
 }
 
-type Stage = 'requesting' | 'camera' | 'preview' | 'error';
+type Stage = 'choice' | 'requesting' | 'camera' | 'preview' | 'error';
 
 export default function CameraModal({ label, onCapture, onClose }: Props) {
-  const [stage, setStage] = useState<Stage>('requesting');
+  const [stage, setStage] = useState<Stage>('choice');
   const [error, setError] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string>('');
 
   useEffect(() => {
@@ -132,6 +133,37 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
     setStage('camera');
   }
 
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((blob) => {
+            if (blob) {
+              onCapture(blob);
+              cleanup();
+            }
+          }, 'image/jpeg', 0.85);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function startTakePhoto() {
+    setStage('requesting');
+  }
+
   function cleanup() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
@@ -152,6 +184,30 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
           <h2>{label}</h2>
           <button className="modal-close" onClick={cleanup}>✕</button>
         </div>
+
+        {stage === 'choice' && (
+          <div className="modal-body camera-loading">
+            <p style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>How would you like to add a photo?</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button className="btn btn-primary" onClick={startTakePhoto} style={{ width: '100%' }}>
+                📷 Take Photo
+              </button>
+              <button className="btn btn-ghost" onClick={() => fileInputRef.current?.click()} style={{ width: '100%' }}>
+                📁 Upload Photo
+              </button>
+              <button className="btn btn-ghost" onClick={cleanup} style={{ width: '100%' }}>
+                Cancel
+              </button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
+            />
+          </div>
+        )}
 
         {stage === 'requesting' && (
           <div className="modal-body camera-loading">

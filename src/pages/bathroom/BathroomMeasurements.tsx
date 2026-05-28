@@ -143,11 +143,12 @@ export default function BathroomMeasurements({ data, onUpdate, onWallPhotoCaptur
       <CollapseSection title="🪥 Vanity & Sink" defaultOpen>
         <div className="tiny-label" style={{ marginBottom: 6 }}>Which wall?</div>
         <div className="pill-group" style={{ marginBottom: 12 }}>
-          {(data.walls || []).map((_, i) => {
+          {(data.walls || []).map((wall, i) => {
             const label = wallLabel(i);
+            const displayName = wall.name || label;
             return (
-              <button key={i} className={`pill${data.vanityWall === label ? ' active' : ''}`}
-                onClick={() => u('vanityWall', label)}>Wall {label}</button>
+              <button key={i} className={`pill${data.vanityWall === displayName ? ' active' : ''}`}
+                onClick={() => u('vanityWall', displayName)}>{displayName}</button>
             );
           })}
         </div>

@@ -33,6 +33,16 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
   };
   const isSel = (field: keyof KQ, val: string) => ((data[field] as string[]) || []).includes(val);
 
+  const sectionHasContent = (fields: (keyof KQ)[]): boolean => {
+    return fields.some(field => {
+      const value = data[field];
+      if (value === null || value === undefined) return false;
+      if (value === '' || value === false) return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      return true;
+    });
+  };
+
   /* ── Inline cabinet gallery ── */
   if (showGallery) return (
     <div className="assess-tab">
@@ -92,14 +102,14 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
   return (
     <div className="assess-tab">
       <QuestionsSectionAnchors sections={sections} data={data} />
-      <CollapseSection title="1 — Project Scope" defaultOpen={false} id="section-scope">
+      <CollapseSection title="1 — Project Scope" defaultOpen={false} id="section-scope" hasContent={sectionHasContent(['scope'])}>
         <p className="assess-hint">Select all that apply</p>
         {['Full gut renovation','Cabinet replacement only','Countertops only','Multiple items but not a full gut'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={isSel('scope', opt)} onToggle={() => toggle('scope', opt)} />
         )}
       </CollapseSection>
 
-      <CollapseSection title="2 — Reason for Renovating" defaultOpen={false} id="section-reason">
+      <CollapseSection title="2 — Reason for Renovating" defaultOpen={false} id="section-reason" hasContent={sectionHasContent(['reason', 'reasonOther'])}>
         <p className="assess-hint">Select all that apply</p>
         {['Outdated','Damaged','Full remodel','Preparing to sell','Other'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={isSel('reason', opt)} onToggle={() => toggle('reason', opt)} />
@@ -110,7 +120,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         )}
       </CollapseSection>
 
-      <CollapseSection title="3 — Timeline" defaultOpen={false} id="section-timeline">
+      <CollapseSection title="3 — Timeline" defaultOpen={false} id="section-timeline" hasContent={sectionHasContent(['timeline', 'targetDate'])}>
         {['Under 3 months','3 to 6 months','6 to 12 months','No rush','Specific target date'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={data.timeline === opt} onToggle={() => u('timeline', opt)} round />
         )}
@@ -119,13 +129,13 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         )}
       </CollapseSection>
 
-      <CollapseSection title="4 — Cabinets" defaultOpen={false} id="section-cabinets">
+      <CollapseSection title="4 — Cabinets" defaultOpen={false} id="section-cabinets" hasContent={sectionHasContent(['cabinets'])}>
         {['New cabinets','Partial replacement'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={isSel('cabinets', opt)} onToggle={() => toggle('cabinets', opt)} />
         )}
       </CollapseSection>
 
-      <CollapseSection title="5 — Cabinet Style" defaultOpen={false} id="section-cabinetStyle">
+      <CollapseSection title="5 — Cabinet Style" defaultOpen={false} id="section-cabinetStyle" hasContent={sectionHasContent(['cabinetStyle', 'cabinetNotes'])}>
         <div className="q-card">
           <div className="q-card-header">
             <span>Style Preference</span>
@@ -146,7 +156,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="6 — Countertops" defaultOpen={false} id="section-countertop">
+      <CollapseSection title="6 — Countertops" defaultOpen={false} id="section-countertop" hasContent={sectionHasContent(['countertopNotes'])}>
         <div className="q-card">
           <p className="assess-hint">We offer guidance only — customer sources and arranges fabrication</p>
           <textarea className="textarea" rows={3} placeholder="Customer's material preference…"
@@ -154,7 +164,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="7 — Backsplash" defaultOpen={false} id="section-backsplash">
+      <CollapseSection title="7 — Backsplash" defaultOpen={false} id="section-backsplash" hasContent={sectionHasContent(['backsplashInstall', 'backsplashMaterial', 'backsplashOther', 'backsplashNotes'])}>
         <div className="q-card">
           <div className="toggle-row" style={{ marginBottom: 10 }}>
             <span className="toggle-label">Will there be a new backsplash?</span>
@@ -178,7 +188,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="8 & 9 — Sink & Faucet" defaultOpen={false} id="section-sink">
+      <CollapseSection title="8 & 9 — Sink & Faucet" defaultOpen={false} id="section-sink" hasContent={sectionHasContent(['sinkNotes', 'faucetNotes'])}>
         <div className="q-card">
           <p className="assess-hint">Customer provides their own sink and faucet</p>
           <div className="tiny-label" style={{ marginBottom: 4 }}>Sink style preference</div>
@@ -191,7 +201,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="10 & 11 — Appliances" defaultOpen={false} id="section-appliance">
+      <CollapseSection title="10 & 11 — Appliances" defaultOpen={false} id="section-appliance" hasContent={sectionHasContent(['applianceScope', 'applianceList'])}>
         {['Keeping all existing appliances','Replacing all appliances','Replacing some appliances','Customer purchasing appliances themselves','Install only — customer provides'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={isSel('applianceScope', opt)} onToggle={() => toggle('applianceScope', opt)} />
         )}
@@ -205,7 +215,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         )}
       </CollapseSection>
 
-      <CollapseSection title="12 — Lighting" defaultOpen={false} id="section-lighting">
+      <CollapseSection title="12 — Lighting" defaultOpen={false} id="section-lighting" hasContent={sectionHasContent(['recessedLights', 'recessedLightsCount'])}>
         <div className="q-card" style={{ marginBottom: 8 }}>
           <div className="toggle-row" style={{ marginBottom: 10 }}>
             <span className="toggle-label">Will there be recessed lights?</span>
@@ -235,7 +245,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="15 & 16 — Trades" defaultOpen={false} id="section-trades">
+      <CollapseSection title="15 & 16 — Trades" defaultOpen={false} id="section-trades" hasContent={sectionHasContent(['electrical', 'plumbing'])}>
         {(['Electrical','Plumbing'] as const).map(label => {
           const key = label.toLowerCase() as 'electrical' | 'plumbing';
           return (
@@ -249,7 +259,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         })}
       </CollapseSection>
 
-      <CollapseSection title="17 — Flooring" defaultOpen={false} id="section-flooring">
+      <CollapseSection title="17 — Flooring" defaultOpen={false} id="section-flooring" hasContent={sectionHasContent(['flooringIncluded', 'flooringType'])}>
         <div className="q-card">
           <div className="toggle-row">
             <span className="toggle-label">Flooring included in this job?</span>
@@ -264,13 +274,13 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         </div>
       </CollapseSection>
 
-      <CollapseSection title="18 — Permits" defaultOpen={false} id="section-permits">
+      <CollapseSection title="18 — Permits" defaultOpen={false} id="section-permits" hasContent={sectionHasContent(['permits'])}>
         {['Yes','No','Unknown'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={data.permits === opt} onToggle={() => u('permits', opt)} round />
         )}
       </CollapseSection>
 
-      <CollapseSection title="19 — How Did You Hear About Us?" defaultOpen={false} id="section-referral">
+      <CollapseSection title="19 — How Did You Hear About Us?" defaultOpen={false} id="section-referral" hasContent={sectionHasContent(['referral', 'referralName', 'referralOther'])}>
         {['Referral','Google','Social media','Repeat customer','Other'].map(opt =>
           <CheckOpt key={opt} label={opt} selected={data.referral === opt} onToggle={() => u('referral', opt)} round />
         )}
@@ -284,7 +294,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         )}
       </CollapseSection>
 
-      <CollapseSection title="20 — Special Notes" defaultOpen={false} id="section-specialNotes">
+      <CollapseSection title="20 — Special Notes" defaultOpen={false} id="section-specialNotes" hasContent={sectionHasContent(['specialNoteItems', 'specialNotes'])}>
         <p className="assess-hint">Tap to add common items</p>
         <div className="special-notes-chips">
           {SPECIAL_NOTES_ITEMS.map(item => {

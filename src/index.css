@@ -860,6 +860,7 @@ input, select, textarea { font-family: var(--font); }
   justify-content: space-between;
   padding: 8px 0;
   gap: 12px;
+  flex-wrap: wrap;
 }
 .toggle-label { font-size: 14px; color: var(--text-secondary); }
 
@@ -896,6 +897,9 @@ input, select, textarea { font-family: var(--font); }
 .collapse-header:hover { background: var(--surface-hover); }
 .collapse-header-accent { background: rgba(31, 48, 150, 0.18); border-bottom: 1px solid rgba(31, 48, 150, 0.3); }
 .collapse-header-accent:hover { background: rgba(31, 48, 150, 0.28); }
+.collapse-header.has-content { background: rgba(31, 48, 150, 0.22); border-left: 3px solid rgba(31, 48, 150, 0.5); }
+.collapse-header.has-content:hover { background: rgba(31, 48, 150, 0.32); }
+.collapse-header-accent.has-content { background: rgba(31, 48, 150, 0.28); border-left: 3px solid rgba(31, 48, 150, 0.6); }
 .collapse-title { font-size: var(--font-size-base); font-weight: 700; color: var(--text-primary); }
 .collapse-chevron { font-size: var(--font-size-sm); color: var(--text-muted); transition: transform 0.2s; }
 .collapse-chevron.open { transform: rotate(180deg); }
@@ -1256,7 +1260,7 @@ input, select, textarea { font-family: var(--font); }
 }
 .wall-badge.done { border-color: var(--green-border); background: var(--green-bg); }
 .wall-meta { flex: 1; min-width: 0; }
-.wall-name-row { display: flex; align-items: center; gap: 6px; }
+.wall-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .wall-name { font-size: var(--font-size-md); font-weight: 700; color: var(--text-primary); }
 .wall-rename-input { font-size: var(--font-size-sm); padding: 4px 8px; max-width: 180px; }
 .wall-sub { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 2px; }
@@ -1264,7 +1268,7 @@ input, select, textarea { font-family: var(--font); }
 .wall-sub-section { margin-top: 16px; }
 .wall-sub-section-header {
   display: flex; align-items: center; gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 8px; flex-wrap: wrap;
 }
 
 /* ===== Sub-card (window / door cards) ===== */
@@ -1275,9 +1279,9 @@ input, select, textarea { font-family: var(--font); }
   padding: 12px;
   margin-bottom: 8px;
 }
-.sub-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.sub-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .sub-card-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); flex: 1; }
-.sub-card-actions { display: flex; gap: 6px; }
+.sub-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .wall-piece-card { margin-top: 0; }
 .wall-piece-add-row {
   display: grid;
@@ -1339,7 +1343,7 @@ input, select, textarea { font-family: var(--font); }
 }
 .soffit-override-header {
   display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; margin-bottom: 8px;
+  cursor: pointer; margin-bottom: 8px; flex-wrap: wrap;
 }
 .soffit-override-header .soffit-override-label { margin-bottom: 0; }
 
@@ -1351,11 +1355,11 @@ input, select, textarea { font-family: var(--font); }
   padding: 12px;
   margin: 8px 0 10px;
 }
-.overhang-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.enable-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+.overhang-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.enable-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; flex-wrap: wrap; }
 
 /* ===== Outlet row ===== */
-.outlet-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.outlet-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
 
 /* ===== Plumbing box ===== */
 .plumbing-box {
