@@ -38,6 +38,18 @@ export default function FlooringQuestions({ data, onUpdate }: Props) {
     { key: 'specialNotes', label: '9 — Special Notes' },
   ];
 
+  const fieldsPerQuestion: Record<string, string[]> = {
+    material: ['material', 'customMaterial'],
+    removeExisting: ['removeExisting'],
+    subfloor: ['subfloorRepairs'],
+    underlayment: ['underlayment'],
+    stairNosing: ['stairNosing'],
+    matching: ['matchingOther'],
+    timeline: ['timeline', 'targetDate'],
+    referral: ['referral', 'referralName', 'referralOther'],
+    specialNotes: ['specialNoteItems', 'specialNotes'],
+  };
+
   const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
@@ -64,6 +76,8 @@ export default function FlooringQuestions({ data, onUpdate }: Props) {
         <AddQuestionsModal
           availableQuestions={availableQuestions}
           visibleQuestions={visibleQuestions}
+          data={data as Record<string, unknown>}
+          fieldsPerQuestion={fieldsPerQuestion}
           onSave={handleSaveQuestions}
           onClose={() => setShowAddQuestionsModal(false)}
         />

@@ -8,7 +8,8 @@
       "Bash(grep -E \"\\\\.tsx$\")",
       "Bash(Start-Sleep -Seconds 4)",
       "Bash(Write-Host \"Server should be ready\")",
-      "Bash(npx playwright *)"
+      "Bash(npx playwright *)",
+      "mcp__jcodemunch__list_repos"
     ]
   }
 }

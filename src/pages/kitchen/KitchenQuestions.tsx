@@ -102,6 +102,25 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
     { key: 'specialNotes', label: '20 — Special Notes' },
   ];
 
+  const fieldsPerQuestion: Record<string, string[]> = {
+    scope: ['scope'],
+    reason: ['reason', 'reasonOther'],
+    timeline: ['timeline', 'targetDate'],
+    cabinets: ['cabinets'],
+    cabinetStyle: ['cabinetStyle', 'cabinetNotes'],
+    countertop: ['countertopNotes'],
+    backsplash: ['backsplashInstall', 'backsplashMaterial', 'backsplashOther', 'backsplashNotes'],
+    sink: ['sinkNotes', 'faucetNotes'],
+    appliance: ['applianceScope', 'applianceList'],
+    lighting: ['recessedLights', 'recessedLightsCount'],
+    hardware: [],
+    trades: ['electrical', 'plumbing'],
+    flooring: ['flooringIncluded', 'flooringType'],
+    permits: ['permits'],
+    referral: ['referral', 'referralName', 'referralOther'],
+    specialNotes: ['specialNoteItems', 'specialNotes'],
+  };
+
   const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
@@ -117,6 +136,8 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
         <AddQuestionsModal
           availableQuestions={availableQuestions}
           visibleQuestions={visibleQuestions}
+          data={data as Record<string, unknown>}
+          fieldsPerQuestion={fieldsPerQuestion}
           onSave={handleSaveQuestions}
           onClose={() => setShowAddQuestionsModal(false)}
         />

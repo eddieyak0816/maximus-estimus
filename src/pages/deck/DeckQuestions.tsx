@@ -25,6 +25,13 @@ export default function DeckQuestions({ data, onUpdate }: Props) {
     { key: 'details', label: 'Final Details' },
   ];
 
+  const fieldsPerQuestion: Record<string, string[]> = {
+    scope: ['renovationScope'],
+    timeline: ['timeline', 'targetDate'],
+    condition: ['existing', 'railing'],
+    details: ['referral', 'referralName', 'referralOther', 'specialNoteItems', 'specialNotes'],
+  };
+
   const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
@@ -38,6 +45,8 @@ export default function DeckQuestions({ data, onUpdate }: Props) {
         <AddQuestionsModal
           availableQuestions={availableQuestions}
           visibleQuestions={visibleQuestions}
+          data={data as Record<string, unknown>}
+          fieldsPerQuestion={fieldsPerQuestion}
           onSave={handleSaveQuestions}
           onClose={() => setShowAddQuestionsModal(false)}
         />

@@ -27,6 +27,13 @@ export default function PaintingQuestions({ data, onUpdate }: Props) {
     { key: 'specialNotes', label: '4 — Special Notes' },
   ];
 
+  const fieldsPerQuestion: Record<string, string[]> = {
+    scope: ['scope'],
+    timeline: ['timeline', 'targetDate'],
+    referral: ['referral', 'referralName', 'referralOther'],
+    specialNotes: ['specialNoteItems', 'specialNotes'],
+  };
+
   const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
@@ -40,6 +47,8 @@ export default function PaintingQuestions({ data, onUpdate }: Props) {
         <AddQuestionsModal
           availableQuestions={availableQuestions}
           visibleQuestions={visibleQuestions}
+          data={data as Record<string, unknown>}
+          fieldsPerQuestion={fieldsPerQuestion}
           onSave={handleSaveQuestions}
           onClose={() => setShowAddQuestionsModal(false)}
         />

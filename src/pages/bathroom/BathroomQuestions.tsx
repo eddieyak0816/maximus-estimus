@@ -36,6 +36,21 @@ export default function BathroomQuestions({ data, onUpdate }: Props) {
     { key: 'specialNotes', label: '13 — Special Notes' },
   ];
 
+  const fieldsPerQuestion: Record<string, string[]> = {
+    scope: ['scope'],
+    timeline: ['timeline', 'targetDate'],
+    tubShower: ['tubShowerScope'],
+    vanity: ['vanityScope'],
+    tile: ['tileScope'],
+    grout: ['groutNotes'],
+    tilePattern: ['tilePatternNotes'],
+    lighting: ['recessedLights', 'recessedLightsCount'],
+    trades: ['electrical', 'plumbing'],
+    permits: ['permits'],
+    referral: ['referral', 'referralName', 'referralOther'],
+    specialNotes: ['specialNoteItems', 'specialNotes'],
+  };
+
   const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
@@ -49,6 +64,8 @@ export default function BathroomQuestions({ data, onUpdate }: Props) {
         <AddQuestionsModal
           availableQuestions={availableQuestions}
           visibleQuestions={visibleQuestions}
+          data={data as Record<string, unknown>}
+          fieldsPerQuestion={fieldsPerQuestion}
           onSave={handleSaveQuestions}
           onClose={() => setShowAddQuestionsModal(false)}
         />
