@@ -121,7 +121,7 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
     specialNotes: ['specialNoteItems', 'specialNotes'],
   };
 
-  const visibleQuestions = data.visibleQuestions || availableQuestions.map(q => q.key);
+  const visibleQuestions = data.visibleQuestions ?? [];
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
   function handleSaveQuestions(visible: string[]) {

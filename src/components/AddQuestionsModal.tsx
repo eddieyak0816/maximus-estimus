@@ -59,7 +59,7 @@ export default function AddQuestionsModal({ availableQuestions, visibleQuestions
           <h2>Select Question Sections</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
-        <div className="modal-body" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {availableQuestions.map(q => {
               const hasContent = !canHide(q.key);
