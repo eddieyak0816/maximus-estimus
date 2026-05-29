@@ -1,265 +1,98 @@
-# 🚀 Start Here — Next Developer Onboarding
+# 🚀 Maximus Estimus — Next Developer Handoff (May 29, 2026)
 
-**Last Session:** May 28, 2026 (Session 4)  
-**Status:** All changes deployed, tests passing, docs updated ✅
-
----
-
-## ⚡ 5-Minute Quick Start
-
-1. **Read these first** (in order):
-   - This file (you are here)
-   - `CLAUDE.md` — Full project spec (scroll to Session 4 updates, ~line 260+)
-   - `HANDOFF-SESSION-4.md` — Detailed walkthrough of what changed this session
-
-2. **Get the app running:**
-   ```bash
-   cd "g:\My Drive\Maximus Digital Marketing\Maximus Estimus"
-   npm run dev
-   ```
-
-3. **Test the new features:**
-   - Create a new job → Questions tab should show **nothing** (all OFF)
-   - Fill in a question field
-   - Click ⚙️ Customize → that question shows "Has data" label, checkbox disabled
-   - Try to uncheck it → alert: "Cannot hide — clear data first"
-   - Clear the data → now you can uncheck it ✅
-   - Find Island section → see 📷 camera icon
-   - Click it → camera opens with "Photo: Island" ✅
-
-4. **Next task ideas** (see `CLAUDE.md` line ~290 for full list):
-   - Add camera icons to other measurement sections (Bathroom Tub/Shower, Flooring, etc.)
-   - Implement dynamic wall count (5+ walls)
-   - Build room layout drawing feature
+> **Your mission:** Continue building the field measurement app for Maximus Construction NJ LLC. The foundation is solid — all core features work, cloud sync is live, and UX is polished. Your job is to implement the next wave of improvements.
 
 ---
 
-## 🎯 What Changed in Session 4
+## 📍 Where We Are
 
-### 1. Smart Questions Constraint
-**What:** Users can't hide questions that have data.  
-**Why:** Prevents accidental data loss.  
-**How:** `AddQuestionsModal` detects content and disables unchecking.
+**Status:** Phase 1 ✅ + Phase 5 ✅ + UX Polish ✅  
+**What's Live:** Kitchen/Bathroom/Flooring measurements, questions, photo capture, cloud sync, estimates, admin controls, mobile UI  
+**What Just Shipped (May 29):** Dashboard filtering, better pill selection visibility, data indicators throughout, camera modal fix, wall length display  
+**Tech Stack:** React 19 + TypeScript + Vite + Supabase + Zustand  
 
-**Key Pattern:** Every question page has `fieldsPerQuestion` mapping:
-```typescript
-const fieldsPerQuestion: Record<string, string[]> = {
-  scope: ['scope'],
-  timeline: ['timeline', 'targetDate'],
-  cabinets: ['cabinets'],
-  // ... etc
-};
-```
-
-### 2. Questions Visibility Overhaul
-**What:** New jobs show all questions OFF by default.  
-**Why:** Less clutter; users enable what they need.  
-**Bonus:** Existing jobs auto-show questions that have data.
-
-**Key Pattern:** `getDefaultVisibleQuestions()` function in each question page:
-```typescript
-const getDefaultVisibleQuestions = () => {
-  if (data.visibleQuestions) return data.visibleQuestions;
-  const withContent: string[] = [];
-  availableQuestions.forEach(q => {
-    const fields = (fieldsPerQuestion[q.key] || []) as (keyof QuestionsType)[];
-    if (sectionHasContent(fields)) withContent.push(q.key);
-  });
-  return withContent;
-};
-```
-
-### 3. Modal Scrolling Fixed
-**What:** Customize modal can scroll even when zoomed.  
-**Why:** Users couldn't see questions 1-4 at high zoom.  
-**How:** `maxHeight: '70vh'` + `alignItems: 'flex-start'` instead of center.
-
-### 4. Island Photo Capture
-**What:** 📷 camera icon in Island section (like walls).  
-**Why:** Consistency with wall photo flow.  
-**How:** Same pattern as WallSection camera, but in KitchenMeasurements.
+**Live App:** https://eddieyak0816.github.io/maximus-estimus/  
+**Project Spec:** `project-spcs.md` (complete feature list)  
+**Full Docs:** `CLAUDE.md` (everything about the app)
 
 ---
 
-## 📂 Key Files to Know
+## 🎯 Your Next Tasks (Priority Order)
 
-**Question Logic (all follow same pattern):**
-- `src/pages/kitchen/KitchenQuestions.tsx` ← study this as the reference
-- `src/pages/bathroom/BathroomQuestions.tsx`
-- `src/pages/flooring/FlooringQuestions.tsx`
-- `src/pages/painting/PaintingQuestions.tsx`
-- `src/pages/living-room/LivingRoomQuestions.tsx`
-- `src/pages/bedroom/BedroomQuestions.tsx`
-- `src/pages/deck/DeckQuestions.tsx`
+### 1. **Dynamic Wall Count (5+ Walls)** — PRIMARY NEXT FEATURE
 
-**Constraint/Modal:**
-- `src/components/AddQuestionsModal.tsx` ← where the data detection happens
-- `src/components/CollapseSection.tsx` ← now accepts `ReactNode` for title
+**What it does:** Let users add more walls beyond the hardcoded A, B, C, D limit.
 
-**Island Feature:**
-- `src/pages/kitchen/KitchenMeasurements.tsx` ← camera icon + modal
+**Acceptance Criteria:**
+- ✓ Users can click "➕ Add Wall" button below Wall D to create E, F, G, etc.
+- ✓ Walls auto-name based on letter sequence (A→B→C→D→E→F...)
+- ✓ Wall photos work with new walls (tags show wall names correctly)
+- ✓ Estimates generate correctly for any wall count (loop through all walls)
+- ✓ Data persists to Supabase
 
-**Types:**
-- `src/types/index.ts` ← KitchenQuestions, BathroomQuestions, etc. interfaces
+**Where to work:**
+- `src/pages/kitchen/KitchenMeasurements.tsx` — Convert static wall map to dynamic array
+- `src/pages/bathroom/BathroomMeasurements.tsx` — Same pattern
+- `src/types/index.ts` — KitchenMeasurements.walls structure (currently fixed record, make dynamic)
+- `src/store/assessmentStore.ts` — Add `addWall()` / `removeWall()` actions
+- `src/utils/estimateEngine.ts` — Verify estimate generation loops over all walls
 
----
+**Files to read first:**
+- KitchenMeasurements.tsx (see how walls are currently mapped)
+- WallSection.tsx (understand wall rendering)
+- estimateEngine.ts (verify loop logic)
 
-## 🧠 Core Concepts
+**Design pattern to follow:**
+- Look at how Flooring handles multiple rooms — that's a good parallel (map over array, render components)
+- Wall removal button should only show on dynamically-added walls (keep A, B, C, D as core)
+- Add wall button only appears after last wall
 
-### How Questions Work Now
-
-```
-User creates new Kitchen job
-  ↓
-Questions tab shows nothing (all OFF)
-  ↓
-User clicks ⚙️ Customize
-  ↓
-Modal shows all questions, all unchecked
-  ↓
-User checks "Project Scope" and fills it
-  ↓
-User clicks ⚙️ Customize again
-  ↓
-Modal shows "Project Scope" with "Has data" label, checkbox disabled
-  ↓
-If user tries to uncheck it → alert "Cannot hide — clear data first"
-  ↓
-User clears the "Project Scope" field
-  ↓
-User clicks ⚙️ Customize
-  ↓
-Now the checkbox is enabled, user can uncheck it
-```
-
-### How Auto-Detection Works (for existing jobs)
-
-```
-User opens existing job with Kitchen data already filled in
-  ↓
-KitchenQuestions component mounts
-  ↓
-getDefaultVisibleQuestions() runs:
-  - Check if data.visibleQuestions is set → yes? use it
-  - No? loop through availableQuestions
-  - For each question, check sectionHasContent(fieldsPerQuestion[q.key])
-  - If any fields have data → add question to withContent array
-  ↓
-visibleQuestions = withContent
-  ↓
-Questions tab shows only the ones with data, others are hidden
-```
+**Why this matters:** Field teams measure houses with more than 4 walls. This is blocking real usage.
 
 ---
 
-## 🔍 How to Add the Same Pattern Elsewhere
+### 2. **Sprint 4: Admin Panel Enhancements**
 
-**Example: Add photo camera to Bathroom Tub/Shower section**
+Current state: Admin dashboard exists at `/admin` with basic user/dropdown management.
 
-1. In `BathroomMeasurements.tsx`, add state:
-   ```typescript
-   const [showTubCamera, setShowTubCamera] = useState(false);
-   ```
-
-2. Update the Tub/Shower section title:
-   ```typescript
-   <CollapseSection title={
-     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-       <span>Tub & Shower</span>
-       {data.hasTub && onWallPhotoCapture && (
-         <button className="icon-btn" onClick={e => { e.stopPropagation(); setShowTubCamera(true); }}>
-           📷
-         </button>
-       )}
-     </div>
-   }>
-   ```
-
-3. Add the modal at the bottom:
-   ```typescript
-   {showTubCamera && onWallPhotoCapture && (
-     <CameraModal
-       label="Photo: Tub/Shower"
-       onCapture={(blob) => {
-         onWallPhotoCapture('Tub/Shower', blob).then(() => setShowTubCamera(false)).catch(err => {
-           console.error('Failed to capture tub photo:', err);
-         });
-       }}
-       onClose={() => setShowTubCamera(false)}
-     />
-   )}
-   ```
-
-Done! That's the pattern.
+**Still needed:**
+- Manage job types (add/remove Kitchen/Bathroom/Flooring/custom types)
+- Manage team members (centralized admin list instead of dropdown entries)
+- Consolidate price guide into admin (move from `/price-guide`)
+- Manage markup settings (labor % + materials %) globally
+- Cabinet gallery admin (add/remove/reorder images)
 
 ---
 
-## ✅ Pre-Start Checklist
+### 3. **Sprint 6: Export & Email**
 
-- [ ] Read CLAUDE.md (lines 1-100)
-- [ ] Read HANDOFF-SESSION-4.md (full walkthrough)
-- [ ] Run `npm run build` → should pass
-- [ ] Run `npm run dev` → app should load
-- [ ] Test new features in browser (see "5-Minute Quick Start" #3)
-- [ ] Open CLAUDE.md and scroll to "Next Up" section for feature ideas
+- PDF export (full job report)
+- Customer-facing PDF (clean layout, no cost breakdown)
+- Internal PDF (cost breakdown, labor, margins — owner only)
+- Email directly from app
 
 ---
 
-## 🆘 If Something Breaks
+## 🏗️ How to Work Here
 
-**Modal not scrolling?**
-- Check `AddQuestionsModal.tsx` line ~62
-- Ensure `maxHeight: '70vh'` and `alignItems: 'flex-start'`
+### Testing
+- **Always test in browser before marking done.** Type checking ≠ feature correctness.
+- Build: `npm run build`
+- Dev server: `npm run dev`
 
-**Questions not auto-showing for existing jobs?**
-- Check that `getDefaultVisibleQuestions()` is in the question page
-- Verify `fieldsPerQuestion` mapping matches all question keys
-- Test: does `sectionHasContent()` work? (Try logging in browser)
+### Before You Start
 
-**Island camera not appearing?**
-- Is Island enabled? Icon only shows when `hasIsland === true`
-- Check `onWallPhotoCapture` prop is passed from parent
-- Verify `showIslandCamera` state is wired to CameraModal
-
-**Build failing?**
-- `npm run build` output should show which file/line
-- Usually a TypeScript type error in question pages
-- Check that `fieldsPerQuestion[q.key]` is cast as `(keyof QuestionType)[]`
+1. Read `CLAUDE.md` (architecture & all features)
+2. Read `project-spcs.md` (feature spec)
+3. Run `npm run dev` and explore the app
+4. Read WallSection.tsx (where dynamic walls will go)
+5. Read estimateEngine.ts (you'll update this)
 
 ---
 
-## 📚 Reading Order
+## 📞 Contact
 
-**Must read:**
-1. This file (quick orientation)
-2. CLAUDE.md (full context)
-3. HANDOFF-SESSION-4.md (detailed walkthrough)
+**Questions?** Ask Eddie: eddie0816@gmail.com  
+**Memory Notes?** Check `/memory/` directory
 
-**Should read:**
-4. src/components/AddQuestionsModal.tsx (constraint logic)
-5. src/pages/kitchen/KitchenQuestions.tsx (reference for pattern)
-6. src/components/CollapseSection.tsx (title handling)
-
-**Good to skim:**
-7. CLAUDE.md "Key Files & Their Purposes" section
-8. src/types/index.ts (KitchenQuestions interface)
-
----
-
-## 🎓 Questions?
-
-**What files did I change?**  
-→ See HANDOFF-SESSION-4.md "Files Modified This Session"
-
-**How do I test the constraint?**  
-→ See HANDOFF-SESSION-4.md "Testing Checklist"
-
-**What's the next feature to build?**  
-→ See CLAUDE.md "Next Up" section (around line 290)
-
-**How does the auto-detection work?**  
-→ See "Core Concepts" section above, or the `getDefaultVisibleQuestions()` function in any question page
-
----
-
-**You've got this! All the patterns are established, the code is clean, and the docs are thorough. Pick a feature from the "Next Up" list and go build.** 🚀
+Good luck! 🚀

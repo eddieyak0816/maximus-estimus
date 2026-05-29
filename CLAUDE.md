@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 28, 2026 (Session 4)  
+> **Last Updated:** May 29, 2026 (Session 5)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅ + UI Polish & Data Indicators ✅
 
 ---
 
@@ -291,6 +291,65 @@
   - Photo tagged as "Island" in Photos tab
   - Follows same pattern as wall photo capture
   - Files modified: src/pages/kitchen/KitchenMeasurements.tsx, src/components/CollapseSection.tsx (title now accepts ReactNode)
+
+- **Dashboard Filtering by Status (May 29 - Session 5):**
+  - Clicking stat cards (Total, Draft, Active, Done) filters assessment list by status
+  - Click same card again to reset filter and show all assessments
+  - Active filter shows visual feedback: raised background + yellow border + glow effect
+  - Hover states improved on all stat cards
+  - Files modified: src/pages/Dashboard.tsx, src/index.css
+
+- **UI Polish: Pill Selection Visibility & Button Prominence (May 29 - Session 5):**
+  - **Pill Selection Improvement:**
+    - Active pills now have solid navy blue fill with white text (vs subtle tint)
+    - Added glow effect: `0 0 12px rgba(31,48,150,0.4)`
+    - Font weight increased to 700 for emphasis
+    - Improved hover states: blue border appears on unselected pills
+    - Applied to all pill selections: Left/Right, Outlet/Switch, Door/Opening, Swing Direction, etc.
+  - **Dropdown + Accordion Button Redesign:**
+    - Expand buttons increased from tiny to prominent 40x40px clickable area
+    - Button shows visual feedback when accordion is open:
+      - Raised background highlight
+      - Blue border when expanded
+      - Smooth transition effects
+    - Dropdown narrower (doesn't stretch to fill space)
+    - Better spacing between dropdown and action buttons (gap: 12px)
+  - Files modified: src/index.css, src/components/WallSection.tsx
+
+- **Data Indicators Throughout App (May 29 - Session 5):**
+  - Added visual indicators showing which sections/cards have populated data
+  - **Applied to Measurement Cards:**
+    - Appliance Cards: Blue left border (3px) + light blue background when appliance has measurements
+    - Window Cards: Same indicator when measurements/trim data exists
+    - Door Cards: Same indicator when door data populated
+    - Outlet Rows: Subtle blue highlight when outlet location is set
+  - **Applied to Section Headers:**
+    - Wall Sections: Subtle blue left border (4px) + light blue background when wall has any measurements, windows, doors, outlets, appliances, or fixtures
+  - **Visual Style Consistent Across All:**
+    - 3-4px blue left border
+    - Light blue background: `rgba(31,48,150,0.08)`
+    - Smooth transitions on all changes
+  - **Helper Functions Added:**
+    - `applianceHasData()` — detects appliance with measurements
+    - `windowHasData()` — detects window with measurements/trim
+    - `doorHasData()` — detects door with data
+    - `outletHasData()` — detects outlet with location
+    - Wall data detection inline in WallSection component
+  - Files modified: src/components/WallSection.tsx, src/index.css
+
+- **Camera Modal Choice Screen Fix (May 29 - Session 5):**
+  - **Bug:** Choice screen (Take Photo / Upload) disappeared after 1 second
+  - **Root Cause:** Camera automatically started on component mount, causing stage to change from 'choice' to 'requesting'/'camera'
+  - **Solution:** Removed automatic camera startup; camera now only initializes when user clicks "Take Photo"
+  - **Result:** Choice screen stays visible until user makes selection
+  - Files modified: src/components/CameraModal.tsx
+
+- **Wall Length in Collapsed Section Summary (May 29 - Session 5):**
+  - Wall length now displays in the summary when accordion is closed
+  - Formatted as: "Length: [measurement]" in bold yellow (brand color) at start of summary
+  - Only shows if wall length has been entered (doesn't clutter empty walls)
+  - Example: `Length: 12' 3" · 2 win · 1 door · 3 outlet · 1 appl · sink`
+  - Files modified: src/components/WallSection.tsx
 
 ### 🔲 Next Up (Priority Order)
 

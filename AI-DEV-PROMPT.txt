@@ -1,0 +1,136 @@
+================================================================================
+MAXIMUS ESTIMUS — AI DEVELOPER HANDOFF PROMPT (May 29, 2026)
+================================================================================
+
+You are taking over the Maximus Estimus field measurement app for Maximus 
+Construction NJ LLC. The app is live and used by field teams. Your job is to 
+implement the next features with the same quality and patterns as before.
+
+================================================================================
+QUICK FACTS
+================================================================================
+
+Project: Field measurement & job intake app (React 19 + TypeScript + Supabase)
+Status: Phase 1 ? + Phase 5 (cloud sync) ? + UX Polish ?
+Live: https://eddieyak0816.github.io/maximus-estimus/
+
+What Works:
+- Kitchen, Bathroom, Flooring, Painting assessments + 3 room templates
+- Cloud sync to Supabase with offline-first caching
+- PIN-based authentication + admin panel
+- Photo capture (device camera) + photo storage
+- Estimate generation from measurements
+- Mobile-friendly UI (touch targets, responsive layouts)
+- Dashboard with filtering by status
+
+What Just Shipped (May 29):
+? Dashboard filtering (click stat cards to filter by Draft/Active/Done)
+? Pill selection visibility (solid blue fill + glow when selected)
+? Dropdown + accordion buttons more prominent (40x40px + visual feedback)
+? Data indicators on cards (blue left border when populated)
+? Camera modal choice screen stays visible until selection made
+? Wall length displayed in collapsed wall section summary
+
+================================================================================
+YOUR NEXT TASK (Top Priority)
+================================================================================
+
+DYNAMIC WALL COUNT (5+ Walls)
+
+What: Allow users to add E, F, G... walls beyond the hardcoded A, B, C, D
+Why: Field teams measure houses with more than 4 walls; blocking real usage
+
+Where to work:
+- src/pages/kitchen/KitchenMeasurements.tsx (convert static to dynamic array)
+- src/pages/bathroom/BathroomMeasurements.tsx (same pattern)
+- src/types/index.ts (update KitchenMeasurements.walls type to array)
+- src/store/assessmentStore.ts (add addWall/removeWall actions)
+- src/utils/estimateEngine.ts (verify looping works for all walls)
+
+Acceptance Criteria:
+? Users click "? Add Wall" button ? creates wall E, F, G... with auto-naming
+? Wall photos work with new walls (tags show correct wall names)
+? Estimates include all walls (loop through full array)
+? Data persists to Supabase
+? Only dynamically-added walls show removal button (A-D are core)
+
+Design Pattern:
+Look at Flooring component (handles multiple rooms via array mapping) — use 
+that as your parallel for dynamic walls.
+
+Files to Read First:
+1. CLAUDE.md (architecture + all features)
+2. WallSection.tsx (understand current wall/window/door structure)
+3. estimateEngine.ts (see how estimates loop over walls)
+4. KitchenMeasurements.tsx (see current static wall mapping)
+
+================================================================================
+HOW TO WORK HERE
+================================================================================
+
+Testing:
+- ALWAYS test in browser before marking done
+- npm run build (check TypeScript + build)
+- npm run dev (localhost:5173/maximus-estimus/)
+
+Git:
+- Branch: main (no feature branches)
+- Commits: "Add dynamic wall count" (imperative, not "added")
+
+Code Patterns:
+- State: Zustand store (use spread + map for updates)
+- Updates: const u = (field, value) => onUpdate({...data, [field]: value})
+- Data indicators: blue left border (3px) + light blue bg when populated
+- Pills: solid blue fill + white text + glow when active
+- Helper functions in WallSection.tsx: wallHasData(), applianceHasData(), etc.
+
+When Stuck:
+- Read CLAUDE.md (full architecture)
+- Read project-spcs.md (feature specifications)
+- Check /memory/ directory (session notes)
+- Ask Eddie: eddie0816@gmail.com
+
+================================================================================
+QUICK REFERENCE
+================================================================================
+
+Key Files:
+- src/types/index.ts ? All TypeScript interfaces
+- src/store/assessmentStore.ts ? Zustand state + mutations
+- src/components/WallSection.tsx ? Wall rendering (where you'll work)
+- src/pages/kitchen/KitchenMeasurements.tsx ? Kitchen measurements (TARGET)
+- src/utils/estimateEngine.ts ? Estimate generation (you'll update this)
+- src/index.css ? All styling
+
+Success Checklist:
+? TypeScript builds with no errors
+? Tested in browser (golden path + edge cases)
+? Data persists to localStorage + Supabase
+? Mobile UI works at 375px width
+? Commit messages are clear & imperative
+? Code follows existing patterns
+
+Contact: eddie0816@gmail.com
+
+================================================================================
+BEFORE YOU START
+================================================================================
+
+1. Read CLAUDE.md (full architecture, all features, conventions)
+2. Read project-spcs.md (feature spec)
+3. Run npm run dev, explore the app
+4. Read WallSection.tsx (understand current structure)
+5. Read estimateEngine.ts (see looping)
+
+All docs are in project root. CLAUDE.md is your north star.
+
+================================================================================
+YOU'VE GOT THIS
+================================================================================
+
+The codebase is clean, patterns are consistent, path forward is clear.
+
+Start with Dynamic Wall Count. It's the highest priority. Build the same way 
+previous features were built. Follow established patterns. Test in browser.
+
+Good luck! ??
