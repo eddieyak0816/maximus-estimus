@@ -121,7 +121,17 @@ export default function KitchenQuestions({ data, onUpdate }: Props) {
     specialNotes: ['specialNoteItems', 'specialNotes'],
   };
 
-  const visibleQuestions = data.visibleQuestions ?? [];
+  // Auto-show questions that have content (for existing jobs)
+  const getDefaultVisibleQuestions = () => {
+    if (data.visibleQuestions) return data.visibleQuestions;
+    const withContent: string[] = [];
+    availableQuestions.forEach(q => {
+      const fields = (fieldsPerQuestion[q.key] || []) as (keyof KQ)[];
+      if (sectionHasContent(fields)) withContent.push(q.key);
+    });
+    return withContent;
+  };
+  const visibleQuestions = getDefaultVisibleQuestions();
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
   function handleSaveQuestions(visible: string[]) {

@@ -32,7 +32,27 @@ export default function LivingRoomQuestions({ data, onUpdate }: Props) {
     details: ['referral', 'referralName', 'referralOther', 'specialNoteItems', 'specialNotes'],
   };
 
-  const visibleQuestions = data.visibleQuestions ?? [];
+  // Auto-show questions that have content (for existing jobs)
+  const sectionHasContent = (fields: (keyof LivingRoomQuestions)[]): boolean => {
+    return fields.some(field => {
+      const value = data[field];
+      if (value === null || value === undefined) return false;
+      if ((value as any) === '') return false;
+      if ((value as any) === false) return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      return true;
+    });
+  };
+  const getDefaultVisibleQuestions = () => {
+    if (data.visibleQuestions) return data.visibleQuestions;
+    const withContent: string[] = [];
+    availableQuestions.forEach(q => {
+      const fields = (fieldsPerQuestion[q.key] || []) as (keyof LivingRoomQuestions)[];
+      if (sectionHasContent(fields)) withContent.push(q.key);
+    });
+    return withContent;
+  };
+  const visibleQuestions = getDefaultVisibleQuestions();
   const isQuestionVisible = (key: string) => visibleQuestions.includes(key);
 
   function handleSaveQuestions(visible: string[]) {

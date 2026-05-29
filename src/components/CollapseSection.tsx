@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface Props {
-  title: string;
+  title: string | React.ReactNode;
   children: React.ReactNode;
   defaultOpen?: boolean;
   accent?: boolean;

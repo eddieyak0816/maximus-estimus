@@ -4,6 +4,7 @@ import MeasInput from '../../components/MeasInput';
 import CollapseSection from '../../components/CollapseSection';
 import WallSection from '../../components/WallSection';
 import ChevronIcon from '../../components/ChevronIcon';
+import CameraModal from '../../components/CameraModal';
 import type { KitchenMeasurements as KM } from '../../types';
 
 function wallLabel(i: number): string {
@@ -28,6 +29,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   const [iCooktopOpen, setICooktopOpen] = useState(!startClosed);
   const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
+  const [showIslandCamera, setShowIslandCamera] = useState(false);
 
   return (
     <div className="assess-tab">
@@ -106,7 +108,17 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
       </CollapseSection>
 
       {/* ── Island ── */}
-      <CollapseSection title="🏝️ Island" defaultOpen={false}>
+      <CollapseSection title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span>🏝️ Island</span>
+          {data.hasIsland && onWallPhotoCapture && (
+            <button className="icon-btn" title="Take island photo" style={{ fontSize: '14px' }}
+              onClick={e => { e.stopPropagation(); setShowIslandCamera(true); }}>
+              📷
+            </button>
+          )}
+        </div>
+      } defaultOpen={false}>
         {!data.hasIsland
           ? <div className="enable-row">
               <span>Island not enabled</span>
@@ -343,6 +355,18 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
             </div>
         }
       </CollapseSection>
+
+      {showIslandCamera && onWallPhotoCapture && (
+        <CameraModal
+          label="Photo: Island"
+          onCapture={(blob) => {
+            onWallPhotoCapture('Island', blob).then(() => setShowIslandCamera(false)).catch(err => {
+              console.error('Failed to capture island photo:', err);
+            });
+          }}
+          onClose={() => setShowIslandCamera(false)}
+        />
+      )}
 
     </div>
   );
