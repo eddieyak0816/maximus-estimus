@@ -205,6 +205,16 @@ input, select, textarea { font-family: var(--font); }
   padding: 20px;
   text-align: center;
   box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+.stat-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--brand-yellow);
+}
+.stat-card-active {
+  background: var(--surface-raised);
+  border-color: var(--brand-yellow) !important;
+  box-shadow: 0 0 8px rgba(245, 196, 42, 0.2);
 }
 .stat-value { display: block; font-size: var(--font-size-4xl); font-weight: 800; color: var(--brand-yellow); }
 .stat-label { display: block; font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }

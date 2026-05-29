@@ -34,6 +34,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { assessments, deleteAssessment } = useAssessmentStore();
   const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
+  const [activeFilter, setActiveFilter] = useState<'total' | 'draft' | 'inProgress' | 'complete' | null>(null);
 
   useEffect(() => {
     async function loadCreators() {
@@ -63,7 +64,7 @@ export default function Dashboard() {
   }
 
   // Filter assessments: admins see all, regular users see their own + assigned
-  const visibleAssessments = user?.isAdmin
+  let visibleAssessments = user?.isAdmin
     ? assessments
     : assessments.filter(a =>
         a.creatorId === user?.id ||
@@ -75,6 +76,23 @@ export default function Dashboard() {
     draft: visibleAssessments.filter(a => a.status === 'draft').length,
     inProgress: visibleAssessments.filter(a => a.status === 'in-progress').length,
     complete: visibleAssessments.filter(a => a.status === 'complete').length,
+  };
+
+  // Apply active filter
+  if (activeFilter === 'draft') {
+    visibleAssessments = visibleAssessments.filter(a => a.status === 'draft');
+  } else if (activeFilter === 'inProgress') {
+    visibleAssessments = visibleAssessments.filter(a => a.status === 'in-progress');
+  } else if (activeFilter === 'complete') {
+    visibleAssessments = visibleAssessments.filter(a => a.status === 'complete');
+  }
+
+  const handleStatClick = (filter: 'total' | 'draft' | 'inProgress' | 'complete') => {
+    if (activeFilter === filter) {
+      setActiveFilter(null);
+    } else {
+      setActiveFilter(filter);
+    }
   };
 
   return (
@@ -97,19 +115,35 @@ export default function Dashboard() {
       </div>
 
       <div className="stats-row">
-        <div className="stat-card">
+        <div
+          className={`stat-card ${activeFilter === 'total' ? 'stat-card-active' : ''}`}
+          onClick={() => handleStatClick('total')}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="stat-value">{counts.total}</span>
           <span className="stat-label">Total</span>
         </div>
-        <div className="stat-card">
+        <div
+          className={`stat-card ${activeFilter === 'draft' ? 'stat-card-active' : ''}`}
+          onClick={() => handleStatClick('draft')}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="stat-value">{counts.draft}</span>
           <span className="stat-label">Drafts</span>
         </div>
-        <div className="stat-card">
+        <div
+          className={`stat-card ${activeFilter === 'inProgress' ? 'stat-card-active' : ''}`}
+          onClick={() => handleStatClick('inProgress')}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="stat-value">{counts.inProgress}</span>
           <span className="stat-label">Active</span>
         </div>
-        <div className="stat-card">
+        <div
+          className={`stat-card ${activeFilter === 'complete' ? 'stat-card-active' : ''}`}
+          onClick={() => handleStatClick('complete')}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="stat-value">{counts.complete}</span>
           <span className="stat-label">Done</span>
         </div>

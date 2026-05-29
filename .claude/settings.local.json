@@ -9,7 +9,9 @@
       "Bash(Start-Sleep -Seconds 4)",
       "Bash(Write-Host \"Server should be ready\")",
       "Bash(npx playwright *)",
-      "mcp__jcodemunch__list_repos"
+      "mcp__jcodemunch__list_repos",
+      "Bash(node test-dashboard-filter.js)",
+      "Bash(node test-dashboard-filter.mjs)"
     ]
   }
 }
