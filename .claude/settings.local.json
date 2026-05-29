@@ -12,7 +12,8 @@
       "mcp__jcodemunch__list_repos",
       "Bash(node test-dashboard-filter.js)",
       "Bash(node test-dashboard-filter.mjs)",
-      "Bash(xargs grep -l \"ApplianceCard\\\\|sub-card-header\")"
+      "Bash(xargs grep -l \"ApplianceCard\\\\|sub-card-header\")",
+      "Bash(Get-Content \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\g--My-Drive-Maximus-Digital-Marketing-Maximus-Estimus\\\\3ac8b13a-b436-4324-a8b8-249101884107\\\\tasks\\\\bqm4dubn7.output\" -Tail 20)"
     ]
   }
 }

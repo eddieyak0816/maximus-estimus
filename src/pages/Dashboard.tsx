@@ -29,12 +29,17 @@ const STATUS_LABELS: Record<AssessmentStatus, string> = {
   complete: 'Complete',
 };
 
+type SortBy = 'date-newest' | 'date-oldest' | 'name-asc' | 'name-desc';
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { assessments, deleteAssessment } = useAssessmentStore();
   const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
   const [activeFilter, setActiveFilter] = useState<'total' | 'draft' | 'inProgress' | 'complete' | null>(null);
+  const [sortBy, setSortBy] = useState<SortBy>('date-newest');
+  const [searchName, setSearchName] = useState('');
+  const [selectedJobTypes, setSelectedJobTypes] = useState<JobType[]>([]);
 
   useEffect(() => {
     async function loadCreators() {
@@ -78,7 +83,7 @@ export default function Dashboard() {
     complete: visibleAssessments.filter(a => a.status === 'complete').length,
   };
 
-  // Apply active filter
+  // Apply status filter
   if (activeFilter === 'draft') {
     visibleAssessments = visibleAssessments.filter(a => a.status === 'draft');
   } else if (activeFilter === 'inProgress') {
@@ -87,12 +92,56 @@ export default function Dashboard() {
     visibleAssessments = visibleAssessments.filter(a => a.status === 'complete');
   }
 
+  // Apply search filter (customer name)
+  if (searchName.trim()) {
+    const query = searchName.toLowerCase();
+    visibleAssessments = visibleAssessments.filter(a => {
+      const name = `${a.client.firstName} ${a.client.lastName}`.toLowerCase();
+      return name.includes(query);
+    });
+  }
+
+  // Apply job type filter
+  if (selectedJobTypes.length > 0) {
+    visibleAssessments = visibleAssessments.filter(a =>
+      a.jobs.some(j => selectedJobTypes.includes(j.type))
+    );
+  }
+
+  // Apply sorting
+  const sorted = [...visibleAssessments].sort((a, b) => {
+    if (sortBy === 'date-newest') {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    } else if (sortBy === 'date-oldest') {
+      return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+    } else if (sortBy === 'name-asc') {
+      const aName = `${a.client.firstName} ${a.client.lastName}`;
+      const bName = `${b.client.firstName} ${b.client.lastName}`;
+      return aName.localeCompare(bName);
+    } else if (sortBy === 'name-desc') {
+      const aName = `${a.client.firstName} ${a.client.lastName}`;
+      const bName = `${b.client.firstName} ${b.client.lastName}`;
+      return bName.localeCompare(aName);
+    }
+    return 0;
+  });
+
+  const allJobTypes: JobType[] = ['Kitchen', 'Bathroom', 'Flooring', 'Painting', 'Living Room', 'Bedroom', 'Deck', 'Other'];
+
   const handleStatClick = (filter: 'total' | 'draft' | 'inProgress' | 'complete') => {
     if (activeFilter === filter) {
       setActiveFilter(null);
     } else {
       setActiveFilter(filter);
     }
+  };
+
+  const toggleJobType = (jobType: JobType) => {
+    setSelectedJobTypes(prev =>
+      prev.includes(jobType)
+        ? prev.filter(t => t !== jobType)
+        : [...prev, jobType]
+    );
   };
 
   return (
@@ -149,7 +198,60 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {visibleAssessments.length === 0 ? (
+      {/* ── Sorting & Filtering Controls ── */}
+      <div className="dashboard-controls">
+        <div className="control-group">
+          <input
+            type="text"
+            placeholder="🔍 Search by customer name..."
+            value={searchName}
+            onChange={e => setSearchName(e.target.value)}
+            className="input input-md"
+            style={{ maxWidth: '300px' }}
+          />
+        </div>
+
+        <div className="control-group">
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as SortBy)}
+            className="input input-md"
+            style={{ minWidth: '160px' }}
+          >
+            <option value="date-newest">📅 Newest First</option>
+            <option value="date-oldest">📅 Oldest First</option>
+            <option value="name-asc">A-Z Customer Name</option>
+            <option value="name-desc">Z-A Customer Name</option>
+          </select>
+        </div>
+
+        <div className="control-group">
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="tiny-label" style={{ alignSelf: 'center', whiteSpace: 'nowrap' }}>Filter by Job Type:</span>
+            {allJobTypes.map(jobType => (
+              <button
+                key={jobType}
+                className={`pill${selectedJobTypes.includes(jobType) ? ' active' : ''}`}
+                onClick={() => toggleJobType(jobType)}
+                style={{ fontSize: '0.875rem' }}
+              >
+                {selectedJobTypes.includes(jobType) ? '✓ ' : ''}{jobType}
+              </button>
+            ))}
+            {selectedJobTypes.length > 0 && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setSelectedJobTypes([])}
+                style={{ fontSize: '0.75rem' }}
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {sorted.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
           <h2>No assessments yet</h2>
@@ -158,7 +260,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="assessment-list">
-          {visibleAssessments.map(a => {
+          {sorted.map(a => {
             const name = [a.client.firstName, a.client.lastName].filter(Boolean).join(' ') || 'Untitled';
             const href = `/assessment/${a.id}`;
             const showCreator = a.creatorId && user?.isAdmin && creatorMap[a.creatorId];
