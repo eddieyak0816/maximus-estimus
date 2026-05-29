@@ -29,12 +29,17 @@ function formatInches(inches: number): string {
 }
 
 // ── Window card ───────────────────────────────────────────────────────────────
+function windowHasData(win: WindowData): boolean {
+  return !!(win.width || win.height || win.leftCorner || win.rightCorner || win.sillHeight || win.trimLeft || win.trimRight || win.trimTop || win.trimBottom || win.replacing);
+}
+
 function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
   win: WindowData; index: number;
   onUpdate: (v: WindowData) => void; onRemove: () => void;
   startClosed?: boolean;
 }) {
   const [open, setOpen] = useState(!startClosed);
+  const hasData = windowHasData(win);
   const [syncTrim, setSyncTrim] = useState(false);
   const u = (f: keyof WindowData, v: string) => {
     const updated = { ...win, [f]: v };
@@ -47,7 +52,7 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
     onUpdate(updated);
   };
   return (
-    <div className="sub-card">
+    <div className={`sub-card ${hasData ? 'sub-card-with-data' : ''}`}>
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="sub-card-title">Window {index + 1}</span>
         <div className="sub-card-actions">
@@ -100,12 +105,17 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
 }
 
 // ── Door card ─────────────────────────────────────────────────────────────────
+function doorHasData(door: DoorData): boolean {
+  return !!(door.type !== 'Door' || door.width || door.height || door.leftCorner || door.rightCorner || door.swing || door.trimLeft || door.trimRight || door.trimTop);
+}
+
 function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
   door: DoorData; index: number;
   onUpdate: (v: DoorData) => void; onRemove: () => void;
   startClosed?: boolean;
 }) {
   const [open, setOpen] = useState(!startClosed);
+  const hasData = doorHasData(door);
   const [syncTrim, setSyncTrim] = useState(false);
   const u = (f: keyof DoorData, v: string) => {
     const updated = { ...door, [f]: v } as DoorData;
@@ -118,7 +128,7 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
   };
   const title = door.type === 'Opening' ? `Opening ${index + 1}` : `Door ${index + 1}`;
   return (
-    <div className="sub-card">
+    <div className={`sub-card ${hasData ? 'sub-card-with-data' : ''}`}>
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="sub-card-title">{title}</span>
         <div className="sub-card-actions">
@@ -174,16 +184,21 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
 }
 
 // ── Appliance card ────────────────────────────────────────────────────────────
+function applianceHasData(app: ApplianceOnWall): boolean {
+  return !!(app.w || app.h || app.d || app.corner || app.loc);
+}
+
 function ApplianceCard({ app, onUpdate, onRemove, startClosed = false }: {
   app: ApplianceOnWall;
   onUpdate: (v: ApplianceOnWall) => void; onRemove: () => void;
   startClosed?: boolean;
 }) {
   const [open, setOpen] = useState(!startClosed);
+  const hasData = applianceHasData(app);
   return (
-    <div className="sub-card">
-      <div className="sub-card-header">
-        <div style={{ flex: 1 }}>
+    <div className={`sub-card ${hasData ? 'sub-card-with-data' : ''}`}>
+      <div className="sub-card-header" style={{ gap: 10 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <DropdownSelect
             listName="appliance_names"
             value={app.name}
@@ -192,9 +207,29 @@ function ApplianceCard({ app, onUpdate, onRemove, startClosed = false }: {
             allowCustom={true}
           />
         </div>
-        <div className="sub-card-actions">
-          {app.name && <ChevronIcon open={open} onClick={() => setOpen(o => !o)} />}
-          <button className="icon-btn danger" onClick={onRemove}>✕</button>
+        <div className="sub-card-actions" style={{ gap: 6, marginLeft: 'auto' }}>
+          {app.name && (
+            <button
+              className="icon-btn"
+              onClick={() => setOpen(o => !o)}
+              style={{
+                width: 40,
+                height: 40,
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: open ? 'var(--surface-hover)' : 'transparent',
+                border: `1.5px solid ${open ? 'var(--brand-blue)' : 'var(--border)'}`,
+                borderRadius: 'var(--radius)',
+                transition: 'all 0.15s ease',
+                cursor: 'pointer'
+              }}
+            >
+              <ChevronIcon open={open} />
+            </button>
+          )}
+          <button className="icon-btn danger" onClick={onRemove} style={{ width: 40, height: 40, padding: 0 }}>✕</button>
         </div>
       </div>
       {open && app.name && <>
@@ -223,11 +258,16 @@ function ApplianceCard({ app, onUpdate, onRemove, startClosed = false }: {
 }
 
 // ── Outlet row ────────────────────────────────────────────────────────────────
+function outletHasData(outlet: OutletData): boolean {
+  return !!(outlet.type !== 'Outlet' || outlet.corner || outlet.location);
+}
+
 function OutletRow({ outlet, onUpdate, onRemove }: {
   outlet: OutletData; onUpdate: (v: OutletData) => void; onRemove: () => void;
 }) {
+  const hasData = outletHasData(outlet);
   return (
-    <div className="outlet-row">
+    <div className={`outlet-row ${hasData ? 'outlet-row-with-data' : ''}`}>
       <div className="pill-group">
         {(['Outlet', 'Switch'] as const).map(t => (
           <button key={t} className={`pill pill-sm${outlet.type === t ? ' active' : ''}`}
@@ -314,11 +354,22 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const displayName = data.name || `Wall ${wall}`;
   const lengthPieces = data.lengthPieces || [];
   const lengthTotalInches = lengthPieces.reduce((sum, piece) => sum + parseMeasurementToInches(piece.length), 0);
+  const hasData = !!(
+    data.length ||
+    (data.windows || []).length > 0 ||
+    (data.doors || []).length > 0 ||
+    (data.outlets || []).length > 0 ||
+    appCount > 0 ||
+    data.hasSink ||
+    data.hasUpperCabs ||
+    data.hasBaseCabs ||
+    data.hasTallCab
+  );
 
   const toggleOpen = () => { if (!renaming) setOpen(o => !o); };
 
   return (
-    <div className="wall-section">
+    <div className={`wall-section ${hasData ? 'wall-section-with-data' : ''}`}>
       <div className="wall-header" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }} onClick={toggleOpen}>
         <ChevronIcon open={open} onClick={e => { e.stopPropagation(); toggleOpen(); }} />
         <div className={`wall-badge${done ? ' done' : ''}`}>
@@ -364,6 +415,7 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                 )}
               </div>}
           <div className="wall-sub">
+            {data.length && <span style={{ fontWeight: 600, color: 'var(--brand-yellow)', marginRight: 12 }}>Length: {data.length}</span>}
             {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}
           </div>
         </div>

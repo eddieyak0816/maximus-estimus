@@ -17,61 +17,54 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string>('');
 
+  // Only cleanup on unmount, don't start camera automatically
   useEffect(() => {
-    let mounted = true;
-
-    async function startCamera() {
-      try {
-        if (!navigator.mediaDevices?.getUserMedia) {
-          throw new Error('Camera access is not supported in this browser or context.');
-        }
-
-        console.log('Requesting camera access...');
-        let stream: MediaStream | null = null;
-
-        // Try environment-facing camera first (back camera on phone)
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
-            audio: false,
-          });
-        } catch (e) {
-          console.log('Environment camera failed, trying any camera:', e);
-          // Fall back to any available camera
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false,
-          });
-        }
-
-        if (!mounted || !stream) {
-          console.log('Component unmounted or no stream');
-          stream?.getTracks().forEach(t => t.stop());
-          return;
-        }
-
-        console.log('Stream acquired, setting up video element');
-        streamRef.current = stream;
-        setStage('camera');
-      } catch (err) {
-        if (mounted) {
-          console.error('Camera error:', err);
-          const msg = err instanceof Error ? err.message : 'Camera not available';
-          setError(msg);
-          setStage('error');
-        }
-      }
-    }
-
-    startCamera();
-
     return () => {
-      mounted = false;
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
     };
   }, []);
+
+  async function requestAndStartCamera() {
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('Camera access is not supported in this browser or context.');
+      }
+
+      console.log('Requesting camera access...');
+      let stream: MediaStream | null = null;
+
+      // Try environment-facing camera first (back camera on phone)
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+          audio: false,
+        });
+      } catch (e) {
+        console.log('Environment camera failed, trying any camera:', e);
+        // Fall back to any available camera
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+
+      if (!stream) {
+        console.log('No stream acquired');
+        return;
+      }
+
+      console.log('Stream acquired, setting up video element');
+      streamRef.current = stream;
+      setStage('camera');
+    } catch (err) {
+      console.error('Camera error:', err);
+      const msg = err instanceof Error ? err.message : 'Camera not available';
+      setError(msg);
+      setStage('error');
+    }
+  }
 
   useEffect(() => {
     const video = videoRef.current;
@@ -160,8 +153,9 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
     reader.readAsDataURL(file);
   }
 
-  function startTakePhoto() {
+  async function startTakePhoto() {
     setStage('requesting');
+    await requestAndStartCamera();
   }
 
   function cleanup() {

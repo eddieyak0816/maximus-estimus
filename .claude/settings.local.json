@@ -11,7 +11,8 @@
       "Bash(npx playwright *)",
       "mcp__jcodemunch__list_repos",
       "Bash(node test-dashboard-filter.js)",
-      "Bash(node test-dashboard-filter.mjs)"
+      "Bash(node test-dashboard-filter.mjs)",
+      "Bash(xargs grep -l \"ApplianceCard\\\\|sub-card-header\")"
     ]
   }
 }
