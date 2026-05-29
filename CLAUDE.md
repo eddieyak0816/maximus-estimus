@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 28, 2026 (Session 3 continued)  
+> **Last Updated:** May 28, 2026 (Session 4)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + Wall Photo Capture ✅ + Photo Viewer Modal ✅ + Cumulative Font Scaling ✅ + Measurement Input UI ✅ + Accordions Start Closed ✅ + Admin Panel MVP Live ✅ + All UX Polish Done ✅ + Trim Sync Toggle ✅ + Accordion Content Highlighting ✅ + Adaptive Button Layout ✅ + Camera Upload Choice ✅ + Optional/Customizable Questions ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅
 
 ---
 
@@ -257,6 +257,40 @@
   - Now shows `wall.name || label` (custom name with fallback to generated label)
   - Data persistence works correctly with renamed walls
   - Files modified: src/pages/bathroom/BathroomMeasurements.tsx
+
+- **Smart Questions Customization (May 28 - Session 4):**
+  - Added constraint: users cannot hide questions that contain data
+  - Users must clear question data before hiding it; prevents accidental loss
+  - Updated AddQuestionsModal to detect populated fields per question
+  - When user tries to uncollapse a question with data → alert: "Cannot hide — clear data first"
+  - Questions with active data show "Has data" label and disabled checkbox
+  - Added `sectionHasContent()` helper function to all 7 question pages (Kitchen, Bathroom, Flooring, Painting, Living Room, Bedroom, Deck)
+  - Added `fieldsPerQuestion` mapping to each question page specifying which fields belong to each question
+  - Files modified: src/components/AddQuestionsModal.tsx, CollapseSection.tsx (now accepts ReactNode for title), all question pages
+  - Files modified for CSS: src/index.css (removed yellow Questions tab highlight when not active)
+
+- **Modal Scrolling Fix (May 28 - Session 4):**
+  - Fixed AddQuestionsModal scroll issue when zoomed or with many questions
+  - Changed modal-body height from 400px to 70vh (responsive)
+  - Overrode alignment from center to flex-start so content scrolls properly from top
+  - Users can now see all questions in customize modal regardless of zoom level
+
+- **Questions Visibility Overhaul (May 28 - Session 4):**
+  - Changed default from "all questions ON" to "all questions OFF"
+  - Users start with clean slate, turn on questions they need
+  - Auto-detection: if existing job has data in a question, that question auto-shows (checked)
+  - New jobs: all questions hidden until user enables them
+  - Implemented `getDefaultVisibleQuestions()` helper in each question page
+  - Detection scans `fieldsPerQuestion` mapping and `sectionHasContent()` to auto-show relevant questions
+  - Files modified: all 7 question pages
+
+- **Island Photo Capture (May 28 - Session 4):**
+  - Added 📷 camera icon to Island section header (like walls)
+  - Icon appears when Island is enabled
+  - Click icon → opens CameraModal with "Photo: Island" pre-selected
+  - Photo tagged as "Island" in Photos tab
+  - Follows same pattern as wall photo capture
+  - Files modified: src/pages/kitchen/KitchenMeasurements.tsx, src/components/CollapseSection.tsx (title now accepts ReactNode)
 
 ### 🔲 Next Up (Priority Order)
 
