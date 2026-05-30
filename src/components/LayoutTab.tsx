@@ -32,24 +32,46 @@ export default function LayoutTab({ data, onUpdate }: Props) {
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
 
+  // Auto-initialize canvas by triggering rect tool on mount
   useEffect(() => {
-    if (!canvas || !ctx) return;
+    const timer = setTimeout(() => {
+      setTool('rect');
+      setTimeout(() => setTool('pen'), 50);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+  useEffect(() => {
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
 
-    if (data.canvasData) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0);
-      };
-      img.src = data.canvasData;
-    } else {
-      ctx.fillStyle = '#0d1628';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const resizeObserver = new ResizeObserver(() => {
+      const ctx = canvasEl.getContext('2d');
+      if (!ctx) return;
+
+      const rect = canvasEl.parentElement?.getBoundingClientRect();
+      if (!rect || rect.width === 0 || rect.height === 0) return;
+
+      canvasEl.width = rect.width;
+      canvasEl.height = rect.height;
+
+      if (data.canvasData) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = data.canvasData;
+      } else {
+        ctx.fillStyle = '#0d1628';
+        ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+      }
+    });
+
+    const parent = canvasEl.parentElement;
+    if (parent) {
+      resizeObserver.observe(parent);
     }
-  }, [canvas, ctx]);
+
+    return () => resizeObserver.disconnect();
+  }, [data.canvasData]);
 
   const saveToHistory = () => {
     if (!canvas || !ctx) return;

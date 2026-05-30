@@ -46,20 +46,26 @@ export default function VoiceInput({ context, onMeasurements, onDrawingCommands 
     };
 
     recognition.onend = () => {
-      if (stage === 'listening') {
-        setStage('processing');
-      }
+      setStage(currentStage => {
+        if (currentStage === 'listening') {
+          return 'processing';
+        }
+        return currentStage;
+      });
     };
 
     recognition.onerror = (event: any) => {
-      let errorMsg = 'Speech recognition error';
+      let errorMsg = `Speech recognition error: ${event.error}`;
       if (event.error === 'network') {
         errorMsg = 'Network error - check internet connection';
       } else if (event.error === 'no-speech') {
         errorMsg = 'No speech detected - please try again';
       } else if (event.error === 'not-allowed') {
-        errorMsg = 'Microphone permission denied';
+        errorMsg = 'Microphone permission denied - allow in browser settings';
+      } else if (event.error === 'service-not-allowed') {
+        errorMsg = 'Speech recognition not allowed - check browser/OS settings';
       }
+      console.error('Speech recognition error:', event.error, event);
       setError(errorMsg);
       setStage('idle');
     };
@@ -69,7 +75,7 @@ export default function VoiceInput({ context, onMeasurements, onDrawingCommands 
     return () => {
       recognition.abort();
     };
-  }, [stage]);
+  }, []);
 
   useEffect(() => {
     if (stage === 'processing' && transcript) {
