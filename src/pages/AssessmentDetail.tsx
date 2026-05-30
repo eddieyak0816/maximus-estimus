@@ -26,13 +26,12 @@ import DeckQuestions from './deck/DeckQuestions';
 import DeckPhotos from './deck/DeckPhotos';
 import OtherTabs from './other/OtherTabs';
 import LayoutTab from '../components/LayoutTab';
-import VoiceInput from '../components/VoiceInput';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   AssessmentStatus, KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
-  LayoutData, VoiceContext, MeasurementUpdate, DrawingCommand,
+  LayoutData,
 } from '../types';
 
 const STATUS_OPTIONS: AssessmentStatus[] = ['draft', 'in-progress', 'complete'];
@@ -214,60 +213,6 @@ export default function AssessmentDetail() {
   const handleLayoutUpdate = (layout: LayoutData) => {
     if (!activeJob) return;
     updateJobLayout(id!, activeJob.id, layout);
-  };
-
-  const handleVoiceMeasurements = (updates: MeasurementUpdate[]) => {
-    if (!activeJob || updates.length === 0) return;
-    // TODO: Parse measurement updates and apply to active job
-    // This will depend on the job type and the measurement update structure
-    console.log('Voice measurements received:', updates);
-  };
-
-  const handleVoiceDrawingCommands = (commands: DrawingCommand[]) => {
-    if (!activeJob || commands.length === 0) return;
-    // TODO: Pass drawing commands to LayoutTab for rendering
-    console.log('Voice drawing commands received:', commands);
-  };
-
-  const buildVoiceContext = (): VoiceContext => {
-    const walls: Array<{ index: number; label: string; name?: string }> = [];
-    const WALL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-
-    if (activeJob?.kitchen?.measurements) {
-      const kitchenWalls = activeJob.kitchen.measurements.walls || [];
-      Object.entries(kitchenWalls).forEach((entry, idx) => {
-        const [key] = entry;
-        const wallData = (activeJob.kitchen?.measurements.walls as any)?.[key];
-        if (wallData) {
-          walls.push({
-            index: idx,
-            label: WALL_LABELS[idx] || `Wall ${idx + 1}`,
-            name: wallData.name,
-          });
-        }
-      });
-    } else if (activeJob?.bathroom?.measurements) {
-      const bathroomWalls = activeJob.bathroom.measurements.walls || [];
-      Object.entries(bathroomWalls).forEach((entry, idx) => {
-        const [key] = entry;
-        const wallData = (activeJob.bathroom?.measurements.walls as any)?.[key];
-        if (wallData) {
-          walls.push({
-            index: idx,
-            label: WALL_LABELS[idx] || `Wall ${idx + 1}`,
-            name: wallData.name,
-          });
-        }
-      });
-    }
-
-    return {
-      jobType: activeJob?.type || 'Other',
-      walls,
-      transcript: '',
-      canvasWidth: 600,
-      canvasHeight: 500,
-    };
   };
 
   const renderTabContent = () => {
@@ -563,15 +508,6 @@ export default function AssessmentDetail() {
             💰 View / Generate Estimate
           </button>
         </div>
-      )}
-
-      {/* Voice Input (always available) */}
-      {activeJob && (
-        <VoiceInput
-          context={buildVoiceContext()}
-          onMeasurements={handleVoiceMeasurements}
-          onDrawingCommands={handleVoiceDrawingCommands}
-        />
       )}
     </div>
   );
