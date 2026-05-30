@@ -30,17 +30,8 @@ export default function CustomerInfoPage() {
     loadUsers();
   }, [user?.isAdmin]);
 
-  // If user navigates away without filling in a client name, delete the blank assessment
-  useEffect(() => {
-    return () => {
-      if (id && !hasClientName) {
-        const a = getAssessment(id);
-        if (a && !a.client.firstName?.trim() && !a.client.lastName?.trim()) {
-          deleteAssessment(id);
-        }
-      }
-    };
-  }, [id, hasClientName, getAssessment, deleteAssessment]);
+  // Cleanup disabled: was causing newly created assessments to be deleted
+  // TODO: Revisit in Phase 2 — need better way to auto-delete blank assessments
 
   if (!assessment) return <div className="page-empty">Assessment not found.</div>;
 

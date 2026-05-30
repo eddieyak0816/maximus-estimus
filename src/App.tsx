@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import CustomerInfoPage from './pages/CustomerInfoPage';
@@ -39,11 +39,15 @@ function NewRedirect() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const createAssessment = useAssessmentStore(s => s.createAssessment);
+  const hasCreated = useRef(false);
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || hasCreated.current) return;
+    hasCreated.current = true;
     const id = createAssessment(user.id);
     navigate(`/assessment/${id}/client`, { replace: true });
   }, [user, navigate, createAssessment]);
+
   return null;
 }
 
