@@ -25,11 +25,13 @@ import DeckMeasurements from './deck/DeckMeasurements';
 import DeckQuestions from './deck/DeckQuestions';
 import DeckPhotos from './deck/DeckPhotos';
 import OtherTabs from './other/OtherTabs';
+import LayoutTab from '../components/LayoutTab';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   AssessmentStatus, KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
+  LayoutData,
 } from '../types';
 
 const STATUS_OPTIONS: AssessmentStatus[] = ['draft', 'in-progress', 'complete'];
@@ -43,6 +45,7 @@ const TABS = [
   { id: 'measurements', label: '📏 Measure' },
   { id: 'questions',    label: '📋 Questions' },
   { id: 'photos',       label: '📷 Photos' },
+  { id: 'layout',       label: '📐 Layout' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -54,6 +57,7 @@ export default function AssessmentDetail() {
   const {
     getAssessment, setStatus, updateAssessment,
     updateJobKitchen, updateJobBathroom, updateJobFlooring, updateJobLivingRoom, updateJobBedroom, updateJobDeck, updateJobOther,
+    updateJobLayout,
   } = useAssessmentStore();
 
   const assessment = id ? getAssessment(id) : undefined;
@@ -206,6 +210,11 @@ export default function AssessmentDetail() {
     return false;
   };
 
+  const handleLayoutUpdate = (layout: LayoutData) => {
+    if (!activeJob) return;
+    updateJobLayout(id!, activeJob.id, layout);
+  };
+
   const renderTabContent = () => {
     if (!activeJob) return null;
 
@@ -224,6 +233,9 @@ export default function AssessmentDetail() {
         return <BathroomQuestions data={bath.questions}
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
+      if (activeTab === 'layout') {
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+      }
       return <BathroomPhotos data={bath.photos}
         measurements={bath.measurements}
         assessmentId={id!} jobId={activeJob.id}
@@ -240,6 +252,9 @@ export default function AssessmentDetail() {
       if (activeTab === 'questions') {
         return <FlooringQuestions data={floor.questions}
           onUpdate={q => updateFlooring({ ...floor, questions: q })} />;
+      }
+      if (activeTab === 'layout') {
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
       }
       return <FlooringPhotos data={floor.photos}
         measurements={floor.measurements}
@@ -258,6 +273,9 @@ export default function AssessmentDetail() {
         return <LivingRoomQuestions data={lr.questions}
           onUpdate={q => updateLivingRoom({ ...lr, questions: q })} />;
       }
+      if (activeTab === 'layout') {
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+      }
       return <LivingRoomPhotos data={lr.photos}
         measurements={lr.measurements}
         assessmentId={id!} jobId={activeJob.id}
@@ -275,6 +293,9 @@ export default function AssessmentDetail() {
         return <BedroomQuestions data={br.questions}
           onUpdate={q => updateBedroom({ ...br, questions: q })} />;
       }
+      if (activeTab === 'layout') {
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+      }
       return <BedroomPhotos data={br.photos}
         measurements={br.measurements}
         assessmentId={id!} jobId={activeJob.id}
@@ -291,6 +312,9 @@ export default function AssessmentDetail() {
       if (activeTab === 'questions') {
         return <DeckQuestions data={dk.questions}
           onUpdate={q => updateDeck({ ...dk, questions: q })} />;
+      }
+      if (activeTab === 'layout') {
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
       }
       return <DeckPhotos data={dk.photos}
         measurements={dk.measurements}
@@ -314,6 +338,9 @@ export default function AssessmentDetail() {
     if (activeTab === 'questions') {
       return <KitchenQuestions data={activeJob.kitchen.questions}
         onUpdate={q => updateKitchen({ ...activeJob.kitchen, questions: q })} />;
+    }
+    if (activeTab === 'layout') {
+      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
     }
     return <KitchenPhotos data={activeJob.kitchen.photos} measurements={activeJob.kitchen.measurements}
       assessmentId={id!} jobId={activeJob.id}

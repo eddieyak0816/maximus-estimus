@@ -189,6 +189,47 @@ export interface CustomPhoto {
   photoId: string;
 }
 
+// ── Layout Drawing ────────────────────────────────────────────────────────────
+export interface LayoutData {
+  canvasData?: string;    // base64 PNG from canvas.toDataURL()
+  lastUpdated?: string;   // ISO timestamp
+}
+
+export interface DrawingCommand {
+  type: 'rect' | 'line' | 'text' | 'freehand';
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  x2?: number;
+  y2?: number;
+  label?: string;
+  color?: string;
+}
+
+export interface MeasurementUpdate {
+  target: 'global' | 'wall';
+  wallIndex?: number;
+  field: string;
+  value: string | boolean | number;
+  action?: 'set' | 'addWindow' | 'addDoor' | 'addOutlet' | 'addAppliance';
+}
+
+export interface VoiceParseResult {
+  measurements: MeasurementUpdate[];
+  drawingCommands: DrawingCommand[];
+  confirmation: string;
+  error?: string;
+}
+
+export interface VoiceContext {
+  jobType: JobType;
+  walls: Array<{ index: number; label: string; name?: string }>;
+  transcript: string;
+  canvasWidth: number;
+  canvasHeight: number;
+}
+
 export interface KitchenPhotos {
   photos: CustomPhoto[];
 }
@@ -501,6 +542,7 @@ export interface JobInstance {
   id: string;
   type: JobType;
   label: string;
+  layout?: LayoutData;
   kitchen: KitchenAssessment;
   bathroom?: BathroomAssessment;
   flooring?: FlooringAssessment;

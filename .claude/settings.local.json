@@ -14,7 +14,9 @@
       "Bash(node test-dashboard-filter.mjs)",
       "Bash(xargs grep -l \"ApplianceCard\\\\|sub-card-header\")",
       "Bash(Get-Content \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\g--My-Drive-Maximus-Digital-Marketing-Maximus-Estimus\\\\3ac8b13a-b436-4324-a8b8-249101884107\\\\tasks\\\\bqm4dubn7.output\" -Tail 20)",
-      "Bash(cd \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\" && rm -f .git/AUTO_MERGE.lock && git log --oneline -3)"
+      "Bash(cd \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\" && rm -f .git/AUTO_MERGE.lock && git log --oneline -3)",
+      "mcp__jcodemunch__resolve_repo",
+      "mcp__jcodemunch__suggest_queries"
     ],
     "additionalDirectories": [
       "g:\\My Drive\\Maximus Digital Marketing\\Maximus Estimus\\.git"

@@ -780,6 +780,15 @@ function JobSection({ job, assessmentId }: { job: JobInstance; assessmentId: str
       {job.type === 'Other' && job.other && (
         <OtherSection other={job.other} assessmentId={assessmentId} />
       )}
+      {job.layout?.canvasData && (
+        <SectionCard title="📐 Room Layout">
+          <img
+            src={job.layout.canvasData}
+            alt="Room layout sketch"
+            style={{ width: '100%', borderRadius: 8, border: '1px solid var(--border)' }}
+          />
+        </SectionCard>
+      )}
     </div>
   );
 }

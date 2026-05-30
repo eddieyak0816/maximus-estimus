@@ -4,7 +4,7 @@ import type {
   Assessment, AssessmentStatus, JobType, JobInstance,
   KitchenAssessment, BathroomAssessment, FlooringAssessment, PaintingAssessment, OtherAssessment,
   LivingRoomAssessment, BedroomAssessment, DeckAssessment,
-  PriceCategory, MarkupSettings, EstimateData, WallData,
+  PriceCategory, MarkupSettings, EstimateData, WallData, LayoutData,
 } from '../types';
 import { defaultPriceGuide, DEFAULT_MARKUP } from '../utils/defaultPriceGuide';
 import { pushAssessment, deleteAssessmentRemote, pushTeamMembers, pushMarkupSettings, pushPriceGuide, pullAllAssessments, pullTeamMembers, pullMarkupSettings, pullPriceGuide } from '../utils/supabaseSync';
@@ -179,6 +179,7 @@ interface Store {
   updateJobBedroom: (assessmentId: string, jobId: string, bedroom: BedroomAssessment) => void;
   updateJobDeck: (assessmentId: string, jobId: string, deck: DeckAssessment) => void;
   updateJobOther: (assessmentId: string, jobId: string, other: OtherAssessment) => void;
+  updateJobLayout: (assessmentId: string, jobId: string, layout: LayoutData) => void;
   addTeamMember: (name: string) => void;
   removeTeamMember: (name: string) => void;
   getAssessment: (id: string) => Assessment | undefined;
@@ -355,6 +356,19 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       const next = s.assessments.map(a => {
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, other } : j), updatedAt: new Date().toISOString() };
+      });
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      const updated = next.find(a => a.id === assessmentId);
+      if (updated) pushAssessment(updated).catch(console.error);
+      return { assessments: next };
+    });
+  },
+
+  updateJobLayout: (assessmentId, jobId, layout) => {
+    set(s => {
+      const next = s.assessments.map(a => {
+        if (a.id !== assessmentId) return a;
+        return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, layout } : j), updatedAt: new Date().toISOString() };
       });
       save(next, s.teamMembers, s.priceGuide, s.markupSettings);
       const updated = next.find(a => a.id === assessmentId);

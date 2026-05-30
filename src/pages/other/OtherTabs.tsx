@@ -1,6 +1,6 @@
 import type { OtherAssessment } from '../../types';
 
-type Tab = 'measurements' | 'questions' | 'photos';
+type Tab = 'measurements' | 'questions' | 'photos' | 'layout';
 
 interface Props {
   data: OtherAssessment;
@@ -43,6 +43,18 @@ export default function OtherTabs({ data, activeTab, onUpdate }: Props) {
           value={data.questionNotes || ''}
           onChange={e => onUpdate({ ...data, questionNotes: e.target.value })}
         />
+      </div>
+    );
+  }
+
+  if (activeTab === 'layout') {
+    return (
+      <div className="assess-tab">
+        <div className="other-empty-state">
+          <div className="other-empty-icon">📐</div>
+          <div className="other-empty-title">Room Layout</div>
+          <p className="assess-hint">Sketch the room layout for this custom job type.</p>
+        </div>
       </div>
     );
   }
