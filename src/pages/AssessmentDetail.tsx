@@ -26,12 +26,13 @@ import DeckQuestions from './deck/DeckQuestions';
 import DeckPhotos from './deck/DeckPhotos';
 import OtherTabs from './other/OtherTabs';
 import LayoutTab from '../components/LayoutTab';
+import WallMeasurementDialog from '../components/WallMeasurementDialog';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   AssessmentStatus, KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
-  LayoutData,
+  LayoutData, WallData,
 } from '../types';
 
 const STATUS_OPTIONS: AssessmentStatus[] = ['draft', 'in-progress', 'complete'];
@@ -65,6 +66,7 @@ export default function AssessmentDetail() {
   const [activeTab, setActiveTab] = useState<TabId>('measurements');
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
   const [showReassignDropdown, setShowReassignDropdown] = useState(false);
+  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: 'horizontal' | 'vertical' | 'diagonal' | null }>({ show: false, wallIndex: 0, direction: null });
 
   // Load users for reassignment (admin only)
   useEffect(() => {
@@ -215,6 +217,39 @@ export default function AssessmentDetail() {
     updateJobLayout(id!, activeJob.id, layout);
   };
 
+  const handleWallPlaced = (_x: number, _y: number, direction: 'horizontal' | 'vertical' | 'diagonal' | null) => {
+    if (!direction) return;
+    // Find next available wall index (A=0, B=1, C=2, D=3, E=4, etc.)
+    let wallIndex = 0;
+    if (activeJob?.type === 'Kitchen' && activeJob.kitchen) {
+      wallIndex = activeJob.kitchen.measurements.walls.length;
+    } else if (activeJob?.type === 'Bathroom' && activeJob.bathroom) {
+      wallIndex = activeJob.bathroom.measurements.walls.length;
+    }
+    setWallDialog({ show: true, wallIndex, direction });
+  };
+
+  const handleWallMeasurementSave = (length: string) => {
+    if (!activeJob || !id) return;
+
+    const wallIndex = wallDialog.wallIndex;
+    const wall: WallData = { length };
+
+    if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
+      const walls = [...activeJob.kitchen.measurements.walls];
+      while (walls.length <= wallIndex) walls.push({});
+      walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      updateJobKitchen(id, activeJob.id, { ...activeJob.kitchen, measurements: { ...activeJob.kitchen.measurements, walls } });
+    } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
+      const walls = [...activeJob.bathroom.measurements.walls];
+      while (walls.length <= wallIndex) walls.push({});
+      walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      updateJobBathroom(id, activeJob.id, { ...activeJob.bathroom, measurements: { ...activeJob.bathroom.measurements, walls } });
+    }
+
+    setWallDialog({ show: false, wallIndex: 0, direction: null });
+  };
+
   const renderTabContent = () => {
     if (!activeJob) return null;
 
@@ -234,7 +269,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
       }
       return <BathroomPhotos data={bath.photos}
         measurements={bath.measurements}
@@ -254,7 +289,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateFlooring({ ...floor, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
       }
       return <FlooringPhotos data={floor.photos}
         measurements={floor.measurements}
@@ -274,7 +309,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateLivingRoom({ ...lr, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
       }
       return <LivingRoomPhotos data={lr.photos}
         measurements={lr.measurements}
@@ -294,7 +329,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBedroom({ ...br, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
       }
       return <BedroomPhotos data={br.photos}
         measurements={br.measurements}
@@ -314,7 +349,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateDeck({ ...dk, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
       }
       return <DeckPhotos data={dk.photos}
         measurements={dk.measurements}
@@ -340,7 +375,7 @@ export default function AssessmentDetail() {
         onUpdate={q => updateKitchen({ ...activeJob.kitchen, questions: q })} />;
     }
     if (activeTab === 'layout') {
-      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} />;
+      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
     }
     return <KitchenPhotos data={activeJob.kitchen.photos} measurements={activeJob.kitchen.measurements}
       assessmentId={id!} jobId={activeJob.id}
@@ -508,6 +543,15 @@ export default function AssessmentDetail() {
             💰 View / Generate Estimate
           </button>
         </div>
+      )}
+
+      {wallDialog.show && wallDialog.direction && (
+        <WallMeasurementDialog
+          wallDirection={wallDialog.direction}
+          wallLabel={String.fromCharCode(65 + wallDialog.wallIndex)}
+          onSave={handleWallMeasurementSave}
+          onCancel={() => setWallDialog({ show: false, wallIndex: 0, direction: null })}
+        />
       )}
     </div>
   );
