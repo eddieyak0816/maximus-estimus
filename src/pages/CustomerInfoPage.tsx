@@ -10,8 +10,7 @@ export default function CustomerInfoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getAssessment, updateAssessment, deleteAssessment } = useAssessmentStore();
-  const [hasClientName, setHasClientName] = useState(false);
+  const { getAssessment, updateAssessment } = useAssessmentStore();
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
 
   const assessment = id ? getAssessment(id) : undefined;
@@ -38,10 +37,6 @@ export default function CustomerInfoPage() {
   const client = assessment.client;
   const u = (f: keyof ClientInfo, v: string) => {
     updateAssessment(id!, { client: { ...client, [f]: v } });
-    // Mark as having client name once user fills in firstName or lastName
-    if ((f === 'firstName' || f === 'lastName') && v.trim()) {
-      setHasClientName(true);
-    }
   };
 
   return (

@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import type { LayoutData } from '../types';
 
-type Tool = 'pen' | 'rect' | 'label' | 'eraser';
+type Tool = 'pen' | 'rect' | 'label' | 'eraser' | 'wall';
+type WallDirection = 'horizontal' | 'vertical' | 'diagonal' | null;
 
 interface Props {
   data: LayoutData;
   onUpdate: (d: LayoutData) => void;
+  onWallPlaced?: (x: number, y: number, direction: WallDirection) => void;
 }
 
 const COLORS = [
@@ -19,7 +21,7 @@ const COLORS = [
 const STROKE_WIDTH = 2;
 const ERASER_WIDTH = 20;
 
-export default function LayoutTab({ data, onUpdate }: Props) {
+export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[0].hex);
@@ -28,6 +30,7 @@ export default function LayoutTab({ data, onUpdate }: Props) {
   const [labelText, setLabelText] = useState('');
   const [isPlacingLabel, setIsPlacingLabel] = useState(false);
   const [rectStart, setRectStart] = useState<{ x: number; y: number } | null>(null);
+  const [wallDirection, setWallDirection] = useState<WallDirection>(null);
 
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
@@ -85,6 +88,35 @@ export default function LayoutTab({ data, onUpdate }: Props) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    if (tool === 'wall' && wallDirection) {
+      saveToHistory();
+
+      // Draw wall line
+      const wallLength = 60; // Default visual length on canvas
+      ctx.strokeStyle = '#F5C42A';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+
+      if (wallDirection === 'horizontal') {
+        ctx.lineTo(x + wallLength, y);
+      } else if (wallDirection === 'vertical') {
+        ctx.lineTo(x, y + wallLength);
+      } else if (wallDirection === 'diagonal') {
+        ctx.lineTo(x + wallLength * 0.707, y + wallLength * 0.707);
+      }
+      ctx.stroke();
+
+      // Call callback to open measurement dialog
+      if (onWallPlaced) {
+        onWallPlaced(x, y, wallDirection);
+      }
+
+      setWallDirection(null);
+      setTool('pen');
+      return;
+    }
 
     if (tool === 'label') {
       setIsPlacingLabel(true);
@@ -267,6 +299,32 @@ export default function LayoutTab({ data, onUpdate }: Props) {
           title="Eraser"
         >
           🧹 Eraser
+        </button>
+
+        <div style={{ borderLeft: '1px solid rgba(255,255,255,0.2)', height: '24px', margin: '0 6px' }} />
+
+        <button
+          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'horizontal' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => { setTool('wall'); setWallDirection('horizontal'); }}
+          title="Place horizontal wall"
+        >
+          ➡️ H-Wall
+        </button>
+
+        <button
+          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'vertical' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => { setTool('wall'); setWallDirection('vertical'); }}
+          title="Place vertical wall"
+        >
+          ⬇️ V-Wall
+        </button>
+
+        <button
+          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'diagonal' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => { setTool('wall'); setWallDirection('diagonal'); }}
+          title="Place diagonal wall"
+        >
+          ↘️ D-Wall
         </button>
 
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
