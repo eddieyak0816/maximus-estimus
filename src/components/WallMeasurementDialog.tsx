@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function WallMeasurementDialog({ wallDirection, onSave, onCancel, availableWalls }: Props) {
-  const [step, setStep] = useState<'select' | 'enter-data'>('select');
+  const [step, setStep] = useState<'select' | 'enter-data' | 'place-another'>('select');
   const [selectedWallIndex, setSelectedWallIndex] = useState<number | null>(null);
   const [length, setLength] = useState('');
   const [wallName, setWallName] = useState('');
@@ -37,6 +37,14 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onCancel,
       return;
     }
     onSave(selectedWallIndex, length, wallName);
+    setStep('place-another');
+  };
+
+  const handlePlaceAnother = () => {
+    setStep('select');
+    setSelectedWallIndex(null);
+    setLength('');
+    setWallName('');
   };
 
   const directionLabel = {
@@ -48,7 +56,24 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onCancel,
   return (
     <div className="wall-dialog-overlay" onClick={onCancel}>
       <div className="wall-dialog" onClick={e => e.stopPropagation()}>
-        {step === 'select' ? (
+        {step === 'place-another' ? (
+          <>
+            <h3 className="wall-dialog-title">Wall placed! 🎉</h3>
+            <div className="wall-dialog-content">
+              <p style={{ textAlign: 'center', marginBottom: '16px' }}>
+                Place another wall?
+              </p>
+            </div>
+            <div className="wall-dialog-buttons">
+              <button className="btn btn-ghost" onClick={onCancel}>
+                Done
+              </button>
+              <button className="btn btn-primary" onClick={handlePlaceAnother}>
+                Yes, place another
+              </button>
+            </div>
+          </>
+        ) : step === 'select' ? (
           <>
             <h3 className="wall-dialog-title">Which wall are you placing?</h3>
             <div className="wall-dialog-content">
