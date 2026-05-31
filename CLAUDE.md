@@ -367,12 +367,32 @@
   - **Files Created:** src/components/WallMeasurementDialog.tsx (refactored with selector step)
   - **Files Modified:** src/pages/AssessmentDetail.tsx, src/components/LayoutTab.tsx, src/components/WallSection.tsx, src/index.css
 
+- **Canvas Auto-Save & Continuous Wall Placement (May 30 - Session 6 continued):**
+  - Drawing, erasing, undo, clear now auto-save immediately (removed manual Save button)
+  - Wall placement flow supports continuous placement: place wall → "Place another?" prompt
+  - Users can place multiple walls in one dialog session without closing/reopening
+  - Wall selector dialog stays open until user clicks "Done"
+  - Files modified: src/components/LayoutTab.tsx, src/components/WallMeasurementDialog.tsx, src/pages/AssessmentDetail.tsx
+
+- **Wall Selection on Canvas (May 30 - Session 6 continued):**
+  - Click on drawn walls to select them
+  - Selection panel shows wall details (name, length, direction)
+  - Action buttons: Edit (go to Measurements tab), Delete (clear wall)
+  - Hit detection calculates distance from click point to wall line (20px tolerance)
+  - Deselect by clicking close button or empty canvas area
+  - Files created: getWallAtPoint() hit detection function in LayoutTab
+  - Files modified: src/components/LayoutTab.tsx, src/pages/AssessmentDetail.tsx
+
+- **Wall Display Polish (May 30 - Session 6 continued):**
+  - Walls with zero length no longer display "Length: 0"" in collapsed summary
+  - Only shows length when it's greater than 0
+  - Cleaner measurement tab appearance
+  - Files modified: src/components/WallSection.tsx
+
 **Next Phase (In Progress):**
-- Draw walls to scale on canvas based on actual length (visual representation)
-- Simplify wall placement flow: angle selector → length entry (one consolidated dialog)
-- Allow chaining wall placement: after placing Wall A, prompt user if they want to place Wall B
-- Attachment selection: show which end of previous wall to attach new wall to
-- Compass-style direction selector for wall angles (45° increments)
+- Compass-style direction selector for wall angles (8 directions: N, NE, E, SE, S, SW, W, NW at 45° increments)
+- Wall attachment logic: show which end of previous wall to attach new wall to
+- Simplify wall placement flow: consolidate into one dialog with compass selector
 
 ### 🔲 Next Up (Priority Order)
 

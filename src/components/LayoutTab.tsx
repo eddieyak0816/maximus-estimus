@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { LayoutData, WallData } from '../types';
 
 type Tool = 'pen' | 'rect' | 'label' | 'eraser' | 'wall';
-type WallDirection = 'horizontal' | 'vertical' | 'diagonal' | null;
+type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
 interface Props {
   data: LayoutData;
@@ -385,16 +385,15 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
       ctx.beginPath();
       ctx.moveTo(startX, startY);
 
-      // Direction: wall.direction should be 'horizontal', 'vertical', or 'diagonal'
-      const direction = wall.direction || 'horizontal';
-      if (direction === 'vertical') {
-        ctx.lineTo(startX, startY + pixelLength);
-      } else if (direction === 'diagonal') {
-        ctx.lineTo(startX + pixelLength * 0.707, startY + pixelLength * 0.707);
-      } else {
-        // Default to horizontal
-        ctx.lineTo(startX + pixelLength, startY);
-      }
+      // Direction: wall.direction should be one of 8 compass directions
+      const direction = wall.direction || 'E';
+      const angles: Record<string, number> = {
+        'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
+      };
+      const angle = (angles[direction as string] || 0) * (Math.PI / 180);
+      const endX = startX + pixelLength * Math.cos(angle);
+      const endY = startY + pixelLength * Math.sin(angle);
+      ctx.lineTo(endX, endY);
       ctx.stroke();
 
       // Draw wall label above the line
