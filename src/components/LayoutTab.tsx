@@ -29,6 +29,7 @@ const WALL_WIDTH = 4;
 export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, onWallEdit, walls = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasDataRef = useRef<string | undefined>(undefined);
+  const lastSizeRef = useRef<{ width: number; height: number } | null>(null);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[0].hex);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -67,8 +68,17 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
       const rect = canvasEl.parentElement?.getBoundingClientRect();
       if (!rect || rect.width === 0 || rect.height === 0) return;
 
-      canvasEl.width = rect.width;
-      canvasEl.height = rect.height;
+      const newWidth = Math.round(rect.width);
+      const newHeight = Math.round(rect.height);
+
+      // Only redraw if size actually changed
+      if (lastSizeRef.current && lastSizeRef.current.width === newWidth && lastSizeRef.current.height === newHeight) {
+        return;
+      }
+
+      lastSizeRef.current = { width: newWidth, height: newHeight };
+      canvasEl.width = newWidth;
+      canvasEl.height = newHeight;
 
       if (canvasDataRef.current) {
         const img = new Image();
@@ -84,10 +94,9 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     const parent = canvasEl.parentElement;
     if (parent) {
       resizeObserver.observe(parent);
+      // Trigger initial resize to set canvas size
+      redrawCanvas();
     }
-
-    // Initial draw
-    redrawCanvas();
 
     return () => resizeObserver.disconnect();
   }, []);
