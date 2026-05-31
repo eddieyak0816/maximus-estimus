@@ -273,7 +273,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={bath.measurements.walls} />;
       }
       return <BathroomPhotos data={bath.photos}
         measurements={bath.measurements}
@@ -379,7 +379,7 @@ export default function AssessmentDetail() {
         onUpdate={q => updateKitchen({ ...activeJob.kitchen, questions: q })} />;
     }
     if (activeTab === 'layout') {
-      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} />;
+      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={activeJob.kitchen.measurements.walls} />;
     }
     return <KitchenPhotos data={activeJob.kitchen.photos} measurements={activeJob.kitchen.measurements}
       assessmentId={id!} jobId={activeJob.id}

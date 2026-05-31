@@ -80,6 +80,14 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
     return () => resizeObserver.disconnect();
   }, [data.canvasData]);
 
+  // Draw walls whenever walls data changes
+  useEffect(() => {
+    if (!canvas || !ctx) return;
+
+    // Just redraw walls on top of current canvas (preserves freehand drawings)
+    drawWallsToScale();
+  }, [walls, canvas, ctx]);
+
   const saveToHistory = () => {
     if (!canvas || !ctx) return;
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -243,6 +251,73 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setHistory([]);
     autoSaveCanvas();
+  };
+
+  const drawWallsToScale = () => {
+    if (!canvas || !ctx) return;
+
+    const WALL_LABELS = ['A', 'B', 'C', 'D'];
+    const START_X = 80;
+    const START_Y = 80;
+    const SPACING_X = 350;
+    const SPACING_Y = 200;
+    const WALL_ZONE_HEIGHT = 500; // Height of the zone where walls are drawn
+
+    // Clear the wall drawing zone (top part of canvas) to avoid layering old walls
+    ctx.fillStyle = '#0d1628';
+    ctx.fillRect(0, 0, canvas.width, WALL_ZONE_HEIGHT);
+
+    if (!walls || walls.length === 0) return;
+
+    walls.forEach((wall, index) => {
+      if (!wall.length) return; // Skip walls without length
+
+      // Parse length (e.g., "15 ft", "15'", "120"")
+      const numericLength = parseFloat(String(wall.length));
+      if (numericLength <= 0) return; // Only draw walls with positive length
+
+      const pixelLength = numericLength * SCALE_FACTOR;
+      const label = wall.name || WALL_LABELS[index];
+
+      // Position: A & B in row 1, C & D in row 2, E & F in row 3, etc.
+      const row = Math.floor(index / 2);
+      const col = index % 2;
+      const startX = START_X + col * SPACING_X;
+      const startY = START_Y + row * SPACING_Y;
+
+      // Draw the wall line
+      ctx.strokeStyle = WALL_COLOR;
+      ctx.lineWidth = WALL_WIDTH;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+
+      // Direction: wall.direction should be 'horizontal', 'vertical', or 'diagonal'
+      const direction = wall.direction || 'horizontal';
+      if (direction === 'vertical') {
+        ctx.lineTo(startX, startY + pixelLength);
+      } else if (direction === 'diagonal') {
+        ctx.lineTo(startX + pixelLength * 0.707, startY + pixelLength * 0.707);
+      } else {
+        // Default to horizontal
+        ctx.lineTo(startX + pixelLength, startY);
+      }
+      ctx.stroke();
+
+      // Draw wall label above the line
+      ctx.fillStyle = WALL_COLOR;
+      ctx.font = 'bold 16px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(label, startX + pixelLength / 2, startY - 12);
+
+      // Draw wall length below the line
+      ctx.fillStyle = 'rgba(245, 196, 42, 0.8)';
+      ctx.font = '12px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`${wall.length}`, startX + pixelLength / 2, startY + 8);
+    });
   };
 
   const handleAddLabel = () => {
