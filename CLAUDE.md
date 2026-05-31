@@ -37,6 +37,7 @@
 
 ### How to Work with Eddie (Project Lead)
 
+- **AI Developer writes all code** — Eddie is the PM/guide. You (the AI developer) use Read/Edit/Write tools to make all code changes. Never ask Eddie to edit code or provide file contents. Use the tools.
 - **Async preferred** — Eddie works across multiple projects. Detailed handoff docs are appreciated.
 - **Clear task definitions** — When asking for a feature, include: what it does, why, where it goes, acceptance criteria.
 - **Don't guess on scope** — If unclear, ask before implementing. A 5-minute clarification saves 30 minutes of rework.
@@ -350,6 +351,26 @@
   - Only shows if wall length has been entered (doesn't clutter empty walls)
   - Example: `Length: 12' 3" · 2 win · 1 door · 3 outlet · 1 appl · sink`
   - Files modified: src/components/WallSection.tsx
+
+- **Wall Placement UI with Selector Dialog (May 30 - Session 6):**
+  - Added 📐 Layout tab to Kitchen/Bathroom jobs for visual wall placement
+  - **Wall Tool Buttons:** Three new toolbar buttons (H-Wall, V-Wall, D-Wall) for placing horizontal, vertical, diagonal walls
+  - **Wall Selector Dialog:** Two-step dialog process:
+    - Step 1: Show available walls (A, B, C, D) with greyed-out walls that already have data
+    - Step 2: Enter wall length + optional custom name
+  - **Wall Naming:** Users can optionally name walls (e.g., "Kitchen Sink Wall", "Breakfast Nook Side")
+  - **Smart Wall Selection:** Pre-initialized walls (A, B, C, D) prevent accidental overwrites of existing data
+  - **Infinite Loop Fix:** Resolved React update depth issues by removing `onUpdate` from LayoutTab effect dependencies
+  - **Quick Edit Feature:** Click ✎ button next to wall length in collapsed view to quickly edit length without expanding section
+  - **Console Logging:** Comprehensive logs for debugging wall placement flow
+  - **Files Created:** src/components/WallMeasurementDialog.tsx (refactored with selector step)
+  - **Files Modified:** src/pages/AssessmentDetail.tsx, src/components/LayoutTab.tsx, src/components/WallSection.tsx, src/index.css
+
+**Next Phase (In Progress):**
+- Scale walls on canvas based on actual length (visual representation)
+- Allow chaining wall placement: after placing Wall A, prompt user if they want to place Wall B
+- Attachment selection: show which end of previous wall to attach new wall to
+- Compass-style direction selector for wall angles
 
 ### 🔲 Next Up (Priority Order)
 

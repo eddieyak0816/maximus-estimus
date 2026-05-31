@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import type { LayoutData } from '../types';
+import type { LayoutData, WallData } from '../types';
 
 type Tool = 'pen' | 'rect' | 'label' | 'eraser' | 'wall';
 type WallDirection = 'horizontal' | 'vertical' | 'diagonal' | null;
@@ -8,6 +8,7 @@ interface Props {
   data: LayoutData;
   onUpdate: (d: LayoutData) => void;
   onWallPlaced?: (x: number, y: number, direction: WallDirection) => void;
+  walls?: WallData[];
 }
 
 const COLORS = [
@@ -20,8 +21,11 @@ const COLORS = [
 
 const STROKE_WIDTH = 2;
 const ERASER_WIDTH = 20;
+const SCALE_FACTOR = 0.5; // 1 inch = 0.5 pixels (120" = 60px on canvas)
+const WALL_COLOR = '#F5C42A'; // Yellow
+const WALL_WIDTH = 4;
 
-export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
+export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[0].hex);
@@ -202,6 +206,16 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
     }
 
     setIsDrawing(false);
+    autoSaveCanvas();
+  };
+
+  const autoSaveCanvas = () => {
+    if (!canvas) return;
+    const canvasData = canvas.toDataURL('image/png');
+    onUpdate({
+      canvasData,
+      lastUpdated: new Date().toISOString(),
+    });
   };
 
   const handleUndo = () => {
@@ -218,6 +232,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       setHistory([]);
     }
+    autoSaveCanvas();
   };
 
   const handleClear = () => {
@@ -227,16 +242,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
     ctx.fillStyle = '#0d1628';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setHistory([]);
-  };
-
-  const handleSave = () => {
-    if (!canvas) return;
-
-    const canvasData = canvas.toDataURL('image/png');
-    onUpdate({
-      canvasData,
-      lastUpdated: new Date().toISOString(),
-    });
+    autoSaveCanvas();
   };
 
   const handleAddLabel = () => {
@@ -264,7 +270,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
         }
       }
     };
-  }, [canvas, onUpdate]);
+  }, [canvas]);
 
   return (
     <div className="layout-tab">
@@ -350,10 +356,6 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced }: Props) {
 
         <button className="btn btn-sm btn-ghost" onClick={handleClear} title="Clear canvas">
           🗑️ Clear
-        </button>
-
-        <button className="btn btn-sm btn-primary" onClick={handleSave} title="Save layout">
-          💾 Save
         </button>
       </div>
 

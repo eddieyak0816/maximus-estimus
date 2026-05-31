@@ -66,7 +66,7 @@ export default function AssessmentDetail() {
   const [activeTab, setActiveTab] = useState<TabId>('measurements');
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
   const [showReassignDropdown, setShowReassignDropdown] = useState(false);
-  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: 'horizontal' | 'vertical' | 'diagonal' | null }>({ show: false, wallIndex: 0, direction: null });
+  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: 'horizontal' | 'vertical' | 'diagonal' | null; step: 'select' | 'enter-data' }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
 
   // Load users for reassignment (admin only)
   useEffect(() => {
@@ -220,36 +220,38 @@ export default function AssessmentDetail() {
   const handleWallPlaced = (_x: number, _y: number, direction: 'horizontal' | 'vertical' | 'diagonal' | null) => {
     console.log('🎯 handleWallPlaced called:', { direction, activeJobType: activeJob?.type });
     if (!direction) return;
-    // Find next available wall index (A=0, B=1, C=2, D=3, E=4, etc.)
-    let wallIndex = 0;
-    if (activeJob?.type === 'Kitchen' && activeJob.kitchen) {
-      wallIndex = activeJob.kitchen.measurements.walls.length;
-    } else if (activeJob?.type === 'Bathroom' && activeJob.bathroom) {
-      wallIndex = activeJob.bathroom.measurements.walls.length;
-    }
-    console.log('🎯 Setting wallDialog state:', { show: true, wallIndex, direction });
-    setWallDialog({ show: true, wallIndex, direction });
+    console.log('🎯 Opening wall selector dialog');
+    setWallDialog({ show: true, wallIndex: 0, direction, step: 'select' });
   };
 
-  const handleWallMeasurementSave = (length: string) => {
+  const handleWallMeasurementSave = (wallIndex: number, length: string, name: string) => {
+    console.log('💾 handleWallMeasurementSave called:', { wallIndex, length, name });
     if (!activeJob || !id) return;
 
-    const wallIndex = wallDialog.wallIndex;
-    const wall: WallData = { length };
+    const wallLabel = String.fromCharCode(65 + wallIndex);
+    const wall: WallData = { length, name: name || undefined };
 
     if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
       const walls = [...activeJob.kitchen.measurements.walls];
-      while (walls.length <= wallIndex) walls.push({});
-      walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      if (walls[wallIndex]) {
+        walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      } else {
+        walls[wallIndex] = wall;
+      }
       updateJobKitchen(id, activeJob.id, { ...activeJob.kitchen, measurements: { ...activeJob.kitchen.measurements, walls } });
+      console.log(`✅ Wall ${wallLabel} saved to Kitchen measurements:`, walls[wallIndex]);
     } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
       const walls = [...activeJob.bathroom.measurements.walls];
-      while (walls.length <= wallIndex) walls.push({});
-      walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      if (walls[wallIndex]) {
+        walls[wallIndex] = { ...walls[wallIndex], ...wall };
+      } else {
+        walls[wallIndex] = wall;
+      }
       updateJobBathroom(id, activeJob.id, { ...activeJob.bathroom, measurements: { ...activeJob.bathroom.measurements, walls } });
+      console.log(`✅ Wall ${wallLabel} saved to Bathroom measurements:`, walls[wallIndex]);
     }
 
-    setWallDialog({ show: false, wallIndex: 0, direction: null });
+    setWallDialog({ show: false, wallIndex: 0, direction: null, step: 'select' });
   };
 
   const renderTabContent = () => {
@@ -547,14 +549,33 @@ export default function AssessmentDetail() {
         </div>
       )}
 
-      {wallDialog.show && wallDialog.direction && (
-        <WallMeasurementDialog
-          wallDirection={wallDialog.direction}
-          wallLabel={String.fromCharCode(65 + wallDialog.wallIndex)}
-          onSave={handleWallMeasurementSave}
-          onCancel={() => setWallDialog({ show: false, wallIndex: 0, direction: null })}
-        />
-      )}
+      {wallDialog.show && wallDialog.direction && (() => {
+        const walls = activeJob?.type === 'Kitchen' && activeJob.kitchen
+          ? activeJob.kitchen.measurements.walls
+          : activeJob?.type === 'Bathroom' && activeJob.bathroom
+            ? activeJob.bathroom.measurements.walls
+            : [];
+        const WALL_LABELS = ['A', 'B', 'C', 'D'];
+        const availableWalls = WALL_LABELS.map((label, i) => {
+          const wall = walls?.[i];
+          const length = wall?.length;
+          const numericLength = length ? parseFloat(String(length)) : 0;
+          const hasData = numericLength > 0;
+          return {
+            index: i,
+            label,
+            hasData,
+          };
+        });
+        return (
+          <WallMeasurementDialog
+            wallDirection={wallDialog.direction}
+            availableWalls={availableWalls}
+            onSave={handleWallMeasurementSave}
+            onCancel={() => setWallDialog({ show: false, wallIndex: 0, direction: null, step: 'select' })}
+          />
+        );
+      })()}
     </div>
   );
 }
