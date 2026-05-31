@@ -250,8 +250,6 @@ export default function AssessmentDetail() {
       updateJobBathroom(id, activeJob.id, { ...activeJob.bathroom, measurements: { ...activeJob.bathroom.measurements, walls } });
       console.log(`✅ Wall ${wallLabel} saved to Bathroom measurements:`, walls[wallIndex]);
     }
-
-    setWallDialog({ show: false, wallIndex: 0, direction: null, step: 'select' });
   };
 
   const renderTabContent = () => {
@@ -572,7 +570,7 @@ export default function AssessmentDetail() {
             wallDirection={wallDialog.direction}
             availableWalls={availableWalls}
             onSave={handleWallMeasurementSave}
-            onCancel={() => setWallDialog({ show: false, wallIndex: 0, direction: null, step: 'select' })}
+            onDone={() => setWallDialog({ show: false, wallIndex: 0, direction: null, step: 'select' })}
           />
         );
       })()}

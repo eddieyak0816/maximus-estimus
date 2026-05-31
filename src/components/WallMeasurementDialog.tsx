@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 interface Props {
   wallDirection: 'horizontal' | 'vertical' | 'diagonal';
   onSave: (wallIndex: number, length: string, name: string) => void;
-  onCancel: () => void;
+  onDone: () => void;
   availableWalls: { index: number; label: string; hasData: boolean }[];
 }
 
-export default function WallMeasurementDialog({ wallDirection, onSave, onCancel, availableWalls }: Props) {
+export default function WallMeasurementDialog({ wallDirection, onSave, onDone, availableWalls }: Props) {
   const [step, setStep] = useState<'select' | 'enter-data' | 'place-another'>('select');
   const [selectedWallIndex, setSelectedWallIndex] = useState<number | null>(null);
   const [length, setLength] = useState('');
@@ -54,7 +54,7 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onCancel,
   }[wallDirection];
 
   return (
-    <div className="wall-dialog-overlay" onClick={onCancel}>
+    <div className="wall-dialog-overlay" onClick={onDone}>
       <div className="wall-dialog" onClick={e => e.stopPropagation()}>
         {step === 'place-another' ? (
           <>
@@ -65,7 +65,7 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onCancel,
               </p>
             </div>
             <div className="wall-dialog-buttons">
-              <button className="btn btn-ghost" onClick={onCancel}>
+              <button className="btn btn-ghost" onClick={onDone}>
                 Done
               </button>
               <button className="btn btn-primary" onClick={handlePlaceAnother}>
@@ -96,7 +96,7 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onCancel,
               </div>
             </div>
             <div className="wall-dialog-buttons">
-              <button className="btn btn-ghost" onClick={onCancel}>
+              <button className="btn btn-ghost" onClick={onDone}>
                 Cancel
               </button>
             </div>
