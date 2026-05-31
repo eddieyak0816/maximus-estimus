@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 29, 2026 (Session 5)  
+> **Last Updated:** May 30, 2026 (Session 6)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅ + UI Polish & Data Indicators ✅
+> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅ + UI Polish & Data Indicators ✅ + Wall Placement UI ✅
 
 ---
 
@@ -356,21 +356,23 @@
   - Added 📐 Layout tab to Kitchen/Bathroom jobs for visual wall placement
   - **Wall Tool Buttons:** Three new toolbar buttons (H-Wall, V-Wall, D-Wall) for placing horizontal, vertical, diagonal walls
   - **Wall Selector Dialog:** Two-step dialog process:
-    - Step 1: Show available walls (A, B, C, D) with greyed-out walls that already have data
+    - Step 1: Show available walls (A, B, C, D) - only walls with zero length are selectable
     - Step 2: Enter wall length + optional custom name
   - **Wall Naming:** Users can optionally name walls (e.g., "Kitchen Sink Wall", "Breakfast Nook Side")
   - **Smart Wall Selection:** Pre-initialized walls (A, B, C, D) prevent accidental overwrites of existing data
   - **Infinite Loop Fix:** Resolved React update depth issues by removing `onUpdate` from LayoutTab effect dependencies
   - **Quick Edit Feature:** Click ✎ button next to wall length in collapsed view to quickly edit length without expanding section
-  - **Console Logging:** Comprehensive logs for debugging wall placement flow
+  - **Canvas Auto-Save:** Drawing, erasing, undo, and clear all auto-save immediately (removed manual Save button)
+  - **Wall Data Validation:** A wall only counts as "has data" if length > 0 (handles "0"", 0, empty strings correctly)
   - **Files Created:** src/components/WallMeasurementDialog.tsx (refactored with selector step)
   - **Files Modified:** src/pages/AssessmentDetail.tsx, src/components/LayoutTab.tsx, src/components/WallSection.tsx, src/index.css
 
 **Next Phase (In Progress):**
-- Scale walls on canvas based on actual length (visual representation)
+- Draw walls to scale on canvas based on actual length (visual representation)
+- Simplify wall placement flow: angle selector → length entry (one consolidated dialog)
 - Allow chaining wall placement: after placing Wall A, prompt user if they want to place Wall B
 - Attachment selection: show which end of previous wall to attach new wall to
-- Compass-style direction selector for wall angles
+- Compass-style direction selector for wall angles (45° increments)
 
 ### 🔲 Next Up (Priority Order)
 
