@@ -252,6 +252,28 @@ export default function AssessmentDetail() {
     }
   };
 
+  const handleWallDelete = (wallIndex: number) => {
+    if (!activeJob || !id) return;
+
+    const wallLabel = String.fromCharCode(65 + wallIndex);
+
+    if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
+      const walls = [...activeJob.kitchen.measurements.walls];
+      walls[wallIndex] = { ...walls[wallIndex], length: '' };
+      updateJobKitchen(id, activeJob.id, { ...activeJob.kitchen, measurements: { ...activeJob.kitchen.measurements, walls } });
+      console.log(`🗑️ Wall ${wallLabel} deleted from Kitchen`);
+    } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
+      const walls = [...activeJob.bathroom.measurements.walls];
+      walls[wallIndex] = { ...walls[wallIndex], length: '' };
+      updateJobBathroom(id, activeJob.id, { ...activeJob.bathroom, measurements: { ...activeJob.bathroom.measurements, walls } });
+      console.log(`🗑️ Wall ${wallLabel} deleted from Bathroom`);
+    }
+  };
+
+  const handleWallEdit = (wallIndex: number) => {
+    setActiveTab('measurements');
+  };
+
   const renderTabContent = () => {
     if (!activeJob) return null;
 
@@ -271,7 +293,7 @@ export default function AssessmentDetail() {
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
       }
       if (activeTab === 'layout') {
-        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={bath.measurements.walls} />;
+        return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={bath.measurements.walls} onWallDelete={handleWallDelete} onWallEdit={handleWallEdit} />;
       }
       return <BathroomPhotos data={bath.photos}
         measurements={bath.measurements}
@@ -377,7 +399,7 @@ export default function AssessmentDetail() {
         onUpdate={q => updateKitchen({ ...activeJob.kitchen, questions: q })} />;
     }
     if (activeTab === 'layout') {
-      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={activeJob.kitchen.measurements.walls} />;
+      return <LayoutTab data={activeJob.layout || {}} onUpdate={handleLayoutUpdate} onWallPlaced={handleWallPlaced} walls={activeJob.kitchen.measurements.walls} onWallDelete={handleWallDelete} onWallEdit={handleWallEdit} />;
     }
     return <KitchenPhotos data={activeJob.kitchen.photos} measurements={activeJob.kitchen.measurements}
       assessmentId={id!} jobId={activeJob.id}

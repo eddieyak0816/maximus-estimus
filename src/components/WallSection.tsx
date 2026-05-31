@@ -417,7 +417,7 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                 )}
               </div>}
           <div className="wall-sub">
-            {data.length && <span style={{ fontWeight: 600, color: 'var(--brand-yellow)', marginRight: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+            {data.length && parseFloat(String(data.length)) > 0 && <span style={{ fontWeight: 600, color: 'var(--brand-yellow)', marginRight: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
               Length: {data.length}
               <button className="icon-btn" title="Edit length" style={{ fontSize: '12px', padding: '4px' }} onClick={e => { e.stopPropagation(); setEditingLength(true); setLengthDraft(data.length || ''); }}>✎</button>
             </span>}

@@ -8,6 +8,8 @@ interface Props {
   data: LayoutData;
   onUpdate: (d: LayoutData) => void;
   onWallPlaced?: (x: number, y: number, direction: WallDirection) => void;
+  onWallDelete?: (wallIndex: number) => void;
+  onWallEdit?: (wallIndex: number) => void;
   walls?: WallData[];
 }
 
@@ -25,7 +27,7 @@ const SCALE_FACTOR = 0.5; // 1 inch = 0.5 pixels (120" = 60px on canvas)
 const WALL_COLOR = '#F5C42A'; // Yellow
 const WALL_WIDTH = 4;
 
-export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: Props) {
+export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, onWallEdit, walls = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[0].hex);
@@ -35,6 +37,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
   const [isPlacingLabel, setIsPlacingLabel] = useState(false);
   const [rectStart, setRectStart] = useState<{ x: number; y: number } | null>(null);
   const [wallDirection, setWallDirection] = useState<WallDirection>(null);
+  const [selectedWallIndex, setSelectedWallIndex] = useState<number | null>(null);
 
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
@@ -100,6 +103,23 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Check for wall selection when not using a drawing tool
+    if (tool === 'pen' && !isDrawing) {
+      try {
+        const wallIndex = getWallAtPoint(x, y);
+        if (wallIndex !== null) {
+          console.log('🎯 Wall selected:', wallIndex);
+          setSelectedWallIndex(wallIndex);
+          return;
+        } else {
+          setSelectedWallIndex(null);
+        }
+      } catch (error) {
+        console.error('❌ Error selecting wall:', error);
+        setSelectedWallIndex(null);
+      }
+    }
 
     if (tool === 'wall' && wallDirection) {
       saveToHistory();
@@ -251,6 +271,79 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setHistory([]);
     autoSaveCanvas();
+  };
+
+  const getWallAtPoint = (x: number, y: number): number | null => {
+    if (!walls || walls.length === 0) return null;
+
+    const WALL_LABELS = ['A', 'B', 'C', 'D'];
+    const START_X = 80;
+    const START_Y = 80;
+    const SPACING_X = 350;
+    const SPACING_Y = 200;
+    const HIT_DISTANCE = 20; // Pixels from wall line to count as a hit
+
+    for (let index = 0; index < walls.length; index++) {
+      const wall = walls[index];
+      if (!wall.length) continue;
+
+      const numericLength = parseFloat(String(wall.length));
+      if (numericLength <= 0) continue;
+
+      const pixelLength = numericLength * SCALE_FACTOR;
+      const row = Math.floor(index / 2);
+      const col = index % 2;
+      const startX = START_X + col * SPACING_X;
+      const startY = START_Y + row * SPACING_Y;
+
+      const direction = wall.direction || 'horizontal';
+      let endX, endY;
+
+      if (direction === 'vertical') {
+        endX = startX;
+        endY = startY + pixelLength;
+      } else if (direction === 'diagonal') {
+        endX = startX + pixelLength * 0.707;
+        endY = startY + pixelLength * 0.707;
+      } else {
+        endX = startX + pixelLength;
+        endY = startY;
+      }
+
+      // Distance from point to line segment
+      const A = x - startX;
+      const B = y - startY;
+      const C = endX - startX;
+      const D = endY - startY;
+
+      const dot = A * C + B * D;
+      const lenSq = C * C + D * D;
+      let param = -1;
+
+      if (lenSq !== 0) param = dot / lenSq;
+
+      let xx, yy;
+      if (param < 0) {
+        xx = startX;
+        yy = startY;
+      } else if (param > 1) {
+        xx = endX;
+        yy = endY;
+      } else {
+        xx = startX + param * C;
+        yy = startY + param * D;
+      }
+
+      const dx = x - xx;
+      const dy = y - yy;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < HIT_DISTANCE) {
+        return index;
+      }
+    }
+
+    return null;
   };
 
   const drawWallsToScale = () => {
@@ -462,6 +555,46 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, walls = [] }: 
           </button>
           <button className="btn btn-sm btn-ghost" onClick={() => setIsPlacingLabel(false)}>
             Cancel
+          </button>
+        </div>
+      )}
+
+      {selectedWallIndex !== null && walls && walls.length > selectedWallIndex && walls[selectedWallIndex] && (
+        <div style={{
+          padding: '12px',
+          background: 'var(--surface)',
+          borderTop: '1px solid var(--border)',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ flex: 1 }}>
+            <strong>Wall {String.fromCharCode(65 + selectedWallIndex)}</strong>
+            {walls[selectedWallIndex]?.name && ` - ${walls[selectedWallIndex].name}`}
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Length: {walls[selectedWallIndex]?.length || '—'} | Direction: {walls[selectedWallIndex]?.direction || 'horizontal'}
+            </div>
+          </div>
+          {onWallEdit && (
+            <button className="btn btn-sm btn-primary" onClick={() => {
+              console.log('📝 Editing wall:', selectedWallIndex);
+              onWallEdit(selectedWallIndex);
+            }}>
+              ✎ Edit
+            </button>
+          )}
+          {onWallDelete && (
+            <button className="btn btn-sm btn-ghost" onClick={() => {
+              console.log('🗑️ Deleting wall:', selectedWallIndex);
+              onWallDelete(selectedWallIndex);
+              setSelectedWallIndex(null);
+            }}>
+              🗑️ Delete
+            </button>
+          )}
+          <button className="btn btn-sm btn-ghost" onClick={() => setSelectedWallIndex(null)}>
+            ✕
           </button>
         </div>
       )}
