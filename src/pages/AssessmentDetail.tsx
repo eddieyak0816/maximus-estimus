@@ -32,7 +32,7 @@ import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   AssessmentStatus, KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
-  LayoutData, WallData,
+  LayoutData, WallData, WallDirection,
 } from '../types';
 
 const STATUS_OPTIONS: AssessmentStatus[] = ['draft', 'in-progress', 'complete'];
@@ -66,7 +66,7 @@ export default function AssessmentDetail() {
   const [activeTab, setActiveTab] = useState<TabId>('measurements');
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
   const [showReassignDropdown, setShowReassignDropdown] = useState(false);
-  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: 'horizontal' | 'vertical' | 'diagonal' | null; step: 'select' | 'enter-data' }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
+  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: WallDirection; step: 'select' | 'enter-data' }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
 
   // Load users for reassignment (admin only)
   useEffect(() => {
@@ -217,19 +217,19 @@ export default function AssessmentDetail() {
     updateJobLayout(id!, activeJob.id, layout);
   }, [id, activeJob]);
 
-  const handleWallPlaced = (_x: number, _y: number, direction: 'horizontal' | 'vertical' | 'diagonal' | null) => {
+  const handleWallPlaced = (_x: number, _y: number, direction: WallDirection) => {
     console.log('🎯 handleWallPlaced called:', { direction, activeJobType: activeJob?.type });
     if (!direction) return;
     console.log('🎯 Opening wall selector dialog');
     setWallDialog({ show: true, wallIndex: 0, direction, step: 'select' });
   };
 
-  const handleWallMeasurementSave = (wallIndex: number, length: string, name: string) => {
-    console.log('💾 handleWallMeasurementSave called:', { wallIndex, length, name });
+  const handleWallMeasurementSave = (wallIndex: number, length: string, name: string, direction: WallDirection) => {
+    console.log('💾 handleWallMeasurementSave called:', { wallIndex, length, name, direction });
     if (!activeJob || !id) return;
 
     const wallLabel = String.fromCharCode(65 + wallIndex);
-    const wall: WallData = { length, name: name || undefined };
+    const wall: WallData = { length, name: name || undefined, direction: direction || undefined };
 
     if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
       const walls = [...activeJob.kitchen.measurements.walls];
@@ -270,7 +270,7 @@ export default function AssessmentDetail() {
     }
   };
 
-  const handleWallEdit = (wallIndex: number) => {
+  const handleWallEdit = (_wallIndex: number) => {
     setActiveTab('measurements');
   };
 

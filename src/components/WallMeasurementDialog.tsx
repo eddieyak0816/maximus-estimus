@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import type { WallDirection } from '../types';
 
 interface Props {
-  wallDirection: 'horizontal' | 'vertical' | 'diagonal';
-  onSave: (wallIndex: number, length: string, name: string) => void;
+  wallDirection: WallDirection;
+  onSave: (wallIndex: number, length: string, name: string, direction: WallDirection) => void;
   onDone: () => void;
   availableWalls: { index: number; label: string; hasData: boolean }[];
 }
@@ -36,7 +37,7 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onDone, a
       alert('Please enter a wall length');
       return;
     }
-    onSave(selectedWallIndex, length, wallName);
+    onSave(selectedWallIndex, length, wallName, wallDirection);
     setStep('place-another');
   };
 
@@ -47,11 +48,17 @@ export default function WallMeasurementDialog({ wallDirection, onSave, onDone, a
     setWallName('');
   };
 
-  const directionLabel = {
-    horizontal: 'Horizontal Wall',
-    vertical: 'Vertical Wall',
-    diagonal: 'Diagonal Wall',
-  }[wallDirection];
+  const directionLabels: Record<string, string> = {
+    'N': 'North Wall',
+    'NE': 'Northeast Wall',
+    'E': 'East Wall',
+    'SE': 'Southeast Wall',
+    'S': 'South Wall',
+    'SW': 'Southwest Wall',
+    'W': 'West Wall',
+    'NW': 'Northwest Wall',
+  };
+  const directionLabel = wallDirection ? directionLabels[wallDirection] : 'Wall';
 
   return (
     <div className="wall-dialog-overlay" onClick={onDone}>

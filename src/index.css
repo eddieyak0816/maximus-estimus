@@ -1786,6 +1786,73 @@ input, select, textarea { font-family: var(--font); }
   }
 }
 
+.compass-selector-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-grid {
+  display: grid;
+  grid-template-columns: 36px 36px 36px;
+  gap: 4px;
+  align-items: center;
+  justify-items: center;
+}
+
+.compass-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-btn:hover {
+  background: var(--surface-raised);
+  border-color: var(--brand-yellow);
+}
+
+.compass-btn.active {
+  background: var(--brand-blue);
+  border-color: var(--brand-yellow);
+  box-shadow: 0 0 8px rgba(245,196,42,0.4);
+  font-weight: 700;
+}
+
+.compass-center {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .compass-grid {
+    grid-template-columns: 32px 32px 32px;
+    gap: 3px;
+  }
+
+  .compass-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .compass-center {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 /* ===== Modal ===== */
 .modal-backdrop {
   position: fixed;

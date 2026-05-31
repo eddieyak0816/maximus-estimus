@@ -17,7 +17,21 @@
       "Bash(cd \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\" && rm -f .git/AUTO_MERGE.lock && git log --oneline -3)",
       "mcp__jcodemunch__resolve_repo",
       "mcp__jcodemunch__suggest_queries",
-      "PowerShell(Copy-Item \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\maximus-estimus-setup\\\\node_modules\\\\@anthropic-ai\" \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\\\\node_modules\\\\@anthropic-ai\" -Recurse -Force)"
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\Eddie\\\\AppData\\\\Local\\\\Temp\\\\maximus-estimus-setup\\\\node_modules\\\\@anthropic-ai\" \"g:\\\\My Drive\\\\Maximus Digital Marketing\\\\Maximus Estimus\\\\node_modules\\\\@anthropic-ai\" -Recurse -Force)",
+      "Bash(git reset *)",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(git clean *)",
+      "Bash(git restore *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "Bash(pkill -9 node)",
+      "Bash(tee /tmp/vite-port.log)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 14980 /F)",
+      "Bash(fg)"
     ],
     "additionalDirectories": [
       "g:\\My Drive\\Maximus Digital Marketing\\Maximus Estimus\\.git"

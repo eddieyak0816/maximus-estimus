@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import type { LayoutData, WallData } from '../types';
+import type { LayoutData, WallData, WallDirection } from '../types';
 
 type Tool = 'pen' | 'rect' | 'label' | 'eraser' | 'wall';
-type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
 interface Props {
   data: LayoutData;
@@ -29,6 +28,7 @@ const WALL_WIDTH = 4;
 
 export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, onWallEdit, walls = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasDataRef = useRef<string | undefined>(undefined);
   const [tool, setTool] = useState<Tool>('pen');
   const [color, setColor] = useState(COLORS[0].hex);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -41,6 +41,11 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
 
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
+
+  // Track canvas data in ref to avoid dependency cycle
+  useEffect(() => {
+    canvasDataRef.current = data.canvasData;
+  }, [data.canvasData]);
 
   // Auto-initialize canvas by triggering rect tool on mount
   useEffect(() => {
@@ -55,7 +60,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     const canvasEl = canvasRef.current;
     if (!canvasEl) return;
 
-    const resizeObserver = new ResizeObserver(() => {
+    const redrawCanvas = () => {
       const ctx = canvasEl.getContext('2d');
       if (!ctx) return;
 
@@ -65,31 +70,38 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
       canvasEl.width = rect.width;
       canvasEl.height = rect.height;
 
-      if (data.canvasData) {
+      if (canvasDataRef.current) {
         const img = new Image();
         img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = data.canvasData;
+        img.src = canvasDataRef.current!;
       } else {
         ctx.fillStyle = '#0d1628';
         ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
       }
-    });
+    };
 
+    const resizeObserver = new ResizeObserver(redrawCanvas);
     const parent = canvasEl.parentElement;
     if (parent) {
       resizeObserver.observe(parent);
     }
 
+    // Initial draw
+    redrawCanvas();
+
     return () => resizeObserver.disconnect();
-  }, [data.canvasData]);
+  }, []);
 
   // Draw walls whenever walls data changes
   useEffect(() => {
-    if (!canvas || !ctx) return;
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
+    const ctx = canvasEl.getContext('2d');
+    if (!ctx) return;
 
     // Just redraw walls on top of current canvas (preserves freehand drawings)
     drawWallsToScale();
-  }, [walls, canvas, ctx]);
+  }, [walls]);
 
   const saveToHistory = () => {
     if (!canvas || !ctx) return;
@@ -124,20 +136,20 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     if (tool === 'wall' && wallDirection) {
       saveToHistory();
 
-      // Draw wall line
+      // Draw preview wall line with compass direction
       const wallLength = 60; // Default visual length on canvas
       ctx.strokeStyle = '#F5C42A';
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(x, y);
 
-      if (wallDirection === 'horizontal') {
-        ctx.lineTo(x + wallLength, y);
-      } else if (wallDirection === 'vertical') {
-        ctx.lineTo(x, y + wallLength);
-      } else if (wallDirection === 'diagonal') {
-        ctx.lineTo(x + wallLength * 0.707, y + wallLength * 0.707);
-      }
+      const angles: Record<string, number> = {
+        'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
+      };
+      const angle = (angles[wallDirection] || 0) * (Math.PI / 180);
+      const endX = x + wallLength * Math.cos(angle);
+      const endY = y + wallLength * Math.sin(angle);
+      ctx.lineTo(endX, endY);
       ctx.stroke();
 
       // Call callback to open measurement dialog
@@ -276,7 +288,6 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
   const getWallAtPoint = (x: number, y: number): number | null => {
     if (!walls || walls.length === 0) return null;
 
-    const WALL_LABELS = ['A', 'B', 'C', 'D'];
     const START_X = 80;
     const START_Y = 80;
     const SPACING_X = 350;
@@ -296,19 +307,13 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
       const startX = START_X + col * SPACING_X;
       const startY = START_Y + row * SPACING_Y;
 
-      const direction = wall.direction || 'horizontal';
-      let endX, endY;
-
-      if (direction === 'vertical') {
-        endX = startX;
-        endY = startY + pixelLength;
-      } else if (direction === 'diagonal') {
-        endX = startX + pixelLength * 0.707;
-        endY = startY + pixelLength * 0.707;
-      } else {
-        endX = startX + pixelLength;
-        endY = startY;
-      }
+      const direction = wall.direction || 'E';
+      const angles: Record<string, number> = {
+        'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
+      };
+      const angle = (angles[direction as string] || 0) * (Math.PI / 180);
+      const endX = startX + pixelLength * Math.cos(angle);
+      const endY = startY + pixelLength * Math.sin(angle);
 
       // Distance from point to line segment
       const A = x - startX;
@@ -425,19 +430,6 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (canvas) {
-        const canvasData = canvas.toDataURL('image/png');
-        if (canvasData !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==') {
-          onUpdate({
-            canvasData,
-            lastUpdated: new Date().toISOString(),
-          });
-        }
-      }
-    };
-  }, [canvas]);
 
   return (
     <div className="layout-tab">
@@ -476,29 +468,21 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
 
         <div style={{ borderLeft: '1px solid rgba(255,255,255,0.2)', height: '24px', margin: '0 6px' }} />
 
-        <button
-          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'horizontal' ? 'btn-primary' : 'btn-ghost'}`}
-          onClick={() => { setTool('wall'); setWallDirection('horizontal'); }}
-          title="Place horizontal wall"
-        >
-          ➡️ H-Wall
-        </button>
+        <div className="compass-selector-wrap">
+          <div className="compass-grid">
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'NW' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('NW'); }} title="Northwest">↖️</button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'N' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('N'); }} title="North">⬆️</button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'NE' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('NE'); }} title="Northeast">↗️</button>
 
-        <button
-          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'vertical' ? 'btn-primary' : 'btn-ghost'}`}
-          onClick={() => { setTool('wall'); setWallDirection('vertical'); }}
-          title="Place vertical wall"
-        >
-          ⬇️ V-Wall
-        </button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'W' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('W'); }} title="West">⬅️</button>
+            <div className="compass-center" />
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'E' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('E'); }} title="East">➡️</button>
 
-        <button
-          className={`btn btn-sm ${tool === 'wall' && wallDirection === 'diagonal' ? 'btn-primary' : 'btn-ghost'}`}
-          onClick={() => { setTool('wall'); setWallDirection('diagonal'); }}
-          title="Place diagonal wall"
-        >
-          ↘️ D-Wall
-        </button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'SW' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('SW'); }} title="Southwest">↙️</button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'S' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('S'); }} title="South">⬇️</button>
+            <button className={`compass-btn ${tool === 'wall' && wallDirection === 'SE' ? 'active' : ''}`} onClick={() => { setTool('wall'); setWallDirection('SE'); }} title="Southeast">↘️</button>
+          </div>
+        </div>
 
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           {COLORS.map(c => (

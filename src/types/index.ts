@@ -1,5 +1,6 @@
 export type AssessmentStatus = 'draft' | 'in-progress' | 'complete';
 export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
+export type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface ClientInfo {
@@ -63,6 +64,7 @@ export interface WallLengthPiece {
 export interface WallData {
   name?: string;
   length?: string;
+  direction?: 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
   lengthPieces?: WallLengthPiece[];
   ceilOvr?: boolean;
   ceilH?: string;
