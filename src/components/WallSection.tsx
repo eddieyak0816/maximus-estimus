@@ -310,6 +310,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [pieceDraft, setPieceDraft] = useState('');
   const [pieceUnit, setPieceUnit] = useState<'"' | "'">('"');
   const [showWallCamera, setShowWallCamera] = useState(false);
+  const [editingLength, setEditingLength] = useState(false);
+  const [lengthDraft, setLengthDraft] = useState(data.length || '');
   const dropdownRef = useRef<any>(null);
   const pieceInputRef = useRef<HTMLInputElement>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
@@ -415,7 +417,10 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
                 )}
               </div>}
           <div className="wall-sub">
-            {data.length && <span style={{ fontWeight: 600, color: 'var(--brand-yellow)', marginRight: 12 }}>Length: {data.length}</span>}
+            {data.length && <span style={{ fontWeight: 600, color: 'var(--brand-yellow)', marginRight: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+              Length: {data.length}
+              <button className="icon-btn" title="Edit length" style={{ fontSize: '12px', padding: '4px' }} onClick={e => { e.stopPropagation(); setEditingLength(true); setLengthDraft(data.length || ''); }}>✎</button>
+            </span>}
             {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}
           </div>
         </div>
@@ -672,6 +677,42 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
           onCapture={handleWallPhotoCapture}
           onClose={() => setShowWallCamera(false)}
         />
+      )}
+
+      {editingLength && (
+        <div className="wall-dialog-overlay" onClick={() => setEditingLength(false)}>
+          <div className="wall-dialog" onClick={e => e.stopPropagation()}>
+            <h3 className="wall-dialog-title">Edit {displayName} Length</h3>
+            <div className="wall-dialog-content">
+              <label className="wall-dialog-label">Wall Length:</label>
+              <input
+                type="text"
+                className="wall-dialog-input"
+                placeholder="e.g., 12, 12.5, 15 ft"
+                value={lengthDraft}
+                onChange={e => setLengthDraft(e.target.value)}
+                autoFocus
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    u('length', lengthDraft);
+                    setEditingLength(false);
+                  }
+                }}
+              />
+            </div>
+            <div className="wall-dialog-buttons">
+              <button className="btn btn-ghost" onClick={() => setEditingLength(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={() => {
+                u('length', lengthDraft);
+                setEditingLength(false);
+              }}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

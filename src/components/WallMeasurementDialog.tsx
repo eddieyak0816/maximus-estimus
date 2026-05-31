@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   wallDirection: 'horizontal' | 'vertical' | 'diagonal';
@@ -9,6 +9,15 @@ interface Props {
 
 export default function WallMeasurementDialog({ wallDirection, wallLabel, onSave, onCancel }: Props) {
   const [length, setLength] = useState('');
+
+  useEffect(() => {
+    console.log('🎯 WallMeasurementDialog MOUNTED:', { wallDirection, wallLabel });
+    return () => console.log('🎯 WallMeasurementDialog UNMOUNTED');
+  }, [wallDirection, wallLabel]);
+
+  useEffect(() => {
+    console.log('📍 Dialog input value changed:', length);
+  }, [length]);
 
   const handleSave = () => {
     if (!length.trim()) {

@@ -2517,7 +2517,7 @@ input, select, textarea { font-family: var(--font); }
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2576,4 +2576,13 @@ input, select, textarea { font-family: var(--font); }
 
 .wall-dialog-buttons .btn {
   min-width: 100px;
+}
+
+/* Dialog visibility fix - ensure it's visible above overlay */
+.wall-dialog {
+  z-index: 1001 !important;
+  border: 3px solid #F5C42A !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }

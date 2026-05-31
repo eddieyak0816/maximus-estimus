@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAssessmentStore } from '../store/assessmentStore';
@@ -212,12 +212,13 @@ export default function AssessmentDetail() {
     return false;
   };
 
-  const handleLayoutUpdate = (layout: LayoutData) => {
+  const handleLayoutUpdate = useCallback((layout: LayoutData) => {
     if (!activeJob) return;
     updateJobLayout(id!, activeJob.id, layout);
-  };
+  }, [id, activeJob]);
 
   const handleWallPlaced = (_x: number, _y: number, direction: 'horizontal' | 'vertical' | 'diagonal' | null) => {
+    console.log('🎯 handleWallPlaced called:', { direction, activeJobType: activeJob?.type });
     if (!direction) return;
     // Find next available wall index (A=0, B=1, C=2, D=3, E=4, etc.)
     let wallIndex = 0;
@@ -226,6 +227,7 @@ export default function AssessmentDetail() {
     } else if (activeJob?.type === 'Bathroom' && activeJob.bathroom) {
       wallIndex = activeJob.bathroom.measurements.walls.length;
     }
+    console.log('🎯 Setting wallDialog state:', { show: true, wallIndex, direction });
     setWallDialog({ show: true, wallIndex, direction });
   };
 
