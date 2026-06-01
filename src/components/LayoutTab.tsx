@@ -39,9 +39,49 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
   const [rectStart, setRectStart] = useState<{ x: number; y: number } | null>(null);
   const [wallDirection, setWallDirection] = useState<WallDirection>(null);
   const [selectedWallIndex, setSelectedWallIndex] = useState<number | null>(null);
+  const [selectedEndpoint, setSelectedEndpoint] = useState<{ x: number; y: number } | null>(null);
 
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
+
+  // Helper: Get all wall endpoints for rendering and hit-detection
+  const getWallEndpoints = () => {
+    if (!walls || walls.length === 0) return [];
+
+    const START_X = 80;
+    const START_Y = 80;
+    const SPACING_X = 350;
+    const SPACING_Y = 200;
+
+    return walls.map((wall, index) => {
+      if (!wall.length) return null;
+
+      const numericLength = parseFloat(String(wall.length));
+      if (numericLength <= 0) return null;
+
+      const pixelLength = numericLength * SCALE_FACTOR;
+
+      // Use stored position if available, otherwise use grid layout
+      const storedPos = data.wallPositions?.[index];
+      const row = Math.floor(index / 2);
+      const col = index % 2;
+      const defaultStartX = START_X + col * SPACING_X;
+      const defaultStartY = START_Y + row * SPACING_Y;
+
+      const startX = storedPos?.x ?? defaultStartX;
+      const startY = storedPos?.y ?? defaultStartY;
+
+      const direction = wall.direction || 'E';
+      const angles: Record<string, number> = {
+        'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
+      };
+      const angle = (angles[direction as string] || 0) * (Math.PI / 180);
+      const endX = startX + pixelLength * Math.cos(angle);
+      const endY = startY + pixelLength * Math.sin(angle);
+
+      return { index, startX, startY, endX, endY, wall };
+    }).filter((e): e is NonNullable<typeof e> => e !== null);
+  };
 
   // Track canvas data in ref to avoid dependency cycle
   useEffect(() => {
@@ -109,63 +149,67 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     if (!ctx) return;
 
     const WALL_LABELS = ['A', 'B', 'C', 'D'];
-    const START_X = 80;
-    const START_Y = 80;
-    const SPACING_X = 350;
-    const SPACING_Y = 200;
 
     const drawWalls = () => {
       // Fill background
       ctx.fillStyle = '#0d1628';
       ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
 
-      // Draw walls if they exist
-      if (walls && walls.length > 0) {
-        walls.forEach((wall, index) => {
-          if (!wall.length) return;
+      // Get all wall endpoints
+      const endpoints = getWallEndpoints();
+      const wallPositions: Record<number, { x: number; y: number }> = {};
 
-          const numericLength = parseFloat(String(wall.length));
-          if (numericLength <= 0) return;
+      // Draw walls
+      endpoints.forEach(({ index, startX, startY, endX, endY, wall }) => {
+        const label = wall.name || WALL_LABELS[index];
 
-          const pixelLength = numericLength * SCALE_FACTOR;
-          const label = wall.name || WALL_LABELS[index];
+        // Draw the wall line
+        ctx.strokeStyle = WALL_COLOR;
+        ctx.lineWidth = WALL_WIDTH;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
 
-          const row = Math.floor(index / 2);
-          const col = index % 2;
-          const startX = START_X + col * SPACING_X;
-          const startY = START_Y + row * SPACING_Y;
+        // Draw wall label above the line
+        ctx.fillStyle = WALL_COLOR;
+        ctx.font = 'bold 16px system-ui';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        const midX = (startX + endX) / 2;
+        const midY = (startY + endY) / 2;
+        const labelOffsetX = -(endY - startY) / 4;
+        const labelOffsetY = (endX - startX) / 4 - 12;
+        ctx.fillText(label, midX + labelOffsetX, midY + labelOffsetY);
 
-          // Draw the wall line
-          ctx.strokeStyle = WALL_COLOR;
-          ctx.lineWidth = WALL_WIDTH;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(startX, startY);
+        // Draw wall length below the line
+        ctx.fillStyle = 'rgba(245, 196, 42, 0.8)';
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`${wall.length}`, midX - labelOffsetX, midY - labelOffsetY);
 
-          const direction = wall.direction || 'E';
-          const angles: Record<string, number> = {
-            'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
-          };
-          const angle = (angles[direction as string] || 0) * (Math.PI / 180);
-          const endX = startX + pixelLength * Math.cos(angle);
-          const endY = startY + pixelLength * Math.sin(angle);
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
+        // Draw endpoint dots
+        const ENDPOINT_RADIUS = 6;
+        ctx.fillStyle = WALL_COLOR;
+        ctx.beginPath();
+        ctx.arc(startX, startY, ENDPOINT_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(endX, endY, ENDPOINT_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
 
-          // Draw wall label above the line
-          ctx.fillStyle = WALL_COLOR;
-          ctx.font = 'bold 16px system-ui';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, startX + pixelLength / 2, startY - 12);
+        // Store position for later use
+        wallPositions[index] = { x: startX, y: startY };
+      });
 
-          // Draw wall length below the line
-          ctx.fillStyle = 'rgba(245, 196, 42, 0.8)';
-          ctx.font = '12px system-ui';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText(`${wall.length}`, startX + pixelLength / 2, startY + 8);
-        });
+      // Draw highlight for selected endpoint
+      if (selectedEndpoint) {
+        ctx.fillStyle = 'rgba(245, 196, 42, 0.4)';
+        ctx.beginPath();
+        ctx.arc(selectedEndpoint.x, selectedEndpoint.y, 12, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // Persist the wall drawing so it survives canvas resets
@@ -174,6 +218,7 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
       onUpdate({
         canvasData,
         lastUpdated: new Date().toISOString(),
+        wallPositions,
       });
     };
 
@@ -188,7 +233,17 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     } else {
       drawWalls();
     }
-  }, [walls, onUpdate]);
+  }, [walls, onUpdate, data.wallPositions, selectedEndpoint]);
+
+  // Auto-trigger wall placement when both endpoint and direction are selected
+  useEffect(() => {
+    if (selectedEndpoint && wallDirection && onWallPlaced) {
+      onWallPlaced(selectedEndpoint.x, selectedEndpoint.y, wallDirection);
+      setWallDirection(null);
+      setTool('pen');
+      setSelectedEndpoint(null);
+    }
+  }, [selectedEndpoint, wallDirection, onWallPlaced]);
 
   const saveToHistory = () => {
     if (!canvas || !ctx) return;
@@ -203,20 +258,43 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Check for wall selection when not using a drawing tool
+    // Check for endpoint selection when not using a drawing tool
     if (tool === 'pen' && !isDrawing) {
       try {
+        // Check if clicked on an endpoint (within 15px)
+        const endpoints = getWallEndpoints();
+        const ENDPOINT_HIT_DISTANCE = 15;
+        for (const { startX, startY, endX, endY } of endpoints) {
+          const distToStart = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+          const distToEnd = Math.sqrt((x - endX) ** 2 + (y - endY) ** 2);
+
+          if (distToStart < ENDPOINT_HIT_DISTANCE) {
+            setSelectedEndpoint({ x: startX, y: startY });
+            setSelectedWallIndex(null);
+            return;
+          }
+          if (distToEnd < ENDPOINT_HIT_DISTANCE) {
+            setSelectedEndpoint({ x: endX, y: endY });
+            setSelectedWallIndex(null);
+            return;
+          }
+        }
+
+        // Check for wall selection (click on wall line)
         const wallIndex = getWallAtPoint(x, y);
         if (wallIndex !== null) {
           console.log('🎯 Wall selected:', wallIndex);
           setSelectedWallIndex(wallIndex);
+          setSelectedEndpoint(null);
           return;
         } else {
           setSelectedWallIndex(null);
+          setSelectedEndpoint(null);
         }
       } catch (error) {
-        console.error('❌ Error selecting wall:', error);
+        console.error('❌ Error selecting wall/endpoint:', error);
         setSelectedWallIndex(null);
+        setSelectedEndpoint(null);
       }
     }
 

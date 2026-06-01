@@ -66,7 +66,7 @@ export default function AssessmentDetail() {
   const [activeTab, setActiveTab] = useState<TabId>('measurements');
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
   const [showReassignDropdown, setShowReassignDropdown] = useState(false);
-  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: WallDirection; step: 'select' | 'enter-data' }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
+  const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: WallDirection; step: 'select' | 'enter-data'; startX?: number; startY?: number }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
 
   // Load users for reassignment (admin only)
   useEffect(() => {
@@ -217,11 +217,11 @@ export default function AssessmentDetail() {
     updateJobLayout(id!, activeJob.id, layout);
   }, [id, activeJob]);
 
-  const handleWallPlaced = (_x: number, _y: number, direction: WallDirection) => {
-    console.log('🎯 handleWallPlaced called:', { direction, activeJobType: activeJob?.type });
+  const handleWallPlaced = (x: number, y: number, direction: WallDirection) => {
+    console.log('🎯 handleWallPlaced called:', { x, y, direction, activeJobType: activeJob?.type });
     if (!direction) return;
     console.log('🎯 Opening wall selector dialog');
-    setWallDialog({ show: true, wallIndex: 0, direction, step: 'select' });
+    setWallDialog({ show: true, wallIndex: 0, direction, step: 'select', startX: x, startY: y });
   };
 
   const handleWallMeasurementSave = (wallIndex: number, length: string, name: string, direction: WallDirection) => {
@@ -231,6 +231,11 @@ export default function AssessmentDetail() {
     const wallLabel = String.fromCharCode(65 + wallIndex);
     const wall: WallData = { length, name: name || undefined, direction: direction || undefined };
 
+    // Save wall position if it came from endpoint selection
+    const startX = wallDialog.startX ?? 80;
+    const startY = wallDialog.startY ?? 80;
+    const wallPositions = { ...(activeJob.layout?.wallPositions ?? {}), [wallIndex]: { x: startX, y: startY } };
+
     if (activeJob.type === 'Kitchen' && activeJob.kitchen) {
       const walls = [...activeJob.kitchen.measurements.walls];
       if (walls[wallIndex]) {
@@ -239,6 +244,7 @@ export default function AssessmentDetail() {
         walls[wallIndex] = wall;
       }
       updateJobKitchen(id, activeJob.id, { ...activeJob.kitchen, measurements: { ...activeJob.kitchen.measurements, walls } });
+      updateJobLayout(id, activeJob.id, { canvasData: activeJob.layout?.canvasData, lastUpdated: activeJob.layout?.lastUpdated, wallPositions });
       console.log(`✅ Wall ${wallLabel} saved to Kitchen measurements:`, walls[wallIndex]);
     } else if (activeJob.type === 'Bathroom' && activeJob.bathroom) {
       const walls = [...activeJob.bathroom.measurements.walls];
@@ -248,6 +254,7 @@ export default function AssessmentDetail() {
         walls[wallIndex] = wall;
       }
       updateJobBathroom(id, activeJob.id, { ...activeJob.bathroom, measurements: { ...activeJob.bathroom.measurements, walls } });
+      updateJobLayout(id, activeJob.id, { canvasData: activeJob.layout?.canvasData, lastUpdated: activeJob.layout?.lastUpdated, wallPositions });
       console.log(`✅ Wall ${wallLabel} saved to Bathroom measurements:`, walls[wallIndex]);
     }
   };

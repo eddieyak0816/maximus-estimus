@@ -195,6 +195,7 @@ export interface CustomPhoto {
 export interface LayoutData {
   canvasData?: string;    // base64 PNG from canvas.toDataURL()
   lastUpdated?: string;   // ISO timestamp
+  wallPositions?: Record<number, { x: number; y: number }>;  // canvas start position per wall index
 }
 
 export interface KitchenPhotos {
