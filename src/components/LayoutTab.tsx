@@ -108,9 +108,87 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     const ctx = canvasEl.getContext('2d');
     if (!ctx) return;
 
-    // Just redraw walls on top of current canvas (preserves freehand drawings)
-    drawWallsToScale();
-  }, [walls]);
+    const WALL_LABELS = ['A', 'B', 'C', 'D'];
+    const START_X = 80;
+    const START_Y = 80;
+    const SPACING_X = 350;
+    const SPACING_Y = 200;
+
+    const drawWalls = () => {
+      // Fill background
+      ctx.fillStyle = '#0d1628';
+      ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+
+      // Draw walls if they exist
+      if (walls && walls.length > 0) {
+        walls.forEach((wall, index) => {
+          if (!wall.length) return;
+
+          const numericLength = parseFloat(String(wall.length));
+          if (numericLength <= 0) return;
+
+          const pixelLength = numericLength * SCALE_FACTOR;
+          const label = wall.name || WALL_LABELS[index];
+
+          const row = Math.floor(index / 2);
+          const col = index % 2;
+          const startX = START_X + col * SPACING_X;
+          const startY = START_Y + row * SPACING_Y;
+
+          // Draw the wall line
+          ctx.strokeStyle = WALL_COLOR;
+          ctx.lineWidth = WALL_WIDTH;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+
+          const direction = wall.direction || 'E';
+          const angles: Record<string, number> = {
+            'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
+          };
+          const angle = (angles[direction as string] || 0) * (Math.PI / 180);
+          const endX = startX + pixelLength * Math.cos(angle);
+          const endY = startY + pixelLength * Math.sin(angle);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+
+          // Draw wall label above the line
+          ctx.fillStyle = WALL_COLOR;
+          ctx.font = 'bold 16px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, startX + pixelLength / 2, startY - 12);
+
+          // Draw wall length below the line
+          ctx.fillStyle = 'rgba(245, 196, 42, 0.8)';
+          ctx.font = '12px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(`${wall.length}`, startX + pixelLength / 2, startY + 8);
+        });
+      }
+
+      // Persist the wall drawing so it survives canvas resets
+      const canvasData = canvasEl.toDataURL('image/png');
+      canvasDataRef.current = canvasData;
+      onUpdate({
+        canvasData,
+        lastUpdated: new Date().toISOString(),
+      });
+    };
+
+    // Restore any previous drawing first (pen, rect, eraser), then draw walls on top
+    if (canvasDataRef.current) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        drawWalls();
+      };
+      img.src = canvasDataRef.current;
+    } else {
+      drawWalls();
+    }
+  }, [walls, onUpdate]);
 
   const saveToHistory = () => {
     if (!canvas || !ctx) return;
@@ -358,72 +436,6 @@ export default function LayoutTab({ data, onUpdate, onWallPlaced, onWallDelete, 
     }
 
     return null;
-  };
-
-  const drawWallsToScale = () => {
-    if (!canvas || !ctx) return;
-
-    const WALL_LABELS = ['A', 'B', 'C', 'D'];
-    const START_X = 80;
-    const START_Y = 80;
-    const SPACING_X = 350;
-    const SPACING_Y = 200;
-    const WALL_ZONE_HEIGHT = 500; // Height of the zone where walls are drawn
-
-    // Clear the wall drawing zone (top part of canvas) to avoid layering old walls
-    ctx.fillStyle = '#0d1628';
-    ctx.fillRect(0, 0, canvas.width, WALL_ZONE_HEIGHT);
-
-    if (!walls || walls.length === 0) return;
-
-    walls.forEach((wall, index) => {
-      if (!wall.length) return; // Skip walls without length
-
-      // Parse length (e.g., "15 ft", "15'", "120"")
-      const numericLength = parseFloat(String(wall.length));
-      if (numericLength <= 0) return; // Only draw walls with positive length
-
-      const pixelLength = numericLength * SCALE_FACTOR;
-      const label = wall.name || WALL_LABELS[index];
-
-      // Position: A & B in row 1, C & D in row 2, E & F in row 3, etc.
-      const row = Math.floor(index / 2);
-      const col = index % 2;
-      const startX = START_X + col * SPACING_X;
-      const startY = START_Y + row * SPACING_Y;
-
-      // Draw the wall line
-      ctx.strokeStyle = WALL_COLOR;
-      ctx.lineWidth = WALL_WIDTH;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-
-      // Direction: wall.direction should be one of 8 compass directions
-      const direction = wall.direction || 'E';
-      const angles: Record<string, number> = {
-        'N': -90, 'NE': -45, 'E': 0, 'SE': 45, 'S': 90, 'SW': 135, 'W': 180, 'NW': 225
-      };
-      const angle = (angles[direction as string] || 0) * (Math.PI / 180);
-      const endX = startX + pixelLength * Math.cos(angle);
-      const endY = startY + pixelLength * Math.sin(angle);
-      ctx.lineTo(endX, endY);
-      ctx.stroke();
-
-      // Draw wall label above the line
-      ctx.fillStyle = WALL_COLOR;
-      ctx.font = 'bold 16px system-ui';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(label, startX + pixelLength / 2, startY - 12);
-
-      // Draw wall length below the line
-      ctx.fillStyle = 'rgba(245, 196, 42, 0.8)';
-      ctx.font = '12px system-ui';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`${wall.length}`, startX + pixelLength / 2, startY + 8);
-    });
   };
 
   const handleAddLabel = () => {

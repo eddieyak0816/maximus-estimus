@@ -31,7 +31,10 @@
       "Bash(tee /tmp/vite-port.log)",
       "Bash(netstat -ano)",
       "Bash(taskkill /PID 14980 /F)",
-      "Bash(fg)"
+      "Bash(fg)",
+      "Bash(timeout 30 bash -c 'for i in {1..30}; do curl -s http://localhost:5173 | grep -q \"Maximus Estimus\" && echo \"Server ready\" && break; sleep 1; done')",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill -9)"
     ],
     "additionalDirectories": [
       "g:\\My Drive\\Maximus Digital Marketing\\Maximus Estimus\\.git"

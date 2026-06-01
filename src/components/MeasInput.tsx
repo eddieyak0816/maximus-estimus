@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   label: string;
@@ -10,6 +10,13 @@ interface Props {
 export default function MeasInput({ label, value = '', onChange, hint }: Props) {
   const detectUnit = (v: string): '"' | "'" => v.includes("'") ? "'" : '"';
   const [unit, setUnit] = useState<'"' | "'">(detectUnit(value));
+  const [inputVal, setInputVal] = useState(value.replace(/['"]/g, ''));
+
+  // Sync inputVal with value prop when it changes from parent
+  useEffect(() => {
+    setInputVal(value.replace(/['"]/g, ''));
+    setUnit(detectUnit(value));
+  }, [value]);
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!onChange) return;
@@ -25,8 +32,6 @@ export default function MeasInput({ label, value = '', onChange, hint }: Props) 
     if (v) onChange(v + u);
   };
 
-  const displayVal = value.replace(/['"]/g, '');
-
   return (
     <div className="meas-field">
       {label && <div className="meas-label">{label}</div>}
@@ -35,8 +40,8 @@ export default function MeasInput({ label, value = '', onChange, hint }: Props) 
         <input
           className="meas-input"
           placeholder="0"
-          value={displayVal}
-          onChange={e => onChange?.(e.target.value)}
+          value={inputVal}
+          onChange={e => setInputVal(e.target.value)}
           onBlur={handleBlur}
           inputMode="decimal"
         />
