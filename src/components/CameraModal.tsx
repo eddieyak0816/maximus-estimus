@@ -4,27 +4,32 @@ interface Props {
   label: string;
   onCapture: (blob: Blob) => void;
   onClose: () => void;
+  burstMode?: boolean;
 }
 
 type Stage = 'choice' | 'requesting' | 'camera' | 'preview' | 'error';
 
-export default function CameraModal({ label, onCapture, onClose }: Props) {
-  const [stage, setStage] = useState<Stage>('choice');
+export default function CameraModal({ label, onCapture, onClose, burstMode = false }: Props) {
+  const [stage, setStage] = useState<Stage>(burstMode ? 'requesting' : 'choice');
   const [error, setError] = useState<string>('');
+  const [burstCount, setBurstCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string>('');
 
-  // Only cleanup on unmount, don't start camera automatically
+  // Auto-start camera in burst mode
   useEffect(() => {
+    if (burstMode) {
+      requestAndStartCamera();
+    }
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function requestAndStartCamera() {
     try {
@@ -99,7 +104,12 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
     ctx.drawImage(video, 0, 0, width, height);
 
     canvas.toBlob((blob) => {
-      if (blob) {
+      if (!blob) return;
+      if (burstMode) {
+        onCapture(blob);
+        setBurstCount(c => c + 1);
+        // Stay on camera stage — ready for next shot
+      } else {
         const url = URL.createObjectURL(blob);
         setPreviewSrc(url);
         setStage('preview');
@@ -215,6 +225,11 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
 
         {stage === 'camera' && (
           <div className="modal-body camera-view">
+            {burstMode && burstCount > 0 && (
+              <div style={{ textAlign: 'center', marginBottom: '8px', color: 'var(--accent)', fontWeight: 700, fontSize: '0.9rem' }}>
+                ✓ {burstCount} photo{burstCount !== 1 ? 's' : ''} saved
+              </div>
+            )}
             <video
               ref={videoRef}
               autoPlay
@@ -234,9 +249,15 @@ export default function CameraModal({ label, onCapture, onClose }: Props) {
               <button className="btn btn-primary" onClick={handleCapture}>
                 📸 Take Photo
               </button>
-              <button className="btn btn-ghost" onClick={cleanup}>
-                Cancel
-              </button>
+              {burstMode ? (
+                <button className="btn btn-success" onClick={cleanup}>
+                  ✓ Done
+                </button>
+              ) : (
+                <button className="btn btn-ghost" onClick={cleanup}>
+                  Cancel
+                </button>
+              )}
             </div>
           </div>
         )}

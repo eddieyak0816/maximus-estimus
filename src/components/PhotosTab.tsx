@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { savePhoto, deletePhoto } from '../utils/photoStorage';
 import PhotoItem from './PhotoItem';
@@ -17,6 +17,8 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [burstMode, setBurstMode] = useState(false);
+  const burstPhotosRef = useRef<CustomPhoto[]>(photos);
 
   // Extract wall names from measurements
   const wallNames = extractWallLabels(measurements || {});
@@ -40,6 +42,22 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
 
   // Combine wall names + defaults, remove duplicates
   const allCategories = [...new Set([...wallNames, ...defaultCategories])].sort();
+
+  async function handleBurstCapture(blob: Blob) {
+    try {
+      const photoNumber = burstPhotosRef.current.length + 1;
+      const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      const newPhoto: CustomPhoto = {
+        id: uuidv4(),
+        label: `Photo ${photoNumber}`,
+        photoId,
+      };
+      burstPhotosRef.current = [...burstPhotosRef.current, newPhoto];
+      onUpdate(burstPhotosRef.current);
+    } catch (err) {
+      console.error('Failed to save burst photo:', err);
+    }
+  }
 
   async function handlePhotoCapture(blob: Blob) {
     if (!selectedCategory) {
@@ -150,13 +168,25 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
       )}
 
       {!showAddForm ? (
-        <button
-          className="btn btn-outline"
-          style={{ width: '100%' }}
-          onClick={() => setShowAddForm(true)}
-        >
-          ➕ Add Photo
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            className="btn btn-primary"
+            style={{ flex: 1 }}
+            onClick={() => {
+              burstPhotosRef.current = photos;
+              setBurstMode(true);
+            }}
+          >
+            📷 Quick Shoot
+          </button>
+          <button
+            className="btn btn-outline"
+            style={{ flex: 1 }}
+            onClick={() => setShowAddForm(true)}
+          >
+            ➕ Add Photo
+          </button>
+        </div>
       ) : (
         <div className="custom-photo-form">
           <div style={{ marginBottom: '12px' }}>
@@ -232,6 +262,15 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
           label={`Photo: ${selectedCategory}`}
           onCapture={handlePhotoCapture}
           onClose={() => setActivePhotoId(null)}
+        />
+      )}
+
+      {burstMode && (
+        <CameraModal
+          label="Quick Shoot"
+          onCapture={handleBurstCapture}
+          onClose={() => setBurstMode(false)}
+          burstMode
         />
       )}
     </div>
