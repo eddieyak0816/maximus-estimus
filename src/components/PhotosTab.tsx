@@ -182,11 +182,12 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   }
 
   async function handleOpenPhoto(index: number) {
-    setViewingPhotoIndex(index);
     const urls = await Promise.all(
       photos.map(p => getPhotoUrl(p.photoId))
     );
-    setPhotoUrls(urls.filter((url): url is string => url !== null));
+    const validUrls = urls.filter((url): url is string => url !== null);
+    setPhotoUrls(validUrls);
+    setViewingPhotoIndex(index);
   }
 
   function handleClosePhoto() {
