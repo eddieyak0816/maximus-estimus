@@ -275,33 +275,22 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.onchange = () => {
-                  const file = input.files?.[0];
-                  if (file) handlePhotoUpload(file);
-                };
-                input.click();
-              }}
-              disabled={!selectedCategory || bulkUploadProgress !== null}
-            >
-              📁 Upload
-            </button>
-            <button
-              className="btn btn-primary"
-              style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
-              onClick={() => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
                 input.multiple = true;
                 input.onchange = () => {
-                  if (input.files) handleBulkUpload(input.files);
+                  if (input.files) {
+                    if (input.files.length === 1) {
+                      handlePhotoUpload(input.files[0]);
+                    } else if (input.files.length > 1) {
+                      handleBulkUpload(input.files);
+                    }
+                  }
                 };
                 input.click();
               }}
               disabled={!selectedCategory || bulkUploadProgress !== null}
-              title="Upload multiple photos at once"
+              title="Upload one or more photos"
             >
-              📦 Bulk
+              📁 Upload
             </button>
             <button
               className="btn btn-ghost"
