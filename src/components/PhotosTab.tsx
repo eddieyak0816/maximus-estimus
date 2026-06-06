@@ -18,6 +18,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [burstMode, setBurstMode] = useState(false);
+  const [bulkUploadProgress, setBulkUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const burstPhotosRef = useRef<CustomPhoto[]>(photos);
 
   // Extract wall names from measurements
@@ -130,6 +131,47 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
     }
   }
 
+  async function handleBulkUpload(files: FileList) {
+    if (!selectedCategory) {
+      alert('Please select a category');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    if (validFiles.length === 0) {
+      alert('No image files selected');
+      return;
+    }
+
+    const newPhotos: CustomPhoto[] = [];
+    setBulkUploadProgress({ current: 0, total: validFiles.length });
+
+    try {
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+        const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+        newPhotos.push({
+          id: uuidv4(),
+          label: selectedCategory,
+          photoId,
+        });
+        setBulkUploadProgress({ current: i + 1, total: validFiles.length });
+      }
+
+      // Update all at once
+      onUpdate([...photos, ...newPhotos]);
+      resetForm();
+      setBulkUploadProgress(null);
+    } catch (err) {
+      console.error('Failed to bulk upload photos:', err);
+      alert(`Failed to upload ${validFiles.length - newPhotos.length} photos`);
+      setBulkUploadProgress(null);
+    }
+  }
+
   function resetForm() {
     setSelectedCategory('');
     setShowAddForm(false);
@@ -222,7 +264,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               className="btn btn-primary"
               style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
               onClick={() => setActivePhotoId('new')}
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || bulkUploadProgress !== null}
             >
               📷 Take
             </button>
@@ -239,9 +281,27 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 };
                 input.click();
               }}
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || bulkUploadProgress !== null}
             >
               📁 Upload
+            </button>
+            <button
+              className="btn btn-primary"
+              style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.multiple = true;
+                input.onchange = () => {
+                  if (input.files) handleBulkUpload(input.files);
+                };
+                input.click();
+              }}
+              disabled={!selectedCategory || bulkUploadProgress !== null}
+              title="Upload multiple photos at once"
+            >
+              📦 Bulk
             </button>
             <button
               className="btn btn-ghost"
@@ -254,6 +314,24 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               ✕
             </button>
           </div>
+
+          {bulkUploadProgress && (
+            <div style={{ marginTop: '12px', padding: '8px', backgroundColor: 'rgba(245, 196, 42, 0.1)', borderRadius: '4px' }}>
+              <div style={{ fontSize: '12px', marginBottom: '6px', color: '#F5C42A' }}>
+                Uploading {bulkUploadProgress.current} of {bulkUploadProgress.total}...
+              </div>
+              <div style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    backgroundColor: '#F5C42A',
+                    width: `${(bulkUploadProgress.current / bulkUploadProgress.total) * 100}%`,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
