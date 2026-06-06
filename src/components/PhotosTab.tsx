@@ -22,6 +22,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [bulkUploadProgress, setBulkUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const [viewingPhotoIndex, setViewingPhotoIndex] = useState<number | null>(null);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const burstPhotosRef = useRef<CustomPhoto[]>(photos);
 
   // Extract wall names from measurements
@@ -213,12 +214,61 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
         <div className="photo-progress-header">
           <span className="photo-progress-label">Photos</span>
           <span className="photo-progress-count">{photos.length}</span>
+          {photos.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                title="List view"
+                style={{
+                  background: viewMode === 'list' ? '#F5C42A' : 'rgba(255, 255, 255, 0.1)',
+                  color: viewMode === 'list' ? '#0d1628' : 'inherit',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+              >
+                ≡ List
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                title="Grid view"
+                style={{
+                  background: viewMode === 'grid' ? '#F5C42A' : 'rgba(255, 255, 255, 0.1)',
+                  color: viewMode === 'grid' ? '#0d1628' : 'inherit',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+              >
+                ⊞ Grid
+              </button>
+            </div>
+          )}
         </div>
         <div className="photo-progress-hint">Add photos to document the job</div>
       </div>
 
       {photos.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
+        <div
+          style={
+            viewMode === 'grid'
+              ? {
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: '12px',
+                  marginBottom: '20px',
+                }
+              : { marginBottom: '20px' }
+          }
+        >
           {photos.map((photo, index) => (
             <PhotoItem
               key={photo.id}

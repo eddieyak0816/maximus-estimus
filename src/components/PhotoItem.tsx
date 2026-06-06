@@ -64,8 +64,20 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
 
   return (
     <>
-      <div className="photo-item">
-        <div className={`photo-thumb${captured ? ' captured' : ''}`} onClick={() => captured && thumbUrl ? setShowModal(true) : onOpenCamera()}>
+      <div
+        className="photo-item"
+        onClick={() => {
+          // Allow clicking anywhere in the item to view the photo
+          if (captured && thumbUrl && onViewPhoto) {
+            onViewPhoto();
+          }
+        }}
+        style={{ cursor: captured && thumbUrl ? 'pointer' : 'default' }}
+      >
+        <div className={`photo-thumb${captured ? ' captured' : ''}`} onClick={(e) => {
+          e.stopPropagation();
+          if (!captured) onOpenCamera();
+        }}>
           {captured && thumbUrl ? (
             <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
@@ -159,16 +171,35 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
         </div>
         <div className="photo-item-buttons">
           {captured && thumbUrl && (
-            <button className="photo-btn retake" onClick={onViewPhoto ? onViewPhoto : () => setShowModal(true)}>
+            <button
+              className="photo-btn retake"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onViewPhoto) onViewPhoto();
+                else setShowModal(true);
+              }}
+            >
               View
             </button>
           )}
-          <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={onOpenCamera}>
+          <button
+            className={`photo-btn${captured ? ' retake' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenCamera();
+            }}
+          >
             {captured ? 'Retake' : '📷 Take'}
           </button>
           {onFileSelected && (
             <>
-              <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={() => fileInputRef.current?.click()}>
+              <button
+                className={`photo-btn${captured ? ' retake' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+              >
                 {captured ? '📁 Replace' : '📁 Upload'}
               </button>
               <input
@@ -181,7 +212,14 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
             </>
           )}
           {captured && onRemove && (
-            <button className="photo-btn remove" onClick={onRemove} title="Delete photo">
+            <button
+              className="photo-btn remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              title="Delete photo"
+            >
               ✕
             </button>
           )}
