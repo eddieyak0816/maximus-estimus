@@ -9,9 +9,10 @@ interface Props {
   onOpenCamera: () => void;
   onFileSelected?: (file: File) => void;
   onRemove?: () => void;
+  onViewPhoto?: () => void;
 }
 
-export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove }: Props) {
+export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove, onViewPhoto }: Props) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const captured = !!photoId;
@@ -65,7 +66,7 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
         </div>
         <div className="photo-item-buttons">
           {captured && thumbUrl && (
-            <button className="photo-btn retake" onClick={() => setShowModal(true)}>
+            <button className="photo-btn retake" onClick={onViewPhoto ? onViewPhoto : () => setShowModal(true)}>
               View
             </button>
           )}

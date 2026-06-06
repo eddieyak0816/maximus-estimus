@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { savePhoto, deletePhoto } from '../utils/photoStorage';
+import { savePhoto, deletePhoto, getPhotoUrl } from '../utils/photoStorage';
 import PhotoItem from './PhotoItem';
 import CameraModal from './CameraModal';
+import ImageModal from './ImageModal';
 import type { CustomPhoto } from '../types';
 
 interface Props {
@@ -19,6 +20,8 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [selectedCategory, setSelectedCategory] = useState('');
   const [burstMode, setBurstMode] = useState(false);
   const [bulkUploadProgress, setBulkUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [viewingPhotoIndex, setViewingPhotoIndex] = useState<number | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const burstPhotosRef = useRef<CustomPhoto[]>(photos);
 
   // Extract wall names from measurements
@@ -178,6 +181,31 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
     setActivePhotoId(null);
   }
 
+  async function handleOpenPhoto(index: number) {
+    setViewingPhotoIndex(index);
+    const urls = await Promise.all(
+      photos.map(p => getPhotoUrl(p.photoId))
+    );
+    setPhotoUrls(urls.filter((url): url is string => url !== null));
+  }
+
+  function handleClosePhoto() {
+    setViewingPhotoIndex(null);
+    setPhotoUrls([]);
+  }
+
+  function handlePrevPhoto() {
+    if (viewingPhotoIndex !== null && viewingPhotoIndex > 0) {
+      setViewingPhotoIndex(viewingPhotoIndex - 1);
+    }
+  }
+
+  function handleNextPhoto() {
+    if (viewingPhotoIndex !== null && viewingPhotoIndex < photos.length - 1) {
+      setViewingPhotoIndex(viewingPhotoIndex + 1);
+    }
+  }
+
   return (
     <div className="assess-tab">
       <div className="photo-progress-card">
@@ -190,7 +218,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
 
       {photos.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          {photos.map(photo => (
+          {photos.map((photo, index) => (
             <PhotoItem
               key={photo.id}
               label={photo.label}
@@ -204,6 +232,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 handlePhotoUpload(file);
               }}
               onRemove={() => handlePhotoRemove(photo.id)}
+              onViewPhoto={() => handleOpenPhoto(index)}
             />
           ))}
         </div>
@@ -338,6 +367,18 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
           onCapture={handleBurstCapture}
           onClose={() => setBurstMode(false)}
           burstMode
+        />
+      )}
+
+      {viewingPhotoIndex !== null && photoUrls.length > 0 && photoUrls[viewingPhotoIndex] && (
+        <ImageModal
+          src={photoUrls[viewingPhotoIndex]}
+          alt={photos[viewingPhotoIndex]?.label || 'Photo'}
+          onClose={handleClosePhoto}
+          photoUrls={photoUrls}
+          currentIndex={viewingPhotoIndex}
+          onPrev={handlePrevPhoto}
+          onNext={handleNextPhoto}
         />
       )}
     </div>

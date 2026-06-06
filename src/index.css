@@ -1104,6 +1104,54 @@ input, select, textarea { font-family: var(--font); }
   background: rgba(0, 0, 0, 0.8);
 }
 
+/* Navigation arrows for photo gallery */
+.image-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
+  padding: 0;
+  line-height: 1;
+}
+
+.image-modal-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.image-modal-nav-prev {
+  left: 16px;
+}
+
+.image-modal-nav-next {
+  right: 16px;
+}
+
+/* Photo counter */
+.image-modal-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* ===== Assessment Tab (shared) ===== */
 .assess-tab { padding-bottom: 32px; }
 .assess-hint { font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: 8px; }
