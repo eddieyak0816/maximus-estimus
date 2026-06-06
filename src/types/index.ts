@@ -16,28 +16,33 @@ export interface ClientInfo {
 
 // ── Wall sub-types ────────────────────────────────────────────────────────────
 export interface WindowData {
-  width?: string;
-  height?: string;
-  leftCorner?: string;
-  rightCorner?: string;
+  // Inside trim (the opening)
+  insideWidth?: string;
+  insideHeight?: string;
+  // With trim (the full frame)
+  withTrimWidth?: string;
+  withTrimHeight?: string;
+  // Position in wall
+  distanceFromLeftCorner?: string;
+  distanceFromRightCorner?: string;
+  // Window-specific
   sillHeight?: string;
-  trimLeft?: string;
-  trimRight?: string;
-  trimTop?: string;
-  trimBottom?: string;
   replacing?: boolean;
 }
 
 export interface DoorData {
   type?: 'Door' | 'Opening';
-  width?: string;
-  height?: string;
-  leftCorner?: string;
-  rightCorner?: string;
+  // Inside trim (the opening)
+  insideWidth?: string;
+  insideHeight?: string;
+  // With trim (the full frame)
+  withTrimWidth?: string;
+  withTrimHeight?: string;
+  // Position in wall
+  distanceFromLeftCorner?: string;
+  distanceFromRightCorner?: string;
+  // Door-specific
   swing?: 'Left' | 'Right' | 'Both' | 'N/A';
-  trimLeft?: string;
-  trimRight?: string;
-  trimTop?: string;
 }
 
 export interface OutletData {

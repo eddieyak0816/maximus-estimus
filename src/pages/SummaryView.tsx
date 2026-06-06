@@ -118,9 +118,9 @@ function CustomerInfoSection({ client, assessmentId }: { client: any; assessment
 // ── Kitchen Components ─────────────────────────────────────────────────────
 
 function WallSummary({ wallKey, wall }: { wallKey: string; wall: WallData }) {
-  const wins = (wall.windows || []).filter(w => w.width || w.height);
+  const wins = (wall.windows || []).filter(w => w.insideWidth || w.insideHeight || w.withTrimWidth || w.withTrimHeight);
   const winsReplacing = (wall.windows || []).filter(w => w.replacing);
-  const doors = (wall.doors || []).filter(d => d.width || d.height);
+  const doors = (wall.doors || []).filter(d => d.insideWidth || d.insideHeight || d.withTrimWidth || d.withTrimHeight);
   const apps = (wall.appliances || []).filter(a => a.name);
   return (
     <div className="wall-summary-block">
