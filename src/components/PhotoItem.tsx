@@ -92,7 +92,10 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
         </div>
         <div className="photo-item-info">
           {isEditingLabel ? (
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+            <div
+              style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}
+              onClick={e => e.stopPropagation()}
+            >
               <input
                 type="text"
                 value={editingLabel}
@@ -114,7 +117,10 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
                 }}
               />
               <button
-                onClick={handleSaveLabel}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSaveLabel();
+                }}
                 style={{
                   padding: '4px 8px',
                   fontSize: '12px',
@@ -129,7 +135,10 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
                 ✓
               </button>
               <button
-                onClick={handleCancelLabel}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancelLabel();
+                }}
                 style={{
                   padding: '4px 8px',
                   fontSize: '12px',
@@ -148,7 +157,10 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
               <div className={`photo-item-label${captured ? ' captured' : ''}`}>{label}</div>
               {captured && onUpdateLabel && (
                 <button
-                  onClick={() => setIsEditingLabel(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingLabel(true);
+                  }}
                   title="Edit photo name"
                   style={{
                     background: 'none',
