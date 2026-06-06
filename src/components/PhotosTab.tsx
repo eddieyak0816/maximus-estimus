@@ -234,6 +234,12 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               }}
               onRemove={() => handlePhotoRemove(photo.id)}
               onViewPhoto={() => handleOpenPhoto(index)}
+              onUpdateLabel={(newLabel) => {
+                const updatedPhotos = photos.map(p =>
+                  p.id === photo.id ? { ...p, label: newLabel } : p
+                );
+                onUpdate(updatedPhotos);
+              }}
             />
           ))}
         </div>

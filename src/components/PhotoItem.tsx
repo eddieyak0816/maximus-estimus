@@ -12,9 +12,15 @@ interface Props {
   onViewPhoto?: () => void;
 }
 
-export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove, onViewPhoto }: Props) {
+interface PhotoItemProps extends Props {
+  onUpdateLabel?: (newLabel: string) => void;
+}
+
+export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [editingLabel, setEditingLabel] = useState(label);
   const captured = !!photoId;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +49,19 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
     }
   }
 
+  function handleSaveLabel() {
+    if (editingLabel.trim() && editingLabel !== label && onUpdateLabel) {
+      onUpdateLabel(editingLabel.trim());
+    }
+    setIsEditingLabel(false);
+    setEditingLabel(label);
+  }
+
+  function handleCancelLabel() {
+    setIsEditingLabel(false);
+    setEditingLabel(label);
+  }
+
   return (
     <>
       <div className="photo-item">
@@ -60,7 +79,81 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
           )}
         </div>
         <div className="photo-item-info">
-          <div className={`photo-item-label${captured ? ' captured' : ''}`}>{label}</div>
+          {isEditingLabel ? (
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+              <input
+                type="text"
+                value={editingLabel}
+                onChange={e => setEditingLabel(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSaveLabel();
+                  if (e.key === 'Escape') handleCancelLabel();
+                }}
+                autoFocus
+                style={{
+                  flex: 1,
+                  padding: '4px 6px',
+                  fontSize: '14px',
+                  borderRadius: '4px',
+                  border: '1px solid #F5C42A',
+                  backgroundColor: 'rgba(245, 196, 42, 0.1)',
+                  color: 'inherit',
+                  minWidth: 0,
+                }}
+              />
+              <button
+                onClick={handleSaveLabel}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  background: '#F5C42A',
+                  color: '#0d1628',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                ✓
+              </button>
+              <button
+                onClick={handleCancelLabel}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'inherit',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '4px' }}>
+              <div className={`photo-item-label${captured ? ' captured' : ''}`}>{label}</div>
+              {captured && onUpdateLabel && (
+                <button
+                  onClick={() => setIsEditingLabel(true)}
+                  title="Edit photo name"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  ✏️
+                </button>
+              )}
+            </div>
+          )}
           {note && !captured && <div className="photo-item-note">{note}</div>}
           {captured && <div className="photo-item-done">✓ Photo captured</div>}
         </div>
