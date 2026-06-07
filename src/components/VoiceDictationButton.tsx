@@ -16,6 +16,7 @@ declare global {
 
 export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' }: Props) {
   const [isListening, setIsListening] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [state, setState] = useState<RecognitionState>('idle');
   const [showModal, setShowModal] = useState(false);
@@ -100,6 +101,21 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     }
   }
 
+  function pauseListening() {
+    if (recognitionRef.current && isListening && !isPaused) {
+      recognitionRef.current.stop();
+      setIsPaused(true);
+      setIsListening(false);
+    }
+  }
+
+  function resumeListening() {
+    if (recognitionRef.current && isPaused) {
+      setIsPaused(false);
+      recognitionRef.current.start();
+    }
+  }
+
   function handleSave() {
     const finalText = transcript + (interimTranscriptRef.current ? ' ' + interimTranscriptRef.current : '');
     if (finalText.trim()) {
@@ -162,14 +178,17 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{
                 padding: '12px',
-                backgroundColor: isListening ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                backgroundColor: isListening ? 'rgba(239, 68, 68, 0.1)' : isPaused ? 'rgba(245, 196, 42, 0.1)' : 'rgba(59, 130, 246, 0.1)',
                 borderRadius: '6px',
                 minHeight: '30px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
                 fontSize: '14px',
               }}>
-                {isListening ? '🔴 Recording...' : '✓ Recording complete'}
+                <div>
+                  {isListening ? '🔴 Recording...' : isPaused ? '⏸ Paused' : '✓ Ready'}
+                </div>
               </div>
 
               <div>
@@ -193,33 +212,70 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {!isListening && !isPaused ? (
+                  <button
+                    className="btn btn-primary"
+                    onClick={startListening}
+                    style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                  >
+                    🎤 Start Recording
+                  </button>
+                ) : isListening && !isPaused ? (
+                  <>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={pauseListening}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      ⏸ Pause
+                    </button>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={stopListening}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      ⏹ Stop
+                    </button>
+                  </>
+                ) : isPaused ? (
+                  <>
+                    <button
+                      className="btn btn-primary"
+                      onClick={resumeListening}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      ▶ Resume
+                    </button>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={stopListening}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      ⏹ Stop
+                    </button>
+                  </>
+                ) : null}
+
                 <button
                   className="btn btn-primary"
                   onClick={handleSave}
                   disabled={!displayText.trim()}
-                  style={{ flex: 1 }}
+                  style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
                 >
-                  ✓ Save Transcript
+                  ✓ Save
                 </button>
                 <button
                   className="btn btn-ghost"
                   onClick={handleClear}
-                  style={{ flex: 1 }}
+                  style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
                 >
                   Clear
                 </button>
-                <button
-                  className="btn btn-ghost"
-                  onClick={handleClose}
-                  style={{ flex: 1 }}
-                >
-                  Close
-                </button>
               </div>
 
-              <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                💡 Tip: The app is continuously listening. Click the button again to stop recording, then edit the text if needed and click "Save Transcript".
+              <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', lineHeight: '1.4' }}>
+                💡 Tips: Click "Start Recording" to begin. Use "Pause" to take breaks between thoughts. Click "Resume" to continue. When done, click "Stop" then "Save".
               </div>
             </div>
           </div>
