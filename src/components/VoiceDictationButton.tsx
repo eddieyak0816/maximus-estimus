@@ -21,7 +21,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [showModal, setShowModal] = useState(false);
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
-  const lastFinalIndexRef = useRef(-1);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -41,32 +40,26 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
       setState('listening');
       setTranscript('');
       interimTranscriptRef.current = '';
-      lastFinalIndexRef.current = -1;
     };
 
     recognition.onresult = (event: any) => {
       let interim = '';
-      let finalText = '';
+      let finalTranscript = '';
 
-      // Iterate through all results
+      // Build final transcript from all final results
       for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          // Only add final results we haven't seen before
-          if (i > lastFinalIndexRef.current) {
-            finalText += (finalText ? ' ' : '') + transcript;
-            lastFinalIndexRef.current = i;
-          }
+          finalTranscript += transcript + ' ';
         } else {
-          // Accumulate interim results
           interim += transcript;
         }
       }
 
-      // Update transcript only if there's new final text
-      if (finalText) {
-        setTranscript(prev => prev + (prev ? ' ' : '') + finalText);
+      // Set transcript to the complete final transcript (trimmed of extra spaces)
+      if (finalTranscript.trim()) {
+        setTranscript(finalTranscript.trim());
       }
 
       interimTranscriptRef.current = interim;
@@ -89,7 +82,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
-      lastFinalIndexRef.current = -1;
     };
   }, []);
 
