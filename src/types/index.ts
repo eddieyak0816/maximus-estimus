@@ -195,6 +195,7 @@ export interface CustomPhoto {
   label: string;
   photoId: string;
   type?: 'photo' | 'video'; // 'photo' is default for backwards compatibility
+  rotation?: number; // 0, 90, 180, 270 degrees
 }
 
 // ── Layout Drawing ────────────────────────────────────────────────────────────

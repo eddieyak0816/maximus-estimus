@@ -1179,6 +1179,30 @@ input, select, textarea { font-family: var(--font); }
   font-weight: 500;
 }
 
+/* Rotate button */
+.image-modal-rotate {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 10000;
+  padding: 0;
+}
+.image-modal-rotate:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
 /* ===== Assessment Tab (shared) ===== */
 .assess-tab { padding-bottom: 32px; }
 .assess-hint { font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: 8px; }

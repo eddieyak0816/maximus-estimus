@@ -7,6 +7,7 @@ interface Props {
   note?: string;
   photoId?: string;
   type?: 'photo' | 'video';
+  rotation?: number;
   onOpenCamera: () => void;
   onFileSelected?: (file: File) => void;
   onRemove?: () => void;
@@ -17,13 +18,14 @@ interface PhotoItemProps extends Props {
   onUpdateLabel?: (newLabel: string) => void;
 }
 
-export default function PhotoItem({ label, note, photoId, type = 'photo', onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
+export default function PhotoItem({ label, note, photoId, type = 'photo', rotation = 0, onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editingLabel, setEditingLabel] = useState(label);
   const captured = !!photoId;
   const isVideo = type === 'video';
+  const rotationStyle = rotation && rotation !== 0 ? { transform: `rotate(${rotation}deg)` } : {};
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -83,9 +85,9 @@ export default function PhotoItem({ label, note, photoId, type = 'photo', onOpen
           {captured && thumbUrl ? (
             <>
               {isVideo ? (
-                <video src={thumbUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <video src={thumbUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', ...rotationStyle }} />
               ) : (
-                <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover', ...rotationStyle }} />
               )}
               {isVideo && (
                 <div style={{

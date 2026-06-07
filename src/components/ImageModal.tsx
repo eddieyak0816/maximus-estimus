@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   src: string;
@@ -8,9 +8,13 @@ interface Props {
   currentIndex?: number;
   onPrev?: () => void;
   onNext?: () => void;
+  onRotate?: (newRotation: number) => void;
+  currentRotation?: number;
+  isVideo?: boolean;
 }
 
-export default function ImageModal({ src, alt, onClose, photoUrls, currentIndex, onPrev, onNext }: Props) {
+export default function ImageModal({ src, alt, onClose, photoUrls, currentIndex, onPrev, onNext, onRotate, currentRotation = 0, isVideo = false }: Props) {
+  const [rotation, setRotation] = useState(currentRotation);
   const hasMultiple = photoUrls && photoUrls.length > 1;
   const canGoPrev = hasMultiple && currentIndex !== undefined && currentIndex > 0;
   const canGoNext = hasMultiple && currentIndex !== undefined && currentIndex < photoUrls!.length - 1;
@@ -31,11 +35,42 @@ export default function ImageModal({ src, alt, onClose, photoUrls, currentIndex,
     };
   }, [onClose, canGoPrev, canGoNext, onPrev, onNext]);
 
+  function handleRotate() {
+    const newRotation = (rotation + 90) % 360;
+    setRotation(newRotation);
+    if (onRotate) {
+      onRotate(newRotation);
+    }
+  }
+
+  const rotationStyle = rotation !== 0 ? { transform: `rotate(${rotation}deg)` } : {};
+
   return (
     <div className="image-modal-overlay" onClick={onClose}>
       <div className="image-modal-content" onClick={e => e.stopPropagation()}>
         <button className="image-modal-close" onClick={onClose} title="Close (Esc)">✕</button>
-        <img src={src} alt={alt} className="image-modal-img" />
+
+        {isVideo ? (
+          <video
+            src={src}
+            controls
+            className="image-modal-img"
+            style={rotationStyle}
+          />
+        ) : (
+          <img src={src} alt={alt} className="image-modal-img" style={rotationStyle} />
+        )}
+
+        {!isVideo && (
+          <button
+            className="image-modal-rotate"
+            onClick={handleRotate}
+            title="Rotate 90° clockwise (R)"
+            aria-label="Rotate image"
+          >
+            🔄
+          </button>
+        )}
 
         {canGoPrev && onPrev && (
           <button

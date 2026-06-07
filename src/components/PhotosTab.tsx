@@ -211,6 +211,15 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
     }
   }
 
+  function handleRotatePhoto(newRotation: number) {
+    if (viewingPhotoIndex !== null) {
+      const updatedPhotos = photos.map((p, idx) =>
+        idx === viewingPhotoIndex ? { ...p, rotation: newRotation } : p
+      );
+      onUpdate(updatedPhotos);
+    }
+  }
+
   return (
     <div className="assess-tab">
       <div className="photo-progress-card">
@@ -278,6 +287,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               label={photo.label}
               photoId={photo.photoId}
               type={photo.type || 'photo'}
+              rotation={photo.rotation || 0}
               onOpenCamera={() => {
                 setSelectedCategory(photo.label);
                 setActivePhotoId(photo.id);
@@ -440,6 +450,9 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
           currentIndex={viewingPhotoIndex}
           onPrev={handlePrevPhoto}
           onNext={handleNextPhoto}
+          onRotate={handleRotatePhoto}
+          currentRotation={photos[viewingPhotoIndex]?.rotation || 0}
+          isVideo={photos[viewingPhotoIndex]?.type === 'video'}
         />
       )}
     </div>
