@@ -21,6 +21,8 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [state, setState] = useState<RecognitionState>('idle');
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [useKeyboardInput, setUseKeyboardInput] = useState(false);
+  const keyboardInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
 
@@ -165,6 +167,27 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     setShowModal(false);
     setTranscript('');
     interimTranscriptRef.current = '';
+    setUseKeyboardInput(false);
+    setErrorMessage('');
+  }
+
+  function handleSaveKeyboardInput() {
+    if (keyboardInputRef.current) {
+      const text = keyboardInputRef.current.value.trim();
+      if (text) {
+        onTranscribed(text);
+        keyboardInputRef.current.value = '';
+        handleClose();
+      }
+    }
+  }
+
+  function focusKeyboardInput() {
+    if (keyboardInputRef.current) {
+      keyboardInputRef.current.focus();
+      // Trigger keyboard to appear
+      keyboardInputRef.current.click();
+    }
   }
 
   if (state === 'error') {
@@ -203,19 +226,60 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
               <button className="modal-close" onClick={handleClose}>✕</button>
             </div>
 
-            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {errorMessage && (
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  color: '#ef4444',
+            {/* Tab selector */}
+            <div style={{ display: 'flex', gap: '8px', padding: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <button
+                onClick={() => setUseKeyboardInput(false)}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: !useKeyboardInput ? 'var(--accent)' : 'rgba(255, 255, 255, 0.1)',
+                  color: !useKeyboardInput ? '#0d1628' : 'inherit',
+                  fontWeight: 600,
                   fontSize: '13px',
-                }}>
-                  ⚠️ {errorMessage}
-                </div>
-              )}
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                🎤 Web Speech
+              </button>
+              <button
+                onClick={() => setUseKeyboardInput(true)}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: useKeyboardInput ? 'var(--accent)' : 'rgba(255, 255, 255, 0.1)',
+                  color: useKeyboardInput ? '#0d1628' : 'inherit',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                ⌨️ Keyboard
+              </button>
+            </div>
+
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {!useKeyboardInput ? (
+                // Web Speech API mode
+                <>
+                  {errorMessage && (
+                    <div style={{
+                      padding: '12px',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                    }}>
+                      ⚠️ {errorMessage}
+                    </div>
+                  )}
 
               <div style={{
                 padding: '12px',
@@ -318,6 +382,76 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
               <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', lineHeight: '1.4' }}>
                 💡 Tips: Click "Start Recording" to begin. Use "Pause" to take breaks between thoughts. Click "Resume" to continue. When done, click "Stop" then "Save".
               </div>
+                </>
+              ) : (
+                // Keyboard input mode
+                <>
+                  <div style={{ padding: '12px', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '6px', fontSize: '13px', lineHeight: '1.5' }}>
+                    💡 <strong>Native Android Speech Recognition</strong><br/>
+                    Tap the microphone icon on your keyboard to use Android's native speech recognition (like Gemini).
+                  </div>
+
+                  <div>
+                    <div className="tiny-label" style={{ marginBottom: '6px' }}>Your text will appear here:</div>
+                    <input
+                      ref={keyboardInputRef}
+                      type="text"
+                      placeholder="Tap below and then tap the microphone button on your keyboard"
+                      autoFocus={useKeyboardInput}
+                      autoComplete="off"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        fontSize: '14px',
+                        minHeight: '44px',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      className="btn btn-primary"
+                      onClick={focusKeyboardInput}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      📱 Show Keyboard
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleSaveKeyboardInput}
+                      disabled={!keyboardInputRef.current?.value.trim()}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      ✓ Save
+                    </button>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => {
+                        if (keyboardInputRef.current) {
+                          keyboardInputRef.current.value = '';
+                          focusKeyboardInput();
+                        }
+                      }}
+                      style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+
+                  <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', lineHeight: '1.4' }}>
+                    💡 Steps:<br/>
+                    1. Click "Show Keyboard"<br/>
+                    2. Tap the microphone 🎤 button on your keyboard<br/>
+                    3. Speak naturally<br/>
+                    4. Click "Save" when done
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
