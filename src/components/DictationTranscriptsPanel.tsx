@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { parseTranscriptWithClaude } from '../utils/parseTranscriptWithClaude';
-import AISettingsModal from './AISettingsModal';
+import { parseTranscriptWithGroq } from '../utils/parseTranscriptWithGroq';
 
 export interface DictationTranscript {
   id: string;
@@ -27,18 +26,11 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
   const [showRawPanel, setShowRawPanel] = useState(false);
   const [parsingId, setParsingId] = useState<string | null>(null);
   const [parsedResults, setParsedResults] = useState<Record<string, ParsedResult>>({});
-  const [showAISettings, setShowAISettings] = useState(false);
 
   async function handleParseTranscript(id: string, text: string) {
-    const apiKey = localStorage.getItem('claude-api-key');
-    if (!apiKey) {
-      setShowAISettings(true);
-      return;
-    }
-
     setParsingId(id);
     try {
-      const result = await parseTranscriptWithClaude(text, apiKey, jobType);
+      const result = await parseTranscriptWithGroq(text, jobType);
       setParsedResults({ ...parsedResults, [id]: result });
     } catch (err) {
       console.error('Failed to parse transcript:', err);
@@ -68,21 +60,8 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
           <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--accent)' }}>
             📝 Raw Dictations ({transcripts.length})
           </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button
-              className="btn btn-ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAISettings(true);
-              }}
-              title="Configure AI parsing"
-              style={{ padding: '4px 8px', fontSize: '12px' }}
-            >
-              ⚙️
-            </button>
-            <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
-              {showRawPanel ? '▼' : '▶'}
-            </div>
+          <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+            {showRawPanel ? '▼' : '▶'}
           </div>
         </div>
 
@@ -187,12 +166,6 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
           </div>
         )}
       </div>
-
-      <AISettingsModal
-        isOpen={showAISettings}
-        onClose={() => setShowAISettings(false)}
-        onSave={() => setShowAISettings(false)}
-      />
     </>
   );
 }
