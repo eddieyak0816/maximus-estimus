@@ -20,6 +20,7 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [transcript, setTranscript] = useState('');
   const [state, setState] = useState<RecognitionState>('idle');
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
 
@@ -34,13 +35,20 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    // Force English US for consistency across devices
     recognition.lang = 'en-US';
+
+    // Android fix: These settings help with Android's different behavior
+    (recognition as any).oninterimresults = true;
 
     recognition.onstart = () => {
       setIsListening(true);
       setState('listening');
       setTranscript('');
       interimTranscriptRef.current = '';
+      setErrorMessage('');
     };
 
     recognition.onresult = (event: any) => {
@@ -49,18 +57,24 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
 
       // Build final transcript from all final results
       for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+        const transcript = event.results[i][0].transcript || '';
 
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
+          // Trim and add only if it's not empty
+          const trimmed = transcript.trim();
+          if (trimmed) {
+            finalTranscript += trimmed + ' ';
+          }
         } else {
-          interim += transcript;
+          // For interim, only use the latest one (Android fix: avoid accumulating interim)
+          interim = transcript;
         }
       }
 
       // Set transcript to the complete final transcript (trimmed of extra spaces)
-      if (finalTranscript.trim()) {
-        setTranscript(finalTranscript.trim());
+      const finalTrimmed = finalTranscript.trim();
+      if (finalTrimmed) {
+        setTranscript(finalTrimmed);
       }
 
       interimTranscriptRef.current = interim;
@@ -68,6 +82,20 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
+
+      // Android-specific error handling
+      if (event.error === 'network') {
+        setErrorMessage('Network error. Check your connection and try again.');
+      } else if (event.error === 'no-speech') {
+        setErrorMessage('No speech detected. Make sure your microphone is working.');
+      } else if (event.error === 'audio-capture') {
+        setErrorMessage('Microphone not available. Check permissions and try again.');
+      } else if (event.error === 'permission-denied') {
+        setErrorMessage('Microphone permission denied. Allow access in settings.');
+      } else {
+        setErrorMessage(`Error: ${event.error}`);
+      }
+
       setState('error');
       setIsListening(false);
     };
@@ -176,6 +204,19 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
             </div>
 
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {errorMessage && (
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  fontSize: '13px',
+                }}>
+                  ⚠️ {errorMessage}
+                </div>
+              )}
+
               <div style={{
                 padding: '12px',
                 backgroundColor: isListening ? 'rgba(239, 68, 68, 0.1)' : isPaused ? 'rgba(245, 196, 42, 0.1)' : 'rgba(59, 130, 246, 0.1)',
