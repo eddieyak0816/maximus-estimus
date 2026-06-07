@@ -23,7 +23,7 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [errorMessage, setErrorMessage] = useState('');
   const [useKeyboardInput, setUseKeyboardInput] = useState(false);
   const [keyboardText, setKeyboardText] = useState('');
-  const keyboardInputRef = useRef<HTMLInputElement>(null);
+  const keyboardInputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
 
@@ -122,6 +122,7 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
       setTranscript('');
       interimTranscriptRef.current = '';
       setShowModal(true);
+      setUseKeyboardInput(true); // Auto-switch to keyboard mode
       recognitionRef.current.start();
     }
   }
@@ -391,9 +392,8 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
 
                   <div>
                     <div className="tiny-label" style={{ marginBottom: '6px' }}>Your text will appear here:</div>
-                    <input
+                    <textarea
                       ref={keyboardInputRef}
-                      type="text"
                       value={keyboardText}
                       onChange={e => setKeyboardText(e.target.value)}
                       placeholder="Tap the microphone button on your keyboard to speak"
@@ -401,14 +401,15 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
                       autoComplete="off"
                       style={{
                         width: '100%',
-                        padding: '12px',
+                        padding: '10px',
                         borderRadius: '6px',
                         border: keyboardText ? '1px solid var(--accent)' : '1px solid rgba(255, 255, 255, 0.2)',
                         backgroundColor: 'rgba(0, 0, 0, 0.3)',
                         color: 'inherit',
                         fontFamily: 'inherit',
                         fontSize: '14px',
-                        minHeight: '44px',
+                        minHeight: '150px',
+                        resize: 'vertical',
                         transition: 'border-color 0.2s',
                       }}
                     />

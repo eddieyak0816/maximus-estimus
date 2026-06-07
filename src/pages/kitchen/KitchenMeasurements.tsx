@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Toggle from '../../components/Toggle';
 import MeasInput from '../../components/MeasInput';
 import CollapseSection from '../../components/CollapseSection';
@@ -34,6 +34,17 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
   const [showIslandCamera, setShowIslandCamera] = useState(false);
   const [dictations, setDictations] = useState<DictationTranscript[]>([]);
+  const dictationSectionRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to dictation section on first load
+  useEffect(() => {
+    if (dictationSectionRef.current && !startClosed) {
+      // Small delay to ensure layout is complete
+      setTimeout(() => {
+        dictationSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [startClosed]);
 
   function handleDictationTranscribed(text: string) {
     const newDictation: DictationTranscript = {
@@ -52,7 +63,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   return (
     <div className="assess-tab">
       {/* ── Voice Dictation ── */}
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+      <div ref={dictationSectionRef} style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
         <VoiceDictationButton
           onTranscribed={handleDictationTranscribed}
           label="Dictate Notes"
