@@ -22,6 +22,7 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [useKeyboardInput, setUseKeyboardInput] = useState(false);
+  const [keyboardText, setKeyboardText] = useState('');
   const keyboardInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const interimTranscriptRef = useRef('');
@@ -169,23 +170,20 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     interimTranscriptRef.current = '';
     setUseKeyboardInput(false);
     setErrorMessage('');
+    setKeyboardText('');
   }
 
   function handleSaveKeyboardInput() {
-    if (keyboardInputRef.current) {
-      const text = keyboardInputRef.current.value.trim();
-      if (text) {
-        onTranscribed(text);
-        keyboardInputRef.current.value = '';
-        handleClose();
-      }
+    if (keyboardText.trim()) {
+      onTranscribed(keyboardText.trim());
+      setKeyboardText('');
+      handleClose();
     }
   }
 
   function focusKeyboardInput() {
     if (keyboardInputRef.current) {
       keyboardInputRef.current.focus();
-      // Trigger keyboard to appear
       keyboardInputRef.current.click();
     }
   }
@@ -396,19 +394,22 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
                     <input
                       ref={keyboardInputRef}
                       type="text"
-                      placeholder="Tap below and then tap the microphone button on your keyboard"
+                      value={keyboardText}
+                      onChange={e => setKeyboardText(e.target.value)}
+                      placeholder="Tap the microphone button on your keyboard to speak"
                       autoFocus={useKeyboardInput}
                       autoComplete="off"
                       style={{
                         width: '100%',
                         padding: '12px',
                         borderRadius: '6px',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        border: keyboardText ? '1px solid var(--accent)' : '1px solid rgba(255, 255, 255, 0.2)',
                         backgroundColor: 'rgba(0, 0, 0, 0.3)',
                         color: 'inherit',
                         fontFamily: 'inherit',
                         fontSize: '14px',
                         minHeight: '44px',
+                        transition: 'border-color 0.2s',
                       }}
                     />
                   </div>
@@ -422,21 +423,19 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
                       📱 Show Keyboard
                     </button>
                     <button
-                      className="btn btn-primary"
+                      className={`btn ${keyboardText.trim() ? 'btn-primary' : 'btn-ghost'}`}
                       onClick={handleSaveKeyboardInput}
-                      disabled={!keyboardInputRef.current?.value.trim()}
                       style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
                     >
-                      ✓ Save
+                      {keyboardText.trim() ? '✓ Save' : '(Enter text)'}
                     </button>
                     <button
                       className="btn btn-ghost"
                       onClick={() => {
-                        if (keyboardInputRef.current) {
-                          keyboardInputRef.current.value = '';
-                          focusKeyboardInput();
-                        }
+                        setKeyboardText('');
+                        focusKeyboardInput();
                       }}
+                      disabled={!keyboardText}
                       style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
                     >
                       Clear
