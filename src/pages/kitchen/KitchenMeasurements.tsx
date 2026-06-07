@@ -5,6 +5,9 @@ import CollapseSection from '../../components/CollapseSection';
 import WallSection from '../../components/WallSection';
 import ChevronIcon from '../../components/ChevronIcon';
 import CameraModal from '../../components/CameraModal';
+import VoiceDictationButton from '../../components/VoiceDictationButton';
+import DictationTranscriptsPanel from '../../components/DictationTranscriptsPanel';
+import type { DictationTranscript } from '../../components/DictationTranscriptsPanel';
 import type { KitchenMeasurements as KM } from '../../types';
 
 function wallLabel(i: number): string {
@@ -30,9 +33,38 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
   const [showIslandCamera, setShowIslandCamera] = useState(false);
+  const [dictations, setDictations] = useState<DictationTranscript[]>([]);
+
+  function handleDictationTranscribed(text: string) {
+    const newDictation: DictationTranscript = {
+      id: Date.now().toString(),
+      text,
+      timestamp: new Date().toISOString(),
+      processed: false,
+    };
+    setDictations([...dictations, newDictation]);
+  }
+
+  function handleDeleteDictation(id: string) {
+    setDictations(dictations.filter(d => d.id !== id));
+  }
 
   return (
     <div className="assess-tab">
+      {/* ── Voice Dictation ── */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <VoiceDictationButton
+          onTranscribed={handleDictationTranscribed}
+          label="Dictate Notes"
+        />
+      </div>
+
+      <DictationTranscriptsPanel
+        transcripts={dictations}
+        onAddTranscript={handleDictationTranscribed}
+        onDeleteTranscript={handleDeleteDictation}
+      />
+
       {/* ── Room Globals ── */}
       <CollapseSection title="🌐 Room Globals" accent defaultOpen={!startClosed}>
         <MeasInput label="Overall Ceiling Height" value={data.ceilingHeight} onChange={v => u('ceilingHeight', v)} />
