@@ -63,6 +63,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
         transcripts={dictations}
         onAddTranscript={handleDictationTranscribed}
         onDeleteTranscript={handleDeleteDictation}
+        jobType="Kitchen"
       />
 
       {/* ── Room Globals ── */}
