@@ -194,6 +194,7 @@ export interface CustomPhoto {
   id: string;
   label: string;
   photoId: string;
+  type?: 'photo' | 'video'; // 'photo' is default for backwards compatibility
 }
 
 // ── Layout Drawing ────────────────────────────────────────────────────────────

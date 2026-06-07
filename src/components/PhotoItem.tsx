@@ -6,6 +6,7 @@ interface Props {
   label: string;
   note?: string;
   photoId?: string;
+  type?: 'photo' | 'video';
   onOpenCamera: () => void;
   onFileSelected?: (file: File) => void;
   onRemove?: () => void;
@@ -16,12 +17,13 @@ interface PhotoItemProps extends Props {
   onUpdateLabel?: (newLabel: string) => void;
 }
 
-export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
+export default function PhotoItem({ label, note, photoId, type = 'photo', onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editingLabel, setEditingLabel] = useState(label);
   const captured = !!photoId;
+  const isVideo = type === 'video';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -79,7 +81,26 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
           if (!captured) onOpenCamera();
         }}>
           {captured && thumbUrl ? (
-            <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <>
+              {isVideo ? (
+                <video src={thumbUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
+              {isVideo && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '24px',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  pointerEvents: 'none',
+                }}>
+                  ▶
+                </div>
+              )}
+            </>
           ) : (
             <svg width={captured ? 22 : 20} height={captured ? 22 : 20} viewBox="0 0 24 24" fill={captured ? '#22c55e' : '#3b82f6'}>
               {captured ? (
@@ -179,7 +200,7 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
             </div>
           )}
           {note && !captured && <div className="photo-item-note">{note}</div>}
-          {captured && <div className="photo-item-done">✓ Photo captured</div>}
+          {captured && <div className="photo-item-done">✓ {isVideo ? 'Video' : 'Photo'} captured</div>}
         </div>
         <div className="photo-item-buttons">
           {captured && thumbUrl && (
@@ -201,7 +222,7 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
               onOpenCamera();
             }}
           >
-            {captured ? 'Retake' : '📷 Take'}
+            {captured ? 'Retake' : isVideo ? '🎥 Record' : '📷 Take'}
           </button>
           {onFileSelected && (
             <>

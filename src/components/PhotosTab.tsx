@@ -48,35 +48,37 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   // Combine wall names + defaults, remove duplicates
   const allCategories = [...new Set([...wallNames, ...defaultCategories])].sort();
 
-  async function handleBurstCapture(blob: Blob) {
+  async function handleBurstCapture(blob: Blob, type: 'photo' | 'video') {
     try {
-      const photoNumber = burstPhotosRef.current.length + 1;
-      const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      const mediaNumber = burstPhotosRef.current.length + 1;
+      const mediaType = type === 'video' ? 'video' : 'photo';
+      const photoId = await savePhoto(assessmentId, jobId, `${mediaType}-${uuidv4()}`, blob);
       const newPhoto: CustomPhoto = {
         id: uuidv4(),
-        label: `Photo ${photoNumber}`,
+        label: `${type === 'video' ? 'Video' : 'Photo'} ${mediaNumber}`,
         photoId,
+        type,
       };
       burstPhotosRef.current = [...burstPhotosRef.current, newPhoto];
       onUpdate(burstPhotosRef.current);
     } catch (err) {
-      console.error('Failed to save burst photo:', err);
+      console.error('Failed to save burst media:', err);
     }
   }
 
-  async function handlePhotoCapture(blob: Blob) {
+  async function handlePhotoCapture(blob: Blob, type: 'photo' | 'video') {
     if (!selectedCategory) {
       alert('Please select a category');
       return;
     }
 
     try {
-      const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      const photoId = await savePhoto(assessmentId, jobId, `${type}-${uuidv4()}`, blob);
       if (activePhotoId && activePhotoId !== 'new') {
         const existingPhoto = photos.find(p => p.id === activePhotoId);
         if (existingPhoto) {
           deletePhoto(existingPhoto.photoId).catch(err => console.error('Failed to delete replaced photo:', err));
-          onUpdate(photos.map(p => p.id === activePhotoId ? { ...p, label: selectedCategory, photoId } : p));
+          onUpdate(photos.map(p => p.id === activePhotoId ? { ...p, label: selectedCategory, photoId, type } : p));
           resetForm();
           return;
         }
@@ -86,12 +88,13 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
         id: uuidv4(),
         label: selectedCategory,
         photoId,
+        type,
       };
       onUpdate([...photos, newPhoto]);
       resetForm();
     } catch (err) {
-      console.error('Failed to save photo:', err);
-      alert('Failed to save photo');
+      console.error('Failed to save media:', err);
+      alert(`Failed to save ${type}`);
     }
   }
 
@@ -274,6 +277,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               key={photo.id}
               label={photo.label}
               photoId={photo.photoId}
+              type={photo.type || 'photo'}
               onOpenCamera={() => {
                 setSelectedCategory(photo.label);
                 setActivePhotoId(photo.id);
