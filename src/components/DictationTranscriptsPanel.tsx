@@ -1,28 +1,30 @@
 import { useState } from 'react';
 import { parseTranscriptWithOpenRouter } from '../utils/parseTranscriptWithOpenRouter';
 
-export interface DictationTranscript {
-  id: string;
-  text: string;
-  timestamp: string;
-  processed: boolean;
-}
-
-interface ParsedResult {
+export interface ParsedResult {
   measurements: Record<string, string | number | boolean>;
   questions: Record<string, string | string[] | boolean>;
   notes: string;
   confidence: 'high' | 'medium' | 'low';
 }
 
+export interface DictationTranscript {
+  id: string;
+  text: string;
+  timestamp: string;
+  processed: boolean;
+  parsed?: ParsedResult; // Store parsed results
+}
+
 interface Props {
   transcripts: DictationTranscript[];
   onAddTranscript?: (text: string) => void;
   onDeleteTranscript: (id: string) => void;
+  onApplyParsedData?: (parsed: ParsedResult) => void; // New callback
   jobType?: 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck';
 }
 
-export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, jobType = 'Kitchen' }: Props) {
+export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, onApplyParsedData, jobType = 'Kitchen' }: Props) {
   const [showRawPanel, setShowRawPanel] = useState(false);
   const [parsingId, setParsingId] = useState<string | null>(null);
   const [parsedResults, setParsedResults] = useState<Record<string, ParsedResult>>({});
@@ -163,6 +165,13 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
                             </div>
                           </div>
                         )}
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => onApplyParsedData?.(parsed)}
+                          style={{ marginTop: '8px', width: '100%', fontSize: '12px' }}
+                        >
+                          ✓ Apply to Form
+                        </button>
                       </div>
                     )}
                   </div>
