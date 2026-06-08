@@ -1,5 +1,4 @@
-import type { KitchenAssessment, BathroomAssessment, FlooringAssessment } from '../types';
-import type { ParsedResult } from '../components/DictationTranscriptsPanel';
+import type { KitchenAssessment, BathroomAssessment, FlooringAssessment, ParsedResult } from '../types';
 
 type JobData = KitchenAssessment | BathroomAssessment | FlooringAssessment | any;
 

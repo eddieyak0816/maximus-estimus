@@ -19,11 +19,13 @@ function wallLabel(i: number): string {
 interface Props {
   data: KM;
   onUpdate: (d: KM) => void;
+  onUpdateJob?: (job: any) => void; // For updating full job (including dictations)
+  job?: any; // Full job object (KitchenAssessment) for accessing dictations
   onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
   startClosed?: boolean;
 }
 
-export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture, startClosed = false }: Props) {
+export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, onWallPhotoCapture, startClosed = false }: Props) {
   const u = (f: keyof KM, v: unknown) => onUpdate({ ...data, [f]: v });
 
   const [iDimsOpen, setIDimsOpen] = useState(!startClosed);
@@ -34,8 +36,10 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
   const [showIslandCamera, setShowIslandCamera] = useState(false);
-  const [dictations, setDictations] = useState<DictationTranscript[]>([]);
   const dictationSectionRef = useRef<HTMLDivElement>(null);
+
+  // Load dictations from job (persistent across tab switches)
+  const dictations = job?.dictations || [];
 
   // Scroll to dictation section on first load
   useEffect(() => {
@@ -54,11 +58,21 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
       timestamp: new Date().toISOString(),
       processed: false,
     };
-    setDictations([...dictations, newDictation]);
+    const updated = { ...job, dictations: [...dictations, newDictation] };
+    onUpdateJob?.(updated);
   }
 
   function handleDeleteDictation(id: string) {
-    setDictations(dictations.filter(d => d.id !== id));
+    const updated = { ...job, dictations: dictations.filter((d: DictationTranscript) => d.id !== id) };
+    onUpdateJob?.(updated);
+  }
+
+  function handleEditDictation(id: string, newText: string) {
+    const updated = {
+      ...job,
+      dictations: dictations.map((d: DictationTranscript) => (d.id === id ? { ...d, text: newText } : d)),
+    };
+    onUpdateJob?.(updated);
   }
 
   function handleApplyParsedData(parsed: ParsedResult) {
@@ -81,6 +95,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
         transcripts={dictations}
         onAddTranscript={handleDictationTranscribed}
         onDeleteTranscript={handleDeleteDictation}
+        onEditTranscript={handleEditDictation}
         onApplyParsedData={handleApplyParsedData}
         jobType="Kitchen"
       />

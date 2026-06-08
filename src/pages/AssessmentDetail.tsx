@@ -398,6 +398,8 @@ export default function AssessmentDetail() {
     if (activeTab === 'measurements') {
       return <KitchenMeasurements key={measurementsKey} data={activeJob.kitchen.measurements}
         onUpdate={m => updateKitchen({ ...activeJob.kitchen, measurements: m })}
+        onUpdateJob={(job) => updateKitchen(job)}
+        job={activeJob.kitchen}
         onWallPhotoCapture={handleWallPhotoCapture}
         startClosed={startClosed} />;
     }

@@ -1,33 +1,25 @@
 import { useState } from 'react';
 import { parseTranscriptWithOpenRouter } from '../utils/parseTranscriptWithOpenRouter';
+import type { ParsedResult, DictationTranscript } from '../types';
 
-export interface ParsedResult {
-  measurements: Record<string, string | number | boolean>;
-  questions: Record<string, string | string[] | boolean>;
-  notes: string;
-  confidence: 'high' | 'medium' | 'low';
-}
-
-export interface DictationTranscript {
-  id: string;
-  text: string;
-  timestamp: string;
-  processed: boolean;
-  parsed?: ParsedResult; // Store parsed results
-}
+// Re-export for backward compatibility
+export type { ParsedResult, DictationTranscript };
 
 interface Props {
   transcripts: DictationTranscript[];
   onAddTranscript?: (text: string) => void;
   onDeleteTranscript: (id: string) => void;
-  onApplyParsedData?: (parsed: ParsedResult) => void; // New callback
+  onEditTranscript?: (id: string, newText: string) => void;
+  onApplyParsedData?: (parsed: ParsedResult) => void;
   jobType?: 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck';
 }
 
-export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, onApplyParsedData, jobType = 'Kitchen' }: Props) {
+export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, onEditTranscript, onApplyParsedData, jobType = 'Kitchen' }: Props) {
   const [showRawPanel, setShowRawPanel] = useState(false);
   const [parsingId, setParsingId] = useState<string | null>(null);
   const [parsedResults, setParsedResults] = useState<Record<string, ParsedResult>>({});
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
 
   async function handleParseTranscript(id: string, text: string) {
     const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -97,11 +89,62 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
                           <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '4px' }}>
                             {new Date(transcript.timestamp).toLocaleString()}
                           </div>
-                          <div style={{ fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.4' }}>
-                            {transcript.text}
-                          </div>
+                          {editingId === transcript.id ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <textarea
+                                value={editingText}
+                                onChange={(e) => setEditingText(e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  minHeight: '80px',
+                                  padding: '8px',
+                                  borderRadius: '4px',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                  color: 'inherit',
+                                  fontFamily: 'inherit',
+                                  fontSize: '13px',
+                                  resize: 'vertical',
+                                }}
+                              />
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => {
+                                    onEditTranscript?.(transcript.id, editingText);
+                                    setEditingId(null);
+                                  }}
+                                  style={{ flex: 1, fontSize: '12px' }}
+                                >
+                                  ✓ Save
+                                </button>
+                                <button
+                                  className="btn btn-ghost"
+                                  onClick={() => setEditingId(null)}
+                                  style={{ flex: 1, fontSize: '12px' }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '13px', wordBreak: 'break-word', lineHeight: '1.4' }}>
+                              {transcript.text}
+                            </div>
+                          )}
                         </div>
                         <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => {
+                              setEditingId(transcript.id);
+                              setEditingText(transcript.text);
+                            }}
+                            title="Edit text"
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            ✏️
+                          </button>
                           <button
                             className="btn btn-ghost"
                             onClick={() => handleParseTranscript(transcript.id, transcript.text)}

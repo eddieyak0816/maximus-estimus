@@ -2,6 +2,22 @@ export type AssessmentStatus = 'draft' | 'in-progress' | 'complete';
 export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
 export type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
+// ── Dictation & AI Parsing ────────────────────────────────────────────────────
+export interface ParsedResult {
+  measurements: Record<string, string | number | boolean>;
+  questions: Record<string, string | string[] | boolean>;
+  notes: string;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+export interface DictationTranscript {
+  id: string;
+  text: string;
+  timestamp: string;
+  processed: boolean;
+  parsed?: ParsedResult; // Store parsed results
+}
+
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface ClientInfo {
   firstName: string;
@@ -213,6 +229,7 @@ export interface KitchenAssessment {
   measurements: KitchenMeasurements;
   questions: KitchenQuestions;
   photos: KitchenPhotos;
+  dictations?: DictationTranscript[]; // Voice dictations with optional parsed results
 }
 
 // ── Bathroom ──────────────────────────────────────────────────────────────────
@@ -303,6 +320,7 @@ export interface BathroomAssessment {
   measurements: BathroomMeasurements;
   questions: BathroomQuestions;
   photos: BathroomPhotos;
+  dictations?: DictationTranscript[];
 }
 
 // ── Flooring ──────────────────────────────────────────────────────────────────
