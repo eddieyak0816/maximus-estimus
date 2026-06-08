@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { parseTranscriptWithHuggingFace } from '../utils/parseTranscriptWithHuggingFace';
+import { parseTranscriptWithOpenRouter } from '../utils/parseTranscriptWithOpenRouter';
 
 export interface DictationTranscript {
   id: string;
@@ -28,15 +28,15 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
   const [parsedResults, setParsedResults] = useState<Record<string, ParsedResult>>({});
 
   async function handleParseTranscript(id: string, text: string) {
-    const apiKey = import.meta.env.VITE_HUGGINGFACE_API_KEY;
+    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
     if (!apiKey) {
-      alert('Hugging Face API key not configured. Please set VITE_HUGGINGFACE_API_KEY in GitHub secrets.');
+      alert('OpenRouter API key not configured. Please set VITE_OPENROUTER_API_KEY in GitHub secrets.');
       return;
     }
 
     setParsingId(id);
     try {
-      const result = await parseTranscriptWithHuggingFace(text, apiKey, jobType);
+      const result = await parseTranscriptWithOpenRouter(text, apiKey, jobType);
       setParsedResults({ ...parsedResults, [id]: result });
     } catch (err) {
       console.error('Failed to parse transcript:', err);
