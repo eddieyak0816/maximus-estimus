@@ -84,14 +84,13 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function handleApplyParsedData(parsed: ParsedResult) {
-    // Apply parsed data to measurements
-    const appliedJob = applyParsedDataToJob(data, parsed);
-    // appliedJob has the updated measurements structure
-    onUpdate(appliedJob);
+    // Apply parsed data to full job (includes measurements, questions, photos, etc.)
+    const appliedJob = applyParsedDataToJob(job, parsed);
+    // appliedJob has the full updated job structure with all parsed fields
+    onUpdateJob?.(appliedJob);
 
-    // Also update the full job with parsed results for persistence
-    const updatedJob = { ...job, measurements: appliedJob };
-    onUpdateJob?.(updatedJob);
+    // Update measurements display to trigger form re-render
+    onUpdate(appliedJob.measurements);
 
     alert('✅ Parsed data applied to form! Please review and adjust as needed.');
   }
