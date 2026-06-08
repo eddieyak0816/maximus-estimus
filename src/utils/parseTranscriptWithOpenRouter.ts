@@ -6,10 +6,10 @@ interface ParsedData {
 }
 
 // Free models from OpenRouter (in order of preference for fallback)
+// See: https://openrouter.ai/models?max_price=0
 const FREE_MODELS = [
   'mistralai/mistral-7b-instruct:free',
   'meta-llama/llama-2-7b-chat:free',
-  'nousresearch/nous-hermes-2-mistral-7b-dpo:free',
 ];
 
 export async function parseTranscriptWithOpenRouter(
