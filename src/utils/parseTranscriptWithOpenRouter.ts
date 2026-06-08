@@ -3,6 +3,8 @@ interface ParsedData {
   questions: Record<string, string | string[] | boolean>;
   notes: string;
   confidence: 'high' | 'medium' | 'low';
+  wallContext?: string | null; // e.g., "sink wall", "window wall", null if not mentioned
+  wallContextConfidence?: 'high' | 'medium' | 'low';
 }
 
 // Free models from OpenRouter (in order of preference for fallback)
@@ -88,6 +90,8 @@ async function tryModel(model: string, prompt: string, apiKey: string): Promise<
     questions: parsed.questions || {},
     notes: parsed.notes || '',
     confidence: parsed.confidence || 'medium',
+    wallContext: parsed.wallContext || null,
+    wallContextConfidence: parsed.wallContextConfidence || 'medium',
   };
 }
 
@@ -100,26 +104,31 @@ Transcript:
 "${transcript}"
 
 Please extract:
-1. Measurements (wall lengths, heights, widths, etc.) - use consistent units (feet/inches as "X' Y\"" format)
-2. Answers to common questions (yes/no, material choices, preferences)
-3. Special notes or observations
-4. Your confidence in the parsing (high/medium/low)
+1. Wall context/name - If the worker mentions a specific wall or feature (e.g., "sink wall", "window wall", "pantry wall"), identify it
+2. Measurements (wall lengths, heights, widths, etc.) - use consistent units (feet/inches as "X' Y\"" format)
+3. Answers to common questions (yes/no, material choices, preferences)
+4. Special notes or observations
+5. Your confidence in the parsing (high/medium/low)
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
+  "wallContext": "sink wall",
+  "wallContextConfidence": "high",
   "measurements": {
-    "wall_a_length": "12' 3\\"",
-    "ceiling_height": "9'",
-    "window_count": 2
+    "sink_base_width": "36\\"",
+    "sink_location": "33\\" from left wall",
+    "window_count": 2,
+    "ceiling_height": "9'"
   },
   "questions": {
     "has_soffit": true,
     "countertop_material": "granite",
-    "cabinet_color": "white"
+    "disposal": true
   },
   "notes": "Any special observations or unclear measurements that need clarification",
   "confidence": "high"
 }
 
+Wall context examples: "sink wall", "window wall", "island", "pantry", "entrance", or null if not mentioned.
 Be conservative - only include measurements and answers you're confident about. Leave out uncertain data.`;
 }

@@ -7,9 +7,10 @@ import ChevronIcon from '../../components/ChevronIcon';
 import CameraModal from '../../components/CameraModal';
 import VoiceDictationButton from '../../components/VoiceDictationButton';
 import DictationTranscriptsPanel from '../../components/DictationTranscriptsPanel';
+import AIWallSelectionDialog from '../../components/AIWallSelectionDialog';
 import type { DictationTranscript, ParsedResult } from '../../components/DictationTranscriptsPanel';
 import type { KitchenMeasurements as KM } from '../../types';
-import { applyParsedDataToJob } from '../../utils/applyParsedDataToJob';
+import { applyParsedDataToJobAsAIWall, extractWallContext } from '../../utils/applyParsedDataToJob';
 
 function wallLabel(i: number): string {
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -36,6 +37,8 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
   const [showIslandCamera, setShowIslandCamera] = useState(false);
+  const [showWallSelectionDialog, setShowWallSelectionDialog] = useState(false);
+  const [pendingParsedData, setPendingParsedData] = useState<ParsedResult | null>(null);
   const dictationSectionRef = useRef<HTMLDivElement>(null);
 
   // Load dictations from job (persistent across tab switches)
@@ -84,15 +87,36 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function handleApplyParsedData(parsed: ParsedResult) {
-    // Apply parsed data to full job (includes measurements, questions, photos, etc.)
-    const appliedJob = applyParsedDataToJob(job, parsed);
-    // appliedJob has the full updated job structure with all parsed fields
-    onUpdateJob?.(appliedJob);
+    // Try to extract wall context from parsed data
+    const wallContext = extractWallContext(parsed.wallContext);
 
-    // Update measurements display to trigger form re-render
+    if (wallContext && (parsed.wallContextConfidence === 'high' || parsed.wallContextConfidence === 'medium')) {
+      // AI confident about the wall - apply directly
+      applyToAIWall(wallContext);
+    } else {
+      // AI unsure - show dialog for user to select/create wall
+      setPendingParsedData(parsed);
+      setShowWallSelectionDialog(true);
+    }
+  }
+
+  function applyToAIWall(wallName: string) {
+    if (!pendingParsedData) {
+      alert('Error: No parsed data to apply');
+      return;
+    }
+
+    const appliedJob = applyParsedDataToJobAsAIWall(job, pendingParsedData, wallName);
+    onUpdateJob?.(appliedJob);
     onUpdate(appliedJob.measurements);
 
-    alert('✅ Parsed data applied to form! Please review and adjust as needed.');
+    setPendingParsedData(null);
+    setShowWallSelectionDialog(false);
+    alert(`✅ Created/updated "${wallName}"! You can now edit the wall measurements.`);
+  }
+
+  function handleWallSelection(wallName: string, _isNewWall: boolean) {
+    applyToAIWall(wallName);
   }
 
   return (
@@ -447,6 +471,17 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
             });
           }}
           onClose={() => setShowIslandCamera(false)}
+        />
+      )}
+
+      {showWallSelectionDialog && (
+        <AIWallSelectionDialog
+          existingWalls={data.walls || []}
+          onSelect={handleWallSelection}
+          onCancel={() => {
+            setShowWallSelectionDialog(false);
+            setPendingParsedData(null);
+          }}
         />
       )}
 

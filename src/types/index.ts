@@ -8,6 +8,8 @@ export interface ParsedResult {
   questions: Record<string, string | string[] | boolean>;
   notes: string;
   confidence: 'high' | 'medium' | 'low';
+  wallContext?: string | null; // e.g., "sink wall", "window wall"
+  wallContextConfidence?: 'high' | 'medium' | 'low';
 }
 
 export interface DictationTranscript {
