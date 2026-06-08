@@ -6,10 +6,11 @@ interface ParsedData {
 }
 
 // Free models from OpenRouter (in order of preference for fallback)
-// See: https://openrouter.ai/models?max_price=0
+// See: https://openrouter.ai/models?order=top-weekly&input_modalities=text&max_price=0
 const FREE_MODELS = [
-  'mistralai/mistral-7b-instruct:free',
-  'meta-llama/llama-2-7b-chat:free',
+  'openai/gpt-oss-120b:free',           // Powerful, best choice
+  'nvidia/nemotron-3-super-120b-a12b:free', // Also powerful
+  'google/gemma-4-31b-it:free',         // Instruction-tuned fallback
 ];
 
 export async function parseTranscriptWithOpenRouter(
