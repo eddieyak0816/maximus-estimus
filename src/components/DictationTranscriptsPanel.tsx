@@ -10,11 +10,12 @@ interface Props {
   onAddTranscript?: (text: string) => void;
   onDeleteTranscript: (id: string) => void;
   onEditTranscript?: (id: string, newText: string) => void;
+  onUpdateTranscript?: (id: string, updated: DictationTranscript) => void;
   onApplyParsedData?: (parsed: ParsedResult) => void;
   jobType?: 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck';
 }
 
-export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, onEditTranscript, onApplyParsedData, jobType = 'Kitchen' }: Props) {
+export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscript, onEditTranscript, onUpdateTranscript, onApplyParsedData, jobType = 'Kitchen' }: Props) {
   const [showRawPanel, setShowRawPanel] = useState(false);
   const [parsingId, setParsingId] = useState<string | null>(null);
   const [parsedResults, setParsedResults] = useState<Record<string, ParsedResult>>({});
@@ -32,6 +33,13 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
     try {
       const result = await parseTranscriptWithOpenRouter(text, apiKey, jobType);
       setParsedResults({ ...parsedResults, [id]: result });
+
+      // Save parsed result to transcript (persist to assessment)
+      const transcript = transcripts.find(t => t.id === id);
+      if (transcript) {
+        const updated = { ...transcript, parsed: result };
+        onUpdateTranscript?.(id, updated);
+      }
     } catch (err) {
       console.error('Failed to parse transcript:', err);
       alert(`Failed to parse transcript: ${err instanceof Error ? err.message : 'Unknown error'}`);

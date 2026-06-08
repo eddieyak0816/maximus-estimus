@@ -75,9 +75,24 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
     onUpdateJob?.(updated);
   }
 
+  function handleUpdateTranscript(id: string, updatedTranscript: DictationTranscript) {
+    const updated = {
+      ...job,
+      dictations: dictations.map((d: DictationTranscript) => (d.id === id ? updatedTranscript : d)),
+    };
+    onUpdateJob?.(updated);
+  }
+
   function handleApplyParsedData(parsed: ParsedResult) {
-    const updated = applyParsedDataToJob(data, parsed);
-    onUpdate(updated);
+    // Apply parsed data to measurements
+    const appliedJob = applyParsedDataToJob(data, parsed);
+    // appliedJob has the updated measurements structure
+    onUpdate(appliedJob);
+
+    // Also update the full job with parsed results for persistence
+    const updatedJob = { ...job, measurements: appliedJob };
+    onUpdateJob?.(updatedJob);
+
     alert('✅ Parsed data applied to form! Please review and adjust as needed.');
   }
 
@@ -96,6 +111,7 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
         onAddTranscript={handleDictationTranscribed}
         onDeleteTranscript={handleDeleteDictation}
         onEditTranscript={handleEditDictation}
+        onUpdateTranscript={handleUpdateTranscript}
         onApplyParsedData={handleApplyParsedData}
         jobType="Kitchen"
       />
