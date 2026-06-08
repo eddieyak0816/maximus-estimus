@@ -87,28 +87,21 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function handleApplyParsedData(parsed: ParsedResult) {
-    // Store parsed data for later use
-    setPendingParsedData(parsed);
-
     // Try to extract wall context from parsed data
     const wallContext = extractWallContext(parsed.wallContext);
 
     if (wallContext && (parsed.wallContextConfidence === 'high' || parsed.wallContextConfidence === 'medium')) {
       // AI confident about the wall - apply directly
-      applyToAIWall(wallContext);
+      applyToAIWall(wallContext, parsed);
     } else {
       // AI unsure - show dialog for user to select/create wall
+      setPendingParsedData(parsed);
       setShowWallSelectionDialog(true);
     }
   }
 
-  function applyToAIWall(wallName: string) {
-    if (!pendingParsedData) {
-      alert('Error: No parsed data to apply');
-      return;
-    }
-
-    const appliedJob = applyParsedDataToJobAsAIWall(job, pendingParsedData, wallName);
+  function applyToAIWall(wallName: string, parsed: ParsedResult) {
+    const appliedJob = applyParsedDataToJobAsAIWall(job, parsed, wallName);
     onUpdateJob?.(appliedJob);
     onUpdate(appliedJob.measurements);
 
@@ -118,7 +111,11 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function handleWallSelection(wallName: string, _isNewWall: boolean) {
-    applyToAIWall(wallName);
+    if (!pendingParsedData) {
+      alert('Error: No parsed data available');
+      return;
+    }
+    applyToAIWall(wallName, pendingParsedData);
   }
 
   return (
