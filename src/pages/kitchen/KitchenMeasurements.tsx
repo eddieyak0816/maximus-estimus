@@ -87,6 +87,9 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function handleApplyParsedData(parsed: ParsedResult) {
+    // Store parsed data for later use
+    setPendingParsedData(parsed);
+
     // Try to extract wall context from parsed data
     const wallContext = extractWallContext(parsed.wallContext);
 
@@ -95,7 +98,6 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
       applyToAIWall(wallContext);
     } else {
       // AI unsure - show dialog for user to select/create wall
-      setPendingParsedData(parsed);
       setShowWallSelectionDialog(true);
     }
   }
