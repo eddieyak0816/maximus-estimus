@@ -9,8 +9,9 @@ import VoiceDictationButton from '../../components/VoiceDictationButton';
 import DictationTranscriptsPanel from '../../components/DictationTranscriptsPanel';
 import AIWallSelectionDialog from '../../components/AIWallSelectionDialog';
 import type { DictationTranscript, ParsedResult } from '../../components/DictationTranscriptsPanel';
-import type { KitchenMeasurements as KM } from '../../types';
-import { applyParsedDataToJobAsAIWall, extractWallContext } from '../../utils/applyParsedDataToJob';
+import type { KitchenAssessment, KitchenMeasurements as KM } from '../../types';
+import { extractWallContext } from '../../utils/applyParsedDataToJob';
+import { convertParsedToAIWall } from '../../utils/smartMergeWalls';
 
 function wallLabel(i: number): string {
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -101,13 +102,19 @@ export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, 
   }
 
   function applyToAIWall(wallName: string, parsed: ParsedResult) {
-    const appliedJob = applyParsedDataToJobAsAIWall(job, parsed, wallName);
-    onUpdateJob?.(appliedJob);
-    onUpdate(appliedJob.measurements);
+    // Convert parsed data to AI wall and merge with existing extracts
+    const newExtract = convertParsedToAIWall(parsed, wallName, job?.aiExtract);
+
+    // Update job with new aiExtract data
+    const updatedJob: KitchenAssessment = {
+      ...job,
+      aiExtract: newExtract,
+    };
+    onUpdateJob?.(updatedJob);
 
     setPendingParsedData(null);
     setShowWallSelectionDialog(false);
-    alert(`✅ Created/updated "${wallName}"! You can now edit the wall measurements.`);
+    alert(`✅ Added to "${wallName}" in AI Extract! Review and edit it on the 🤖 AI Extract tab.`);
   }
 
   function handleWallSelection(wallName: string, _isNewWall: boolean) {

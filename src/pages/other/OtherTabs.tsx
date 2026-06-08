@@ -1,6 +1,7 @@
 import type { OtherAssessment } from '../../types';
+import AIExtractTab from '../../components/AIExtractTab';
 
-type Tab = 'measurements' | 'questions' | 'photos' | 'layout';
+type Tab = 'measurements' | 'extract' | 'questions' | 'photos' | 'layout';
 
 interface Props {
   data: OtherAssessment;
@@ -26,6 +27,11 @@ export default function OtherTabs({ data, activeTab, onUpdate }: Props) {
         />
       </div>
     );
+  }
+
+  if (activeTab === 'extract') {
+    return <AIExtractTab aiExtract={data.aiExtract}
+      onUpdate={ext => onUpdate({ ...data, aiExtract: ext })} />;
   }
 
   if (activeTab === 'questions') {

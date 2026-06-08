@@ -27,6 +27,7 @@ import DeckPhotos from './deck/DeckPhotos';
 import OtherTabs from './other/OtherTabs';
 import LayoutTab from '../components/LayoutTab';
 import WallMeasurementDialog from '../components/WallMeasurementDialog';
+import AIExtractTab from '../components/AIExtractTab';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
@@ -44,6 +45,7 @@ const STATUS_LABELS: Record<AssessmentStatus, string> = {
 
 const TABS = [
   { id: 'measurements', label: '📏 Measure' },
+  { id: 'extract',      label: '🤖 AI Extract' },
   { id: 'questions',    label: '📋 Questions' },
   { id: 'photos',       label: '📷 Photos' },
   { id: 'layout',       label: '📐 Layout' },
@@ -295,6 +297,10 @@ export default function AssessmentDetail() {
           onWallPhotoCapture={handleWallPhotoCapture}
           startClosed={startClosed} />;
       }
+      if (activeTab === 'extract') {
+        return <AIExtractTab aiExtract={bath.aiExtract}
+          onUpdate={ext => updateBathroom({ ...bath, aiExtract: ext })} />;
+      }
       if (activeTab === 'questions') {
         return <BathroomQuestions data={bath.questions}
           onUpdate={q => updateBathroom({ ...bath, questions: q })} />;
@@ -314,6 +320,10 @@ export default function AssessmentDetail() {
         return <FlooringMeasurements key={measurementsKey} data={floor.measurements}
           onUpdate={m => updateFlooring({ ...floor, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
+      }
+      if (activeTab === 'extract') {
+        return <AIExtractTab aiExtract={floor.aiExtract}
+          onUpdate={ext => updateFlooring({ ...floor, aiExtract: ext })} />;
       }
       if (activeTab === 'questions') {
         return <FlooringQuestions data={floor.questions}
@@ -335,6 +345,10 @@ export default function AssessmentDetail() {
           onUpdate={m => updateLivingRoom({ ...lr, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
+      if (activeTab === 'extract') {
+        return <AIExtractTab aiExtract={lr.aiExtract}
+          onUpdate={ext => updateLivingRoom({ ...lr, aiExtract: ext })} />;
+      }
       if (activeTab === 'questions') {
         return <LivingRoomQuestions data={lr.questions}
           onUpdate={q => updateLivingRoom({ ...lr, questions: q })} />;
@@ -355,6 +369,10 @@ export default function AssessmentDetail() {
           onUpdate={m => updateBedroom({ ...br, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
       }
+      if (activeTab === 'extract') {
+        return <AIExtractTab aiExtract={br.aiExtract}
+          onUpdate={ext => updateBedroom({ ...br, aiExtract: ext })} />;
+      }
       if (activeTab === 'questions') {
         return <BedroomQuestions data={br.questions}
           onUpdate={q => updateBedroom({ ...br, questions: q })} />;
@@ -374,6 +392,10 @@ export default function AssessmentDetail() {
         return <DeckMeasurements key={measurementsKey} data={dk.measurements}
           onUpdate={m => updateDeck({ ...dk, measurements: m })}
           onWallPhotoCapture={handleWallPhotoCapture} />;
+      }
+      if (activeTab === 'extract') {
+        return <AIExtractTab aiExtract={dk.aiExtract}
+          onUpdate={ext => updateDeck({ ...dk, aiExtract: ext })} />;
       }
       if (activeTab === 'questions') {
         return <DeckQuestions data={dk.questions}
@@ -402,6 +424,10 @@ export default function AssessmentDetail() {
         job={activeJob.kitchen}
         onWallPhotoCapture={handleWallPhotoCapture}
         startClosed={startClosed} />;
+    }
+    if (activeTab === 'extract') {
+      return <AIExtractTab aiExtract={activeJob.kitchen.aiExtract}
+        onUpdate={ext => updateKitchen({ ...activeJob.kitchen, aiExtract: ext })} />;
     }
     if (activeTab === 'questions') {
       return <KitchenQuestions data={activeJob.kitchen.questions}

@@ -20,6 +20,34 @@ export interface DictationTranscript {
   parsed?: ParsedResult; // Store parsed results
 }
 
+// ── AI Extract Data (Flexible, Wall-Based) ────────────────────────────────────
+export interface AIExtractAppliance {
+  id: string;
+  name: string;
+  width?: string;
+  position?: string;
+  [key: string]: any;
+}
+
+export interface AIWallData {
+  id: string;
+  name: string; // "Fridge Wall", "Sink Wall", etc.
+  wallContextConfidence: 'high' | 'medium' | 'low';
+  measurements: Record<string, any>; // All extracted measurements (wall_length, ceiling_height, etc.)
+  appliances: AIExtractAppliance[];
+  features: Record<string, any>; // dishwasher, disposal, backsplash, etc.
+  questions: Record<string, any>; // Answers extracted from dictation
+  notes: string;
+  rawParsed: ParsedResult; // Original AI response for transparency
+  createdAt: string;
+  updatedAt: string;
+  source: 'ai' | 'manual';
+}
+
+export interface AIExtractData {
+  walls: AIWallData[];
+}
+
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface ClientInfo {
   firstName: string;
@@ -232,6 +260,7 @@ export interface KitchenAssessment {
   questions: KitchenQuestions;
   photos: KitchenPhotos;
   dictations?: DictationTranscript[]; // Voice dictations with optional parsed results
+  aiExtract?: AIExtractData; // AI-extracted walls (flexible, not bound to Wall A/B/C/D)
 }
 
 // ── Bathroom ──────────────────────────────────────────────────────────────────
@@ -323,6 +352,7 @@ export interface BathroomAssessment {
   questions: BathroomQuestions;
   photos: BathroomPhotos;
   dictations?: DictationTranscript[];
+  aiExtract?: AIExtractData;
 }
 
 // ── Flooring ──────────────────────────────────────────────────────────────────
@@ -384,6 +414,7 @@ export interface FlooringAssessment {
   measurements: FlooringMeasurements;
   questions: FlooringQuestions;
   photos: FlooringPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Living Room ───────────────────────────────────────────────────────────────
@@ -418,6 +449,7 @@ export interface LivingRoomAssessment {
   measurements: LivingRoomMeasurements;
   questions: LivingRoomQuestions;
   photos: LivingRoomPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Bedroom ────────────────────────────────────────────────────────────────────
@@ -453,6 +485,7 @@ export interface BedroomAssessment {
   measurements: BedroomMeasurements;
   questions: BedroomQuestions;
   photos: BedroomPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Deck ───────────────────────────────────────────────────────────────────────
@@ -489,6 +522,7 @@ export interface DeckAssessment {
   measurements: DeckMeasurements;
   questions: DeckQuestions;
   photos: DeckPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Painting ──────────────────────────────────────────────────────────────────
@@ -523,6 +557,7 @@ export interface PaintingAssessment {
   measurements: PaintingMeasurements;
   questions: PaintingQuestions;
   photos: PaintingPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Other ─────────────────────────────────────────────────────────────────────
@@ -530,6 +565,7 @@ export interface OtherAssessment {
   measurementNotes?: string;
   questionNotes?: string;
   photoNotes?: string;
+  aiExtract?: AIExtractData;
 }
 
 // ── Job Instance ──────────────────────────────────────────────────────────────
