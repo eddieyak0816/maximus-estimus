@@ -81,7 +81,8 @@ export default function DictationTranscriptsPanel({ transcripts, onDeleteTranscr
               </div>
             ) : (
               transcripts.map((transcript) => {
-                const parsed = parsedResults[transcript.id];
+                // Use saved parsed result from transcript, not temporary state
+                const parsed = transcript.parsed;
                 return (
                   <div key={transcript.id}>
                     <div
