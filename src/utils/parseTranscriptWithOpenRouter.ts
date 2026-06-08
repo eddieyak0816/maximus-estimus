@@ -96,39 +96,57 @@ async function tryModel(model: string, prompt: string, apiKey: string): Promise<
 }
 
 function generateParsingPrompt(transcript: string, jobType: string): string {
-  return `You are a construction measurement data parser. A field worker has dictated the following notes while measuring a job site. Parse this transcript and extract structured data.
+  return `You are an intelligent construction measurement data parser. A field worker has dictated notes while measuring a job site. Your job is to extract AND intelligently infer measurements.
 
 Job Type: ${jobType}
 
 Transcript:
 "${transcript}"
 
-Please extract:
-1. Wall context/name - If the worker mentions a specific wall or feature (e.g., "sink wall", "window wall", "pantry wall"), identify it
-2. Measurements (wall lengths, heights, widths, etc.) - use consistent units (feet/inches as "X' Y\"" format)
-3. Answers to common questions (yes/no, material choices, preferences)
-4. Special notes or observations
-5. Your confidence in the parsing (high/medium/low)
+INSTRUCTIONS - Be Smart About Wall Calculations:
+- If the worker mentions appliances/cabinets with widths (e.g., "36\" fridge", "36\" base cabinet"), intelligently infer:
+  * Does the sum of widths likely equal the total wall length?
+  * Are there gaps mentioned or implied?
+  * Does the worker say these span the "entire wall" or "whole side"?
+  * Can you confidently infer wall_length from the components? If yes, include it.
+- For each appliance/cabinet, capture: name, width, position (left/right corner, distance from corner), and any other details
+- If components don't clearly span the wall, still capture individual measurements but note the uncertainty
+- Use your judgment - if 36\" + 36\" is mentioned for a wall and nothing suggests otherwise, infer 72\" length
+- Capture position details: "left corner", "33\" from left", "right corner", etc.
+
+Please extract and intelligently infer:
+1. Wall context/name (e.g., "sink wall", "window wall", "fridge wall", "island")
+2. Wall length (direct statement OR intelligently inferred from component widths)
+3. All appliance/cabinet measurements with positions
+4. Window/door count and details
+5. Special features (sink, disposal, outlets, etc.)
+6. Ceiling height, soffit info
+7. Any questions answered
+8. Observations or gaps
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
-  "wallContext": "sink wall",
+  "wallContext": "fridge wall",
   "wallContextConfidence": "high",
   "measurements": {
-    "sink_base_width": "36\\"",
-    "sink_location": "33\\" from left wall",
-    "window_count": 2,
-    "ceiling_height": "9'"
+    "wall_length": "6' 0\\"",
+    "wall_length_inferred": true,
+    "wall_length_notes": "Inferred from fridge 36\\\" at left corner + 36\\\" base cabinet to the right",
+    "appliance_1_name": "Refrigerator",
+    "appliance_1_width": "36\\"",
+    "appliance_1_position": "left corner",
+    "appliance_2_name": "Base Cabinet",
+    "appliance_2_width": "36\\"",
+    "appliance_2_position": "adjacent to right of fridge",
+    "window_count": 1,
+    "ceiling_height": "9' 0\\""
   },
   "questions": {
-    "has_soffit": true,
-    "countertop_material": "granite",
-    "disposal": true
+    "has_disposal": true
   },
-  "notes": "Any special observations or unclear measurements that need clarification",
+  "notes": "Worker mentioned gap space but didn't specify use",
   "confidence": "high"
 }
 
-Wall context examples: "sink wall", "window wall", "island", "pantry", "entrance", or null if not mentioned.
-Be conservative - only include measurements and answers you're confident about. Leave out uncertain data.`;
+KEY PRINCIPLE: Use AI judgment. Don't be too conservative. If the measurement story makes sense (components add up to wall length, positioning is logical), infer the wall length. Note when you're inferring with "wall_length_inferred": true and "wall_length_notes" explaining your reasoning.`;
 }
