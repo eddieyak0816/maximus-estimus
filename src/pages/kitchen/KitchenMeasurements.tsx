@@ -7,8 +7,9 @@ import ChevronIcon from '../../components/ChevronIcon';
 import CameraModal from '../../components/CameraModal';
 import VoiceDictationButton from '../../components/VoiceDictationButton';
 import DictationTranscriptsPanel from '../../components/DictationTranscriptsPanel';
-import type { DictationTranscript } from '../../components/DictationTranscriptsPanel';
+import type { DictationTranscript, ParsedResult } from '../../components/DictationTranscriptsPanel';
 import type { KitchenMeasurements as KM } from '../../types';
+import { applyParsedDataToJob } from '../../utils/applyParsedDataToJob';
 
 function wallLabel(i: number): string {
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -60,6 +61,12 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
     setDictations(dictations.filter(d => d.id !== id));
   }
 
+  function handleApplyParsedData(parsed: ParsedResult) {
+    const updated = applyParsedDataToJob(data, parsed);
+    onUpdate(updated);
+    alert('✅ Parsed data applied to form! Please review and adjust as needed.');
+  }
+
   return (
     <div className="assess-tab">
       {/* ── Voice Dictation ── */}
@@ -74,6 +81,7 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
         transcripts={dictations}
         onAddTranscript={handleDictationTranscribed}
         onDeleteTranscript={handleDeleteDictation}
+        onApplyParsedData={handleApplyParsedData}
         jobType="Kitchen"
       />
 
