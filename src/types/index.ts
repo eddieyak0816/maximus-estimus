@@ -3,6 +3,30 @@ export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living
 export type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
 // ── Dictation & AI Parsing ────────────────────────────────────────────────────
+export interface ClarificationNeeded {
+  id: string;
+  field: string;
+  what_was_said: string;
+  assumption_made?: string;
+  suggested_standard?: string;
+  options?: string[];
+  certainty: 'high' | 'medium' | 'low';
+  priority: 'high' | 'medium' | 'low';
+}
+
+export interface DesignQuestion {
+  id: string;
+  question: string;
+  category?: string;
+  current_state?: string;
+  user_stated?: string;
+  options?: string[];
+  placement_context?: string;
+  described_as?: string;
+  priority?: 'high' | 'medium' | 'low';
+  certainty: 'high' | 'medium' | 'low';
+}
+
 export interface ParsedResult {
   measurements: Record<string, string | number | boolean>;
   questions: Record<string, string | string[] | boolean>;
@@ -10,6 +34,10 @@ export interface ParsedResult {
   confidence: 'high' | 'medium' | 'low';
   wallContext?: string | null; // e.g., "sink wall", "window wall"
   wallContextConfidence?: 'high' | 'medium' | 'low';
+  job_type_detected?: 'measurement' | 'design_brief' | 'mixed';
+  clarifications_needed?: ClarificationNeeded[]; // Assumptions and questions
+  design_questions?: DesignQuestion[]; // Extracted design requirements
+  flags?: string[]; // Warnings about data quality, structural changes, etc.
 }
 
 export interface DictationTranscript {

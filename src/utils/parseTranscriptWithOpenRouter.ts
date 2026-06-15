@@ -96,57 +96,150 @@ async function tryModel(model: string, prompt: string, apiKey: string): Promise<
 }
 
 function generateParsingPrompt(transcript: string, jobType: string): string {
-  return `You are an intelligent construction measurement data parser. A field worker has dictated notes while measuring a job site. Your job is to extract AND intelligently infer measurements.
+  return `You are an intelligent construction measurement data parser and design questionnaire generator. A field worker has dictated notes while measuring a job site or describing a design project.
+
+Your job is THREE things:
+1. Extract ONLY what was explicitly mentioned (mark what you're certain about)
+2. Flag EVERY assumption you make about standard sizes/configurations
+3. Extract implicit design QUESTIONS from the worker's statements
 
 Job Type: ${jobType}
 
 Transcript:
 "${transcript}"
 
-INSTRUCTIONS - Be Smart About Wall Calculations:
-- If the worker mentions appliances/cabinets with widths (e.g., "36\" fridge", "36\" base cabinet"), intelligently infer:
-  * Does the sum of widths likely equal the total wall length?
-  * Are there gaps mentioned or implied?
-  * Does the worker say these span the "entire wall" or "whole side"?
-  * Can you confidently infer wall_length from the components? If yes, include it.
-- For each appliance/cabinet, capture: name, width, position (left/right corner, distance from corner), and any other details
-- If components don't clearly span the wall, still capture individual measurements but note the uncertainty
-- Use your judgment - if 36\" + 36\" is mentioned for a wall and nothing suggests otherwise, infer 72\" length
-- Capture position details: "left corner", "33\" from left", "right corner", etc.
+CRITICAL RULES:
 
-Please extract and intelligently infer:
-1. Wall context/name (e.g., "sink wall", "window wall", "fridge wall", "island")
-2. Wall length (direct statement OR intelligently inferred from component widths)
-3. All appliance/cabinet measurements with positions
-4. Window/door count and details
-5. Special features (sink, disposal, outlets, etc.)
-6. Ceiling height, soffit info
-7. Any questions answered
-8. Observations or gaps
+Rule 1 - NEVER guess appliance/component sizes without explicit mention
+- If worker says "new range" but NOT the width → DO NOT assume 30\"
+- Instead → Add to clarifications_needed: "Range width? (Standard: 30-36\", but not mentioned)"
+- Pattern: Suggest standard, but ask for confirmation
+- Examples:
+  * "Wants a bigger sink" (mentioned) → Ask: "Desired width?" with options like "27\", 30\", custom"
+  * "Removing cooktop" (mentioned) → Ask: "Replacement width?" with note "Standard range: 30-36\""
+  * "More drawers" (mentioned) → Ask: "Drawer count and configuration?" with note "Standard: 24\" deep"
+
+Rule 2 - Flag ALL assumptions explicitly
+- When you assume a standard size, ADD it to "clarifications_needed" array
+- When you infer anything, note the confidence level (high/medium/low)
+- When something is vague or approximate (e.g., "about 20 inches"), mark certainty: "low"
+- When math doesn't add up (appliances exceed wall length), flag it in "flags" array
+
+Rule 3 - Extract design QUESTIONS from user statements
+- User says: "He wants a ton of drawers" → Extract question: "Drawer count and configuration?"
+- User says: "Maybe 27, maybe 30" → Extract question: "Finalized sink width?" with options
+- User says: "The fridge will move 20 inches" → Extract question: "Refrigerator relocation: exact distance?"
+- User says: "He wants lazy Susans" → Extract question: "Lazy Susan quantity?" with answer if stated
+- User says: "4-5 drawers from bottom to top" → Extract question: "Drawer configuration for tall pantry?" with their stated preference
+
+Rule 4 - Distinguish certainty levels for EVERY piece of data
+- Directly stated: certainty = "high"
+- Approximate ("about", "maybe", "or so"): certainty = "medium"
+- Inferred/assumed standard: certainty = "low"
+- Include certainty field on measurements and questions
+
+Rule 5 - Flag structural changes and major issues
+- "Half wall removal" → Add to flags: "Structural change: half wall removal"
+- Current vs. future state confusion → Flag: "Design brief (future state) vs. current measurements"
+- Appliance replacement → Flag: "Current appliance being REMOVED and REPLACED (not adding)"
+- Math inconsistencies → Flag: "Appliance widths (XXX\") exceed wall (YYY\")"
+
+Rule 6 - Detect job type: measurement vs. design brief
+- Is this a measurement exercise? (\"I measured...\")
+- Or a design brief? (\"He wants...\", \"We're planning...\")
+- Flag the nature in "job_type_detected"
+
+Please extract and structure:
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
-  "wallContext": "fridge wall",
-  "wallContextConfidence": "high",
+  "wallContext": "window wall",
+  "wallContextConfidence": "medium",
+  "job_type_detected": "design_brief",
   "measurements": {
-    "wall_length": "6' 0\\"",
+    "wall_length": "10' 0\\"",
+    "wall_length_certainty": "medium",
     "wall_length_inferred": true,
-    "wall_length_notes": "Inferred from fridge 36\\\" at left corner + 36\\\" base cabinet to the right",
+    "wall_length_notes": "Inferred from bench length (est. 8') + window placement, not directly stated",
     "appliance_1_name": "Refrigerator",
     "appliance_1_width": "36\\"",
-    "appliance_1_position": "left corner",
-    "appliance_2_name": "Base Cabinet",
-    "appliance_2_width": "36\\"",
-    "appliance_2_position": "adjacent to right of fridge",
-    "window_count": 1,
-    "ceiling_height": "9' 0\\""
+    "appliance_1_width_certainty": "low",
+    "appliance_1_position": "Right corner, planned relocation ~20\" toward center",
+    "appliance_1_position_certainty": "medium"
   },
-  "questions": {
-    "has_disposal": true
-  },
-  "notes": "Worker mentioned gap space but didn't specify use",
-  "confidence": "high"
+  "clarifications_needed": [
+    {
+      "id": "clarif_1",
+      "field": "new_range_width",
+      "what_was_said": "New single unit oven-range",
+      "assumption_made": "Width not mentioned",
+      "suggested_standard": "30-36\\" (typical range width)",
+      "options": ["30\\"", "36\\"", "custom"],
+      "certainty": "low",
+      "priority": "high"
+    },
+    {
+      "id": "clarif_2",
+      "field": "fridge_relocation_distance",
+      "what_was_said": "Move about 20 inches or so",
+      "assumption_made": "Approximate (not exact)",
+      "certainty": "low",
+      "priority": "medium"
+    }
+  ],
+  "design_questions": [
+    {
+      "id": "q_1",
+      "question": "Desired sink width?",
+      "category": "appliance_modification",
+      "current_state": "20.5\\"",
+      "user_stated": "Bigger - maybe 27-30\\"",
+      "options": ["27\\"", "30\\"", "custom"],
+      "priority": "high",
+      "certainty": "medium"
+    },
+    {
+      "id": "q_2",
+      "question": "Tall pantry drawer configuration?",
+      "category": "storage_design",
+      "user_stated": "4-5 drawers from bottom to top",
+      "priority": "high",
+      "certainty": "high"
+    },
+    {
+      "id": "q_3",
+      "question": "Lazy Susan quantity and placement?",
+      "category": "appliance_feature",
+      "user_stated": "Two (2) lazy Susans",
+      "placement_context": "Next to stove and above (most likely)",
+      "certainty": "high"
+    },
+    {
+      "id": "q_4",
+      "question": "Bench seating exact dimensions?",
+      "category": "design_feature",
+      "described_as": "From start of full wall to window corner, with drawer storage underneath",
+      "priority": "high",
+      "certainty": "low"
+    }
+  ],
+  "flags": [
+    "Structural change: Half wall removal mentioned - impacts layout",
+    "This is a design brief/renovation plan, not a standard measurement exercise",
+    "Appliance REPLACEMENT: Remove both cooktop and existing oven, replace with ONE single unit",
+    "State confusion: Mixing current state (fridge location) with future state (relocated position)",
+    "Bench classified as appliance, but it's a design feature/seating element with internal storage",
+    "Math validation: Appliance widths need checking against wall length after clarifications"
+  ],
+  "notes": "Extensive storage needs throughout (drawers, utility). No ceiling height mentioned. Layout is compact/small space. Multiple design changes to existing kitchen.",
+  "confidence": "medium"
 }
 
-KEY PRINCIPLE: Use AI judgment. Don't be too conservative. If the measurement story makes sense (components add up to wall length, positioning is logical), infer the wall length. Note when you're inferring with "wall_length_inferred": true and "wall_length_notes" explaining your reasoning.`;
+KEY PRINCIPLES:
+1. HONESTY over guessing: Better to ask than to assume
+2. FLAG assumptions: Every standard size you suggest should be questioned
+3. EXTRACT questions: Transform user desires into explicit questions needing answers
+4. MARK certainty: High/medium/low for every piece of extracted data
+5. VALIDATE logic: Warn if numbers don't add up or if there are contradictions
+6. DETECT context: Is this a measurement or a design brief?`;
 }

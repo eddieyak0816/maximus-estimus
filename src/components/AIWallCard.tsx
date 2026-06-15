@@ -216,6 +216,98 @@ export default function AIWallCard({ wall, isExpanded, onToggle, onUpdate, onDel
             </div>
           )}
 
+          {/* Clarifications Needed */}
+          {wall.rawParsed?.clarifications_needed && wall.rawParsed.clarifications_needed.length > 0 && (
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(245, 196, 42, 0.9)', marginBottom: '8px' }}>
+                ❓ Clarifications Needed ({wall.rawParsed.clarifications_needed.length})
+              </div>
+              {wall.rawParsed.clarifications_needed.map((clarif, idx) => (
+                <div key={`clarif-${idx}`} style={{
+                  padding: '8px',
+                  marginBottom: '6px',
+                  backgroundColor: 'rgba(245, 196, 42, 0.08)',
+                  borderLeft: '2px solid rgba(245, 196, 42, 0.4)',
+                  borderRadius: '2px',
+                  fontSize: '12px',
+                }}>
+                  <div style={{ fontWeight: 600, marginBottom: '4px' }}>{clarif.field}</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '3px' }}>
+                    Stated: {clarif.what_was_said}
+                  </div>
+                  {clarif.suggested_standard && (
+                    <div style={{ fontSize: '11px', color: 'rgba(245, 196, 42, 0.8)' }}>
+                      Standard: {clarif.suggested_standard}
+                    </div>
+                  )}
+                  {clarif.options && (
+                    <div style={{ fontSize: '11px', marginTop: '4px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                      Options: {clarif.options.join(', ')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Design Questions */}
+          {wall.rawParsed?.design_questions && wall.rawParsed.design_questions.length > 0 && (
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(59, 130, 246, 0.9)', marginBottom: '8px' }}>
+                🎯 Design Questions ({wall.rawParsed.design_questions.length})
+              </div>
+              {wall.rawParsed.design_questions.map((q, idx) => (
+                <div key={`q-${idx}`} style={{
+                  padding: '8px',
+                  marginBottom: '6px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                  borderLeft: '2px solid rgba(59, 130, 246, 0.4)',
+                  borderRadius: '2px',
+                  fontSize: '12px',
+                }}>
+                  <div style={{ fontWeight: 600, marginBottom: '4px' }}>{q.question}</div>
+                  {q.user_stated && (
+                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '3px' }}>
+                      User said: {q.user_stated}
+                    </div>
+                  )}
+                  {q.current_state && (
+                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '2px' }}>
+                      Current: {q.current_state}
+                    </div>
+                  )}
+                  {q.options && (
+                    <div style={{ fontSize: '11px', marginTop: '4px', color: 'rgba(59, 130, 246, 0.8)' }}>
+                      Options: {q.options.join(', ')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Flags */}
+          {wall.rawParsed?.flags && wall.rawParsed.flags.length > 0 && (
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(239, 68, 68, 0.9)', marginBottom: '8px' }}>
+                ⚠️ Flags ({wall.rawParsed.flags.length})
+              </div>
+              {wall.rawParsed.flags.map((flag, idx) => (
+                <div key={`flag-${idx}`} style={{
+                  padding: '6px 8px',
+                  marginBottom: '4px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  borderLeft: '2px solid rgba(239, 68, 68, 0.4)',
+                  borderRadius: '2px',
+                  fontSize: '11px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                }}>
+                  {flag}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Raw JSON Toggle */}
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <button
