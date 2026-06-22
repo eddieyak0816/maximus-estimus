@@ -31,7 +31,7 @@ import AIExtractTab from '../components/AIExtractTab';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
-  AssessmentStatus, KitchenAssessment, BathroomAssessment,
+  KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
   LayoutData, WallData, WallDirection,
 } from '../types';
