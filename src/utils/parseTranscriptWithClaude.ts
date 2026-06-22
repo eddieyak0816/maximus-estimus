@@ -59,6 +59,47 @@ export async function parseTranscriptWithClaude(
   }
 }
 
+export async function summarizeWallWithClaude(
+  transcript: string,
+  wallName: string,
+  apiKey: string
+): Promise<string> {
+  const prompt = `You are a field measurement assistant for a construction company. A field worker just dictated the following notes while measuring "${wallName}".
+
+Transcript:
+"${transcript}"
+
+Write a clean, concise summary of what was said. Focus on:
+- Any measurements mentioned (lengths, heights, widths)
+- Features noted (windows, doors, outlets, appliances, sink, cabinets)
+- Observations or conditions
+- Things that need follow-up
+
+Keep it short and factual. Write in plain text, no bullet points, no headers. 2-4 sentences max.`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 256,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Claude API error');
+  }
+
+  const data = await response.json();
+  return (data.content[0]?.text || '').trim();
+}
+
 function generateParsingPrompt(transcript: string, jobType: string): string {
   return `You are a construction measurement data parser. A field worker has dictated the following notes while measuring a job site. Parse this transcript and extract structured data.
 

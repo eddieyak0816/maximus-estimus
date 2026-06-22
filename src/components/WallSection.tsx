@@ -4,6 +4,8 @@ import MeasInput from './MeasInput';
 import ChevronIcon from './ChevronIcon';
 import DropdownSelect from './DropdownSelect';
 import CameraModal from './CameraModal';
+import VoiceDictationButton from './VoiceDictationButton';
+import { summarizeWallWithClaude } from '../utils/parseTranscriptWithClaude';
 import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall, WallLengthPiece } from '../types';
 
 function newWallLengthPiece(index: number): WallLengthPiece {
@@ -291,6 +293,8 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
   const [showWallCamera, setShowWallCamera] = useState(false);
   const [editingLength, setEditingLength] = useState(false);
   const [lengthDraft, setLengthDraft] = useState(data.length || '');
+  const [aiSummarizing, setAiSummarizing] = useState(false);
+  const [aiError, setAiError] = useState('');
   const dropdownRef = useRef<any>(null);
   const pieceInputRef = useRef<HTMLInputElement>(null);
   const u = (f: keyof WallData, v: unknown) => onUpdate({ ...data, [f]: v });
@@ -408,7 +412,37 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
       {open && (
         <div className="wall-body">
           <div style={{ marginBottom: 14 }}>
-            <div className="tiny-label" style={{ marginBottom: 6 }}>Wall Notes</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span className="tiny-label">Wall Notes</span>
+              <VoiceDictationButton
+                label={aiSummarizing ? 'Summarizing…' : 'Record & Summarize'}
+                onTranscribed={async (transcript) => {
+                  const apiKey = localStorage.getItem('claude-api-key');
+                  if (!apiKey) {
+                    setAiError('No Claude API key found. Add it in AI Settings.');
+                    return;
+                  }
+                  setAiError('');
+                  setAiSummarizing(true);
+                  try {
+                    const summary = await summarizeWallWithClaude(transcript, displayName, apiKey);
+                    const existing = data.notes?.trim();
+                    const newNotes = existing ? `${existing}\n\n${summary}` : summary;
+                    u('notes', newNotes);
+                  } catch (err) {
+                    setAiError(err instanceof Error ? err.message : 'AI summarization failed');
+                  } finally {
+                    setAiSummarizing(false);
+                  }
+                }}
+              />
+            </div>
+            {aiError && (
+              <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 6 }}>{aiError}</div>
+            )}
+            {aiSummarizing && (
+              <div style={{ fontSize: 12, color: 'var(--accent)', marginBottom: 6 }}>⏳ AI is summarizing…</div>
+            )}
             <textarea
               className="input"
               rows={2}
