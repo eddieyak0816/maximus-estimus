@@ -5,7 +5,7 @@ import ChevronIcon from './ChevronIcon';
 import DropdownSelect from './DropdownSelect';
 import CameraModal from './CameraModal';
 import VoiceDictationButton from './VoiceDictationButton';
-import { summarizeWallWithClaude } from '../utils/parseTranscriptWithClaude';
+import { summarizeWallWithOpenRouter } from '../utils/parseTranscriptWithOpenRouter';
 import type { WallData, WindowData, DoorData, OutletData, ApplianceOnWall, WallLengthPiece } from '../types';
 
 function newWallLengthPiece(index: number): WallLengthPiece {
@@ -417,15 +417,10 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
               <VoiceDictationButton
                 label={aiSummarizing ? 'Summarizing…' : 'Record & Summarize'}
                 onTranscribed={async (transcript) => {
-                  const apiKey = localStorage.getItem('claude-api-key');
-                  if (!apiKey) {
-                    setAiError('No Claude API key found. Add it in AI Settings.');
-                    return;
-                  }
                   setAiError('');
                   setAiSummarizing(true);
                   try {
-                    const summary = await summarizeWallWithClaude(transcript, displayName, apiKey);
+                    const summary = await summarizeWallWithOpenRouter(transcript, displayName);
                     const existing = data.notes?.trim();
                     const newNotes = existing ? `${existing}\n\n${summary}` : summary;
                     u('notes', newNotes);

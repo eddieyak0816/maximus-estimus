@@ -48,6 +48,45 @@ export async function parseTranscriptWithOpenRouter(
   throw new Error('Failed to parse transcript with any available model');
 }
 
+export async function summarizeWallWithOpenRouter(
+  transcript: string,
+  wallName: string
+): Promise<string> {
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OpenRouter API key not configured (VITE_OPENROUTER_API_KEY)');
+
+  const prompt = `You are a field measurement assistant for a construction company. A field worker dictated the following notes about "${wallName}".
+
+Transcript:
+"${transcript}"
+
+Write a clean, concise summary. Focus on measurements, features (windows, doors, sink, appliances, cabinets), and any observations. Plain text only, no bullet points, no headers. 2-4 sentences max.`;
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'authorization': `Bearer ${apiKey}`,
+      'content-type': 'application/json',
+      'http-referer': 'https://eddieyak0816.github.io/maximus-estimus/',
+      'x-title': 'Maximus Estimus',
+    },
+    body: JSON.stringify({
+      model: FREE_MODELS[0],
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      max_tokens: 200,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `OpenRouter error ${response.status}`);
+  }
+
+  const data = await response.json();
+  return (data.choices?.[0]?.message?.content || '').trim();
+}
+
 async function tryModel(model: string, prompt: string, apiKey: string): Promise<ParsedData> {
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',

@@ -86,20 +86,21 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
 
-      // Android-specific error handling
       if (event.error === 'network') {
         setErrorMessage('Network error. Check your connection and try again.');
       } else if (event.error === 'no-speech') {
         setErrorMessage('No speech detected. Make sure your microphone is working.');
       } else if (event.error === 'audio-capture') {
         setErrorMessage('Microphone not available. Check permissions and try again.');
+      } else if (event.error === 'not-allowed') {
+        setErrorMessage('Microphone permission denied. Allow microphone access in your browser settings, then try again.');
       } else if (event.error === 'permission-denied') {
         setErrorMessage('Microphone permission denied. Allow access in settings.');
       } else {
         setErrorMessage(`Error: ${event.error}`);
       }
 
-      setState('error');
+      // Don't permanently disable — just stop listening and show the error in the modal
       setIsListening(false);
     };
 
@@ -118,13 +119,11 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   }, []);
 
   function startListening() {
-    if (recognitionRef.current && !isListening) {
-      setTranscript('');
-      interimTranscriptRef.current = '';
-      setShowModal(true);
-      setUseKeyboardInput(true); // Auto-switch to keyboard mode
-      recognitionRef.current.start();
-    }
+    setTranscript('');
+    interimTranscriptRef.current = '';
+    setErrorMessage('');
+    setShowModal(true);
+    setUseKeyboardInput(false);
   }
 
   function stopListening() {
@@ -187,19 +186,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
       keyboardInputRef.current.focus();
       keyboardInputRef.current.click();
     }
-  }
-
-  if (state === 'error') {
-    return (
-      <button
-        className="btn btn-ghost"
-        title="Speech recognition not supported in this browser"
-        disabled
-        style={{ opacity: 0.5 }}
-      >
-        🎤 {label}
-      </button>
-    );
   }
 
   const displayText = transcript + (interimTranscriptRef.current ? ' ' + interimTranscriptRef.current : '');
