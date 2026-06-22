@@ -104,6 +104,25 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
+        {/* Job Statuses */}
+        <Link to="/admin/statuses" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="section-card" style={{ cursor: 'pointer', transition: 'transform 0.15s', height: '100%' }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div className="section-card-header">
+              <div>
+                <div className="section-card-title">🏷️ Job Statuses</div>
+                <div className="section-card-subtitle">Draft, Active & Custom</div>
+              </div>
+              <span style={{ fontSize: 24 }}>→</span>
+            </div>
+            <div className="section-card-body" style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+              Add, rename, recolor, or delete status types shown on assessments and the dashboard.
+            </div>
+          </div>
+        </Link>
+
         {/* Cabinet Gallery */}
         <Link to="/gallery" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="section-card" style={{ cursor: 'pointer', transition: 'transform 0.15s', height: '100%' }}

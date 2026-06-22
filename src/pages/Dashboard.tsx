@@ -4,7 +4,7 @@ import { useAssessmentStore } from '../store/assessmentStore';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDate } from '../utils/calculations';
 import { supabase } from '../lib/supabase';
-import type { JobType, AssessmentStatus } from '../types';
+import type { JobType } from '../types';
 
 const JOB_TYPE_COLORS: Record<JobType, string> = {
   Kitchen: '#1F3096',
@@ -17,26 +17,14 @@ const JOB_TYPE_COLORS: Record<JobType, string> = {
   Other: '#4a4a4a',
 };
 
-const STATUS_DOTS: Record<AssessmentStatus, string> = {
-  draft: '#6b7280',
-  'in-progress': '#3b82f6',
-  complete: '#22c55e',
-};
-
-const STATUS_LABELS: Record<AssessmentStatus, string> = {
-  draft: 'Draft',
-  'in-progress': 'In Progress',
-  complete: 'Complete',
-};
-
 type SortBy = 'date-newest' | 'date-oldest' | 'name-asc' | 'name-desc';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { assessments, deleteAssessment } = useAssessmentStore();
+  const { assessments, deleteAssessment, statuses } = useAssessmentStore();
   const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
-  const [activeFilter, setActiveFilter] = useState<'total' | 'draft' | 'inProgress' | 'complete' | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>('date-newest');
   const [searchName, setSearchName] = useState('');
   const [selectedJobTypes, setSelectedJobTypes] = useState<JobType[]>([]);
@@ -76,20 +64,15 @@ export default function Dashboard() {
         a.assignedToUserId === user?.id
       );
 
-  const counts = {
-    total: visibleAssessments.length,
-    draft: visibleAssessments.filter(a => a.status === 'draft').length,
-    inProgress: visibleAssessments.filter(a => a.status === 'in-progress').length,
-    complete: visibleAssessments.filter(a => a.status === 'complete').length,
-  };
+  const totalCount = visibleAssessments.length;
+  const statusCounts: Record<string, number> = {};
+  for (const st of statuses) {
+    statusCounts[st.value] = visibleAssessments.filter(a => a.status === st.value).length;
+  }
 
   // Apply status filter
-  if (activeFilter === 'draft') {
-    visibleAssessments = visibleAssessments.filter(a => a.status === 'draft');
-  } else if (activeFilter === 'inProgress') {
-    visibleAssessments = visibleAssessments.filter(a => a.status === 'in-progress');
-  } else if (activeFilter === 'complete') {
-    visibleAssessments = visibleAssessments.filter(a => a.status === 'complete');
+  if (activeFilter && activeFilter !== 'total') {
+    visibleAssessments = visibleAssessments.filter(a => a.status === activeFilter);
   }
 
   // Apply search filter (customer name)
@@ -128,12 +111,8 @@ export default function Dashboard() {
 
   const allJobTypes: JobType[] = ['Kitchen', 'Bathroom', 'Flooring', 'Painting', 'Living Room', 'Bedroom', 'Deck', 'Other'];
 
-  const handleStatClick = (filter: 'total' | 'draft' | 'inProgress' | 'complete') => {
-    if (activeFilter === filter) {
-      setActiveFilter(null);
-    } else {
-      setActiveFilter(filter);
-    }
+  const handleStatClick = (filter: string) => {
+    setActiveFilter(activeFilter === filter ? null : filter);
   };
 
   const toggleJobType = (jobType: JobType) => {
@@ -169,33 +148,20 @@ export default function Dashboard() {
           onClick={() => handleStatClick('total')}
           style={{ cursor: 'pointer' }}
         >
-          <span className="stat-value">{counts.total}</span>
+          <span className="stat-value">{totalCount}</span>
           <span className="stat-label">Total</span>
         </div>
-        <div
-          className={`stat-card ${activeFilter === 'draft' ? 'stat-card-active' : ''}`}
-          onClick={() => handleStatClick('draft')}
-          style={{ cursor: 'pointer' }}
-        >
-          <span className="stat-value">{counts.draft}</span>
-          <span className="stat-label">Drafts</span>
-        </div>
-        <div
-          className={`stat-card ${activeFilter === 'inProgress' ? 'stat-card-active' : ''}`}
-          onClick={() => handleStatClick('inProgress')}
-          style={{ cursor: 'pointer' }}
-        >
-          <span className="stat-value">{counts.inProgress}</span>
-          <span className="stat-label">Active</span>
-        </div>
-        <div
-          className={`stat-card ${activeFilter === 'complete' ? 'stat-card-active' : ''}`}
-          onClick={() => handleStatClick('complete')}
-          style={{ cursor: 'pointer' }}
-        >
-          <span className="stat-value">{counts.complete}</span>
-          <span className="stat-label">Done</span>
-        </div>
+        {statuses.map(st => (
+          <div
+            key={st.value}
+            className={`stat-card ${activeFilter === st.value ? 'stat-card-active' : ''}`}
+            onClick={() => handleStatClick(st.value)}
+            style={{ cursor: 'pointer', borderTop: `3px solid ${st.color}` }}
+          >
+            <span className="stat-value" style={{ color: st.color }}>{statusCounts[st.value] ?? 0}</span>
+            <span className="stat-label">{st.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* ── Sorting & Filtering Controls ── */}
@@ -275,7 +241,7 @@ export default function Dashboard() {
                 onClick={() => navigate(href)}
               >
                 <div className="assessment-card-status-dot"
-                  style={{ background: STATUS_DOTS[a.status] }} />
+                  style={{ background: statuses.find(s => s.value === a.status)?.color ?? '#6b7280' }} />
 
                 <div className="assessment-card-left">
                   <div className="assessment-card-name">{name}</div>
@@ -309,8 +275,8 @@ export default function Dashboard() {
 
                 <div className="assessment-card-right">
                   <span className="status-label"
-                    style={{ color: STATUS_DOTS[a.status] }}>
-                    {STATUS_LABELS[a.status]}
+                    style={{ color: statuses.find(s => s.value === a.status)?.color ?? '#6b7280' }}>
+                    {statuses.find(s => s.value === a.status)?.label ?? a.status}
                   </span>
                   <button
                     className="btn btn-ghost btn-sm btn-danger"

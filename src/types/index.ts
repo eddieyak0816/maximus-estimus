@@ -1,4 +1,10 @@
-export type AssessmentStatus = 'draft' | 'in-progress' | 'complete';
+export type AssessmentStatus = string;
+
+export interface StatusConfig {
+  value: string;
+  label: string;
+  color: string;
+}
 export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
 export type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 

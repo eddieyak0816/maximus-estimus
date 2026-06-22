@@ -35,12 +35,6 @@ import type {
   LayoutData, WallData, WallDirection,
 } from '../types';
 
-const STATUS_OPTIONS: AssessmentStatus[] = ['draft', 'in-progress', 'complete'];
-const STATUS_LABELS: Record<AssessmentStatus, string> = {
-  draft: 'Draft',
-  'in-progress': 'In Progress',
-  complete: 'Complete',
-};
 
 const TABS = [
   { id: 'measurements', label: '📏 Measure' },
@@ -56,7 +50,7 @@ export default function AssessmentDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const {
-    getAssessment, setStatus, updateAssessment,
+    getAssessment, setStatus, updateAssessment, statuses,
     updateJobKitchen, updateJobBathroom, updateJobFlooring, updateJobLivingRoom, updateJobBedroom, updateJobDeck, updateJobOther,
     updateJobLayout,
   } = useAssessmentStore();
@@ -433,9 +427,9 @@ export default function AssessmentDetail() {
         </div>
         <div className="detail-header-actions">
           <select className="select select-sm" value={assessment.status}
-            onChange={e => setStatus(assessment.id, e.target.value as AssessmentStatus)}>
-            {STATUS_OPTIONS.map(s => (
-              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            onChange={e => setStatus(assessment.id, e.target.value)}>
+            {statuses.map(s => (
+              <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
           {user?.isAdmin && (
@@ -551,14 +545,20 @@ export default function AssessmentDetail() {
 
       {jobs.length > 0 && (
         <div className="page-footer" style={{ marginTop: 12, display: 'flex', gap: 12 }}>
-          <button
-            className="btn btn-outline"
-            style={{ flex: 1 }}
-            onClick={() => setStatus(id!, 'complete')}
-            disabled={assessment.status === 'complete'}
-          >
-            {assessment.status === 'complete' ? '✓ Complete' : 'Mark Complete'}
-          </button>
+          {(() => {
+            const lastStatus = statuses[statuses.length - 1];
+            const isLast = lastStatus && assessment.status === lastStatus.value;
+            return lastStatus ? (
+              <button
+                className="btn btn-outline"
+                style={{ flex: 1 }}
+                onClick={() => setStatus(id!, lastStatus.value)}
+                disabled={isLast}
+              >
+                {isLast ? `✓ ${lastStatus.label}` : `Mark ${lastStatus.label}`}
+              </button>
+            ) : null;
+          })()}
           <button
             className="btn btn-outline"
             style={{ flex: 1 }}

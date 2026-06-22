@@ -4,7 +4,7 @@ import type {
   Assessment, AssessmentStatus, JobType, JobInstance,
   KitchenAssessment, BathroomAssessment, FlooringAssessment, PaintingAssessment, OtherAssessment,
   LivingRoomAssessment, BedroomAssessment, DeckAssessment,
-  PriceCategory, MarkupSettings, EstimateData, WallData, LayoutData,
+  PriceCategory, MarkupSettings, EstimateData, WallData, LayoutData, StatusConfig,
 } from '../types';
 import { defaultPriceGuide, DEFAULT_MARKUP } from '../utils/defaultPriceGuide';
 import { pushAssessment, deleteAssessmentRemote, pushTeamMembers, pushMarkupSettings, pushPriceGuide, pullAllAssessments, pullTeamMembers, pullMarkupSettings, pullPriceGuide } from '../utils/supabaseSync';
@@ -106,11 +106,18 @@ export function emptyAssessment(creatorId: string = ''): Assessment {
   };
 }
 
+const DEFAULT_STATUSES: StatusConfig[] = [
+  { value: 'draft', label: 'Draft', color: '#6b7280' },
+  { value: 'in-progress', label: 'In Progress', color: '#3b82f6' },
+  { value: 'complete', label: 'Complete', color: '#22c55e' },
+];
+
 interface StoredData {
   assessments: Assessment[];
   teamMembers: string[];
   priceGuide: PriceCategory[];
   markupSettings: MarkupSettings;
+  statuses: StatusConfig[];
 }
 
 function load(): StoredData {
@@ -121,14 +128,15 @@ function load(): StoredData {
       teamMembers: raw.teamMembers || [],
       priceGuide: raw.priceGuide || defaultPriceGuide(),
       markupSettings: raw.markupSettings || DEFAULT_MARKUP,
+      statuses: raw.statuses || DEFAULT_STATUSES,
     };
   } catch {
-    return { assessments: [], teamMembers: [], priceGuide: defaultPriceGuide(), markupSettings: DEFAULT_MARKUP };
+    return { assessments: [], teamMembers: [], priceGuide: defaultPriceGuide(), markupSettings: DEFAULT_MARKUP, statuses: DEFAULT_STATUSES };
   }
 }
 
-function save(assessments: Assessment[], teamMembers: string[], priceGuide: PriceCategory[], markupSettings: MarkupSettings) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ assessments, teamMembers, priceGuide, markupSettings }));
+function save(assessments: Assessment[], teamMembers: string[], priceGuide: PriceCategory[], markupSettings: MarkupSettings, statuses: StatusConfig[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ assessments, teamMembers, priceGuide, markupSettings, statuses }));
 }
 
 function migrateWalls(walls: unknown): WallData[] {
@@ -165,6 +173,10 @@ interface Store {
   teamMembers: string[];
   priceGuide: PriceCategory[];
   markupSettings: MarkupSettings;
+  statuses: StatusConfig[];
+  addStatus: (status: StatusConfig) => void;
+  updateStatus: (value: string, patch: Partial<Pick<StatusConfig, 'label' | 'color'>>) => void;
+  deleteStatus: (value: string) => void;
   createAssessment: (userId?: string) => string;
   updateAssessment: (id: string, patch: Partial<Assessment>) => void;
   deleteAssessment: (id: string) => void;
@@ -197,12 +209,37 @@ export const useAssessmentStore = create<Store>((set, get) => ({
   teamMembers: stored.teamMembers,
   priceGuide: stored.priceGuide,
   markupSettings: stored.markupSettings,
+  statuses: stored.statuses,
+
+  addStatus: (status) => {
+    set(s => {
+      const next = [...s.statuses, status];
+      save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, next);
+      return { statuses: next };
+    });
+  },
+
+  updateStatus: (value, patch) => {
+    set(s => {
+      const next = s.statuses.map(st => st.value === value ? { ...st, ...patch } : st);
+      save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, next);
+      return { statuses: next };
+    });
+  },
+
+  deleteStatus: (value) => {
+    set(s => {
+      const next = s.statuses.filter(st => st.value !== value);
+      save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, next);
+      return { statuses: next };
+    });
+  },
 
   createAssessment: (userId = '') => {
     const a = emptyAssessment(userId);
     set(s => {
       const next = [a, ...s.assessments];
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       return { assessments: next };
     });
     pushAssessment(a).catch(console.error);
@@ -214,7 +251,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       const next = s.assessments.map(a =>
         a.id === id ? { ...a, ...patch, updatedAt: new Date().toISOString() } : a
       );
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === id);
       if (updated) {
         pushAssessment(updated).catch(console.error);
@@ -226,7 +263,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
   deleteAssessment: (id) => {
     set(s => {
       const next = s.assessments.filter(a => a.id !== id);
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       deleteAssessmentRemote(id).catch(console.error);
       return { assessments: next };
     });
@@ -240,7 +277,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: [...a.jobs, emptyJobInstance(type, label)], updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -253,7 +290,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.filter(j => j.id !== jobId), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -266,7 +303,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, kitchen } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -279,7 +316,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, bathroom } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -292,7 +329,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, flooring } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -305,7 +342,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, painting } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -318,7 +355,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, livingRoom } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -331,7 +368,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, bedroom } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -344,7 +381,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, deck } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -357,7 +394,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, other } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -370,7 +407,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
         if (a.id !== assessmentId) return a;
         return { ...a, jobs: a.jobs.map(j => j.id === jobId ? { ...j, layout } : j), updatedAt: new Date().toISOString() };
       });
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -383,7 +420,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
     set(s => {
       if (s.teamMembers.includes(trimmed)) return s;
       const next = [...s.teamMembers, trimmed];
-      save(s.assessments, next, s.priceGuide, s.markupSettings);
+      save(s.assessments, next, s.priceGuide, s.markupSettings, s.statuses);
       pushTeamMembers(next).catch(console.error);
       return { teamMembers: next };
     });
@@ -392,7 +429,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
   removeTeamMember: (name) => {
     set(s => {
       const next = s.teamMembers.filter(m => m !== name);
-      save(s.assessments, next, s.priceGuide, s.markupSettings);
+      save(s.assessments, next, s.priceGuide, s.markupSettings, s.statuses);
       pushTeamMembers(next).catch(console.error);
       return { teamMembers: next };
     });
@@ -402,7 +439,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
 
   updatePriceGuide: (guide) => {
     set(s => {
-      save(s.assessments, s.teamMembers, guide, s.markupSettings);
+      save(s.assessments, s.teamMembers, guide, s.markupSettings, s.statuses);
       pushPriceGuide(guide).catch(console.error);
       return { priceGuide: guide };
     });
@@ -411,7 +448,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
   resetPriceGuide: () => {
     const guide = defaultPriceGuide();
     set(s => {
-      save(s.assessments, s.teamMembers, guide, s.markupSettings);
+      save(s.assessments, s.teamMembers, guide, s.markupSettings, s.statuses);
       pushPriceGuide(guide).catch(console.error);
       return { priceGuide: guide };
     });
@@ -419,7 +456,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
 
   updateMarkupSettings: (settings) => {
     set(s => {
-      save(s.assessments, s.teamMembers, s.priceGuide, settings);
+      save(s.assessments, s.teamMembers, s.priceGuide, settings, s.statuses);
       pushMarkupSettings(settings).catch(console.error);
       return { markupSettings: settings };
     });
@@ -430,7 +467,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       const next = s.assessments.map(a =>
         a.id === assessmentId ? { ...a, estimate, updatedAt: new Date().toISOString() } : a
       );
-      save(next, s.teamMembers, s.priceGuide, s.markupSettings);
+      save(next, s.teamMembers, s.priceGuide, s.markupSettings, s.statuses);
       const updated = next.find(a => a.id === assessmentId);
       if (updated) pushAssessment(updated).catch(console.error);
       return { assessments: next };
@@ -454,7 +491,7 @@ export const useAssessmentStore = create<Store>((set, get) => ({
           markupSettings: markupSettings || s.markupSettings,
           priceGuide: priceGuide || s.priceGuide,
         };
-        save(newState.assessments, newState.teamMembers, newState.priceGuide, newState.markupSettings);
+        save(newState.assessments, newState.teamMembers, newState.priceGuide, newState.markupSettings, s.statuses);
         return newState;
       });
     } catch (err) {
