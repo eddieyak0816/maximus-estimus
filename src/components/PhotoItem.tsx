@@ -6,15 +6,26 @@ interface Props {
   label: string;
   note?: string;
   photoId?: string;
+  type?: 'photo' | 'video';
+  rotation?: number;
   onOpenCamera: () => void;
   onFileSelected?: (file: File) => void;
   onRemove?: () => void;
+  onViewPhoto?: () => void;
 }
 
-export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSelected, onRemove }: Props) {
+interface PhotoItemProps extends Props {
+  onUpdateLabel?: (newLabel: string) => void;
+}
+
+export default function PhotoItem({ label, note, photoId, type = 'photo', rotation = 0, onOpenCamera, onFileSelected, onRemove, onViewPhoto, onUpdateLabel }: PhotoItemProps) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [editingLabel, setEditingLabel] = useState(label);
   const captured = !!photoId;
+  const isVideo = type === 'video';
+  const rotationStyle = rotation && rotation !== 0 ? { transform: `rotate(${rotation}deg)` } : {};
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -42,12 +53,56 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
     }
   }
 
+  function handleSaveLabel() {
+    if (editingLabel.trim() && editingLabel !== label && onUpdateLabel) {
+      onUpdateLabel(editingLabel.trim());
+    }
+    setIsEditingLabel(false);
+    setEditingLabel(label);
+  }
+
+  function handleCancelLabel() {
+    setIsEditingLabel(false);
+    setEditingLabel(label);
+  }
+
   return (
     <>
-      <div className="photo-item">
-        <div className={`photo-thumb${captured ? ' captured' : ''}`} onClick={() => captured && thumbUrl ? setShowModal(true) : onOpenCamera()}>
+      <div
+        className="photo-item"
+        onClick={() => {
+          // Allow clicking anywhere in the item to view the photo
+          if (captured && thumbUrl && onViewPhoto) {
+            onViewPhoto();
+          }
+        }}
+        style={{ cursor: captured && thumbUrl ? 'pointer' : 'default' }}
+      >
+        <div className={`photo-thumb${captured ? ' captured' : ''}`} onClick={(e) => {
+          e.stopPropagation();
+          if (!captured) onOpenCamera();
+        }}>
           {captured && thumbUrl ? (
-            <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <>
+              {isVideo ? (
+                <video src={thumbUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', ...rotationStyle }} />
+              ) : (
+                <img src={thumbUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover', ...rotationStyle }} />
+              )}
+              {isVideo && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '24px',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  pointerEvents: 'none',
+                }}>
+                  ▶
+                </div>
+              )}
+            </>
           ) : (
             <svg width={captured ? 22 : 20} height={captured ? 22 : 20} viewBox="0 0 24 24" fill={captured ? '#22c55e' : '#3b82f6'}>
               {captured ? (
@@ -59,22 +114,127 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
           )}
         </div>
         <div className="photo-item-info">
-          <div className={`photo-item-label${captured ? ' captured' : ''}`}>{label}</div>
+          {isEditingLabel ? (
+            <div
+              style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <input
+                type="text"
+                value={editingLabel}
+                onChange={e => setEditingLabel(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSaveLabel();
+                  if (e.key === 'Escape') handleCancelLabel();
+                }}
+                autoFocus
+                style={{
+                  flex: 1,
+                  padding: '4px 6px',
+                  fontSize: '14px',
+                  borderRadius: '4px',
+                  border: '1px solid #F5C42A',
+                  backgroundColor: 'rgba(245, 196, 42, 0.1)',
+                  color: 'inherit',
+                  minWidth: 0,
+                }}
+              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSaveLabel();
+                }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  background: '#F5C42A',
+                  color: '#0d1628',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                ✓
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancelLabel();
+                }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'inherit',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '4px' }}>
+              <div className={`photo-item-label${captured ? ' captured' : ''}`}>{label}</div>
+              {captured && onUpdateLabel && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingLabel(true);
+                  }}
+                  title="Edit photo name"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  ✏️
+                </button>
+              )}
+            </div>
+          )}
           {note && !captured && <div className="photo-item-note">{note}</div>}
-          {captured && <div className="photo-item-done">✓ Photo captured</div>}
+          {captured && <div className="photo-item-done">✓ {isVideo ? 'Video' : 'Photo'} captured</div>}
         </div>
         <div className="photo-item-buttons">
           {captured && thumbUrl && (
-            <button className="photo-btn retake" onClick={() => setShowModal(true)}>
+            <button
+              className="photo-btn retake"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onViewPhoto) onViewPhoto();
+                else setShowModal(true);
+              }}
+            >
               View
             </button>
           )}
-          <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={onOpenCamera}>
-            {captured ? 'Retake' : '📷 Take'}
+          <button
+            className={`photo-btn${captured ? ' retake' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenCamera();
+            }}
+          >
+            {captured ? 'Retake' : isVideo ? '🎥 Record' : '📷 Take'}
           </button>
           {onFileSelected && (
             <>
-              <button className={`photo-btn${captured ? ' retake' : ''}`} onClick={() => fileInputRef.current?.click()}>
+              <button
+                className={`photo-btn${captured ? ' retake' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+              >
                 {captured ? '📁 Replace' : '📁 Upload'}
               </button>
               <input
@@ -87,7 +247,14 @@ export default function PhotoItem({ label, note, photoId, onOpenCamera, onFileSe
             </>
           )}
           {captured && onRemove && (
-            <button className="photo-btn remove" onClick={onRemove} title="Delete photo">
+            <button
+              className="photo-btn remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              title="Delete photo"
+            >
               ✕
             </button>
           )}

@@ -824,6 +824,7 @@ input, select, textarea { font-family: var(--font); }
 .page-footer { padding: 20px 0 0; }
 .btn-full { width: 100%; }
 .btn-success { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
 
 /* ===== Form Section (CustomerInfoPage) ===== */
 .form-section { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
@@ -985,6 +986,32 @@ input, select, textarea { font-family: var(--font); }
   border-radius: var(--radius);
   margin-bottom: 8px;
 }
+
+/* Grid view: stack items vertically and make them card-like */
+@supports (display: grid) {
+  [style*="gridTemplateColumns"] + * .photo-item,
+  [style*="grid"] .photo-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px;
+  }
+  [style*="grid"] .photo-thumb {
+    width: 100%;
+    height: 120px;
+  }
+  [style*="grid"] .photo-item-info {
+    width: 100%;
+  }
+  [style*="grid"] .photo-item-buttons {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  [style*="grid"] .photo-btn {
+    flex: 1 1 calc(50% - 3px);
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
 .photo-thumb {
   width: 40px; height: 40px;
   border-radius: 8px;
@@ -1101,6 +1128,78 @@ input, select, textarea { font-family: var(--font); }
   z-index: 10000;
 }
 .image-modal-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Navigation arrows for photo gallery */
+.image-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
+  padding: 0;
+  line-height: 1;
+}
+
+.image-modal-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.image-modal-nav-prev {
+  left: 16px;
+}
+
+.image-modal-nav-next {
+  right: 16px;
+}
+
+/* Photo counter */
+.image-modal-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Rotate button */
+.image-modal-rotate {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 10000;
+  padding: 0;
+}
+.image-modal-rotate:hover {
   background: rgba(0, 0, 0, 0.8);
 }
 

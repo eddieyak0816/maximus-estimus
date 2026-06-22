@@ -8,6 +8,80 @@ export interface StatusConfig {
 export type JobType = 'Kitchen' | 'Bathroom' | 'Flooring' | 'Painting' | 'Living Room' | 'Bedroom' | 'Deck' | 'Other';
 export type WallDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | null;
 
+// ── Dictation & AI Parsing ────────────────────────────────────────────────────
+export interface ClarificationNeeded {
+  id: string;
+  field: string;
+  what_was_said: string;
+  assumption_made?: string;
+  suggested_standard?: string;
+  options?: string[];
+  certainty: 'high' | 'medium' | 'low';
+  priority: 'high' | 'medium' | 'low';
+}
+
+export interface DesignQuestion {
+  id: string;
+  question: string;
+  category?: string;
+  current_state?: string;
+  user_stated?: string;
+  options?: string[];
+  placement_context?: string;
+  described_as?: string;
+  priority?: 'high' | 'medium' | 'low';
+  certainty: 'high' | 'medium' | 'low';
+}
+
+export interface ParsedResult {
+  measurements: Record<string, string | number | boolean>;
+  questions: Record<string, string | string[] | boolean>;
+  notes: string;
+  confidence: 'high' | 'medium' | 'low';
+  wallContext?: string | null; // e.g., "sink wall", "window wall"
+  wallContextConfidence?: 'high' | 'medium' | 'low';
+  job_type_detected?: 'measurement' | 'design_brief' | 'mixed';
+  clarifications_needed?: ClarificationNeeded[]; // Assumptions and questions
+  design_questions?: DesignQuestion[]; // Extracted design requirements
+  flags?: string[]; // Warnings about data quality, structural changes, etc.
+}
+
+export interface DictationTranscript {
+  id: string;
+  text: string;
+  timestamp: string;
+  processed: boolean;
+  parsed?: ParsedResult; // Store parsed results
+}
+
+// ── AI Extract Data (Flexible, Wall-Based) ────────────────────────────────────
+export interface AIExtractAppliance {
+  id: string;
+  name: string;
+  width?: string;
+  position?: string;
+  [key: string]: any;
+}
+
+export interface AIWallData {
+  id: string;
+  name: string; // "Fridge Wall", "Sink Wall", etc.
+  wallContextConfidence: 'high' | 'medium' | 'low';
+  measurements: Record<string, any>; // All extracted measurements (wall_length, ceiling_height, etc.)
+  appliances: AIExtractAppliance[];
+  features: Record<string, any>; // dishwasher, disposal, backsplash, etc.
+  questions: Record<string, any>; // Answers extracted from dictation
+  notes: string;
+  rawParsed: ParsedResult; // Original AI response for transparency
+  createdAt: string;
+  updatedAt: string;
+  source: 'ai' | 'manual';
+}
+
+export interface AIExtractData {
+  walls: AIWallData[];
+}
+
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface ClientInfo {
   firstName: string;
@@ -22,28 +96,33 @@ export interface ClientInfo {
 
 // ── Wall sub-types ────────────────────────────────────────────────────────────
 export interface WindowData {
-  width?: string;
-  height?: string;
-  leftCorner?: string;
-  rightCorner?: string;
+  // Inside trim (the opening)
+  insideWidth?: string;
+  insideHeight?: string;
+  // With trim (the full frame)
+  withTrimWidth?: string;
+  withTrimHeight?: string;
+  // Position in wall
+  distanceFromLeftCorner?: string;
+  distanceFromRightCorner?: string;
+  // Window-specific
   sillHeight?: string;
-  trimLeft?: string;
-  trimRight?: string;
-  trimTop?: string;
-  trimBottom?: string;
   replacing?: boolean;
 }
 
 export interface DoorData {
   type?: 'Door' | 'Opening';
-  width?: string;
-  height?: string;
-  leftCorner?: string;
-  rightCorner?: string;
+  // Inside trim (the opening)
+  insideWidth?: string;
+  insideHeight?: string;
+  // With trim (the full frame)
+  withTrimWidth?: string;
+  withTrimHeight?: string;
+  // Position in wall
+  distanceFromLeftCorner?: string;
+  distanceFromRightCorner?: string;
+  // Door-specific
   swing?: 'Left' | 'Right' | 'Both' | 'N/A';
-  trimLeft?: string;
-  trimRight?: string;
-  trimTop?: string;
 }
 
 export interface OutletData {
@@ -195,6 +274,8 @@ export interface CustomPhoto {
   id: string;
   label: string;
   photoId: string;
+  type?: 'photo' | 'video'; // 'photo' is default for backwards compatibility
+  rotation?: number; // 0, 90, 180, 270 degrees
 }
 
 // ── Layout Drawing ────────────────────────────────────────────────────────────
@@ -212,6 +293,8 @@ export interface KitchenAssessment {
   measurements: KitchenMeasurements;
   questions: KitchenQuestions;
   photos: KitchenPhotos;
+  dictations?: DictationTranscript[]; // Voice dictations with optional parsed results
+  aiExtract?: AIExtractData; // AI-extracted walls (flexible, not bound to Wall A/B/C/D)
 }
 
 // ── Bathroom ──────────────────────────────────────────────────────────────────
@@ -302,6 +385,8 @@ export interface BathroomAssessment {
   measurements: BathroomMeasurements;
   questions: BathroomQuestions;
   photos: BathroomPhotos;
+  dictations?: DictationTranscript[];
+  aiExtract?: AIExtractData;
 }
 
 // ── Flooring ──────────────────────────────────────────────────────────────────
@@ -363,6 +448,7 @@ export interface FlooringAssessment {
   measurements: FlooringMeasurements;
   questions: FlooringQuestions;
   photos: FlooringPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Living Room ───────────────────────────────────────────────────────────────
@@ -397,6 +483,7 @@ export interface LivingRoomAssessment {
   measurements: LivingRoomMeasurements;
   questions: LivingRoomQuestions;
   photos: LivingRoomPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Bedroom ────────────────────────────────────────────────────────────────────
@@ -432,6 +519,7 @@ export interface BedroomAssessment {
   measurements: BedroomMeasurements;
   questions: BedroomQuestions;
   photos: BedroomPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Deck ───────────────────────────────────────────────────────────────────────
@@ -468,6 +556,7 @@ export interface DeckAssessment {
   measurements: DeckMeasurements;
   questions: DeckQuestions;
   photos: DeckPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Painting ──────────────────────────────────────────────────────────────────
@@ -502,6 +591,7 @@ export interface PaintingAssessment {
   measurements: PaintingMeasurements;
   questions: PaintingQuestions;
   photos: PaintingPhotos;
+  aiExtract?: AIExtractData;
 }
 
 // ── Other ─────────────────────────────────────────────────────────────────────
@@ -509,6 +599,7 @@ export interface OtherAssessment {
   measurementNotes?: string;
   questionNotes?: string;
   photoNotes?: string;
+  aiExtract?: AIExtractData;
 }
 
 // ── Job Instance ──────────────────────────────────────────────────────────────

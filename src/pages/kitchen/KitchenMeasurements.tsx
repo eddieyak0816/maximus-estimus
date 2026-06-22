@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Toggle from '../../components/Toggle';
 import MeasInput from '../../components/MeasInput';
 import CollapseSection from '../../components/CollapseSection';
 import WallSection from '../../components/WallSection';
 import ChevronIcon from '../../components/ChevronIcon';
 import CameraModal from '../../components/CameraModal';
-import type { KitchenMeasurements as KM } from '../../types';
+import VoiceDictationButton from '../../components/VoiceDictationButton';
+import DictationTranscriptsPanel from '../../components/DictationTranscriptsPanel';
+import AIWallSelectionDialog from '../../components/AIWallSelectionDialog';
+import type { DictationTranscript, ParsedResult } from '../../components/DictationTranscriptsPanel';
+import type { KitchenAssessment, KitchenMeasurements as KM } from '../../types';
+import { extractWallContext } from '../../utils/applyParsedDataToJob';
+import { convertParsedToAIWall } from '../../utils/smartMergeWalls';
 
 function wallLabel(i: number): string {
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -15,11 +21,13 @@ function wallLabel(i: number): string {
 interface Props {
   data: KM;
   onUpdate: (d: KM) => void;
+  onUpdateJob?: (job: any) => void; // For updating full job (including dictations)
+  job?: any; // Full job object (KitchenAssessment) for accessing dictations
   onWallPhotoCapture?: (wallName: string, blob: Blob) => Promise<void>;
   startClosed?: boolean;
 }
 
-export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture, startClosed = false }: Props) {
+export default function KitchenMeasurements({ data, onUpdate, onUpdateJob, job, onWallPhotoCapture, startClosed = false }: Props) {
   const u = (f: keyof KM, v: unknown) => onUpdate({ ...data, [f]: v });
 
   const [iDimsOpen, setIDimsOpen] = useState(!startClosed);
@@ -30,9 +38,113 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
   const [iOutletOpen, setIOutletOpen] = useState(!startClosed);
   const [iLevelsOpen, setILevelsOpen] = useState(!startClosed);
   const [showIslandCamera, setShowIslandCamera] = useState(false);
+  const [showWallSelectionDialog, setShowWallSelectionDialog] = useState(false);
+  const [pendingParsedData, setPendingParsedData] = useState<ParsedResult | null>(null);
+  const dictationSectionRef = useRef<HTMLDivElement>(null);
+
+  // Load dictations from job (persistent across tab switches)
+  const dictations = job?.dictations || [];
+
+  // Scroll to dictation section on first load
+  useEffect(() => {
+    if (dictationSectionRef.current && !startClosed) {
+      // Small delay to ensure layout is complete
+      setTimeout(() => {
+        dictationSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [startClosed]);
+
+  function handleDictationTranscribed(text: string) {
+    const newDictation: DictationTranscript = {
+      id: Date.now().toString(),
+      text,
+      timestamp: new Date().toISOString(),
+      processed: false,
+    };
+    const updated = { ...job, dictations: [...dictations, newDictation] };
+    onUpdateJob?.(updated);
+  }
+
+  function handleDeleteDictation(id: string) {
+    const updated = { ...job, dictations: dictations.filter((d: DictationTranscript) => d.id !== id) };
+    onUpdateJob?.(updated);
+  }
+
+  function handleEditDictation(id: string, newText: string) {
+    const updated = {
+      ...job,
+      dictations: dictations.map((d: DictationTranscript) => (d.id === id ? { ...d, text: newText } : d)),
+    };
+    onUpdateJob?.(updated);
+  }
+
+  function handleUpdateTranscript(id: string, updatedTranscript: DictationTranscript) {
+    const updated = {
+      ...job,
+      dictations: dictations.map((d: DictationTranscript) => (d.id === id ? updatedTranscript : d)),
+    };
+    onUpdateJob?.(updated);
+  }
+
+  function handleApplyParsedData(parsed: ParsedResult) {
+    // Try to extract wall context from parsed data
+    const wallContext = extractWallContext(parsed.wallContext);
+
+    if (wallContext && (parsed.wallContextConfidence === 'high' || parsed.wallContextConfidence === 'medium')) {
+      // AI confident about the wall - apply directly
+      applyToAIWall(wallContext, parsed);
+    } else {
+      // AI unsure - show dialog for user to select/create wall
+      setPendingParsedData(parsed);
+      setShowWallSelectionDialog(true);
+    }
+  }
+
+  function applyToAIWall(wallName: string, parsed: ParsedResult) {
+    // Convert parsed data to AI wall and merge with existing extracts
+    const newExtract = convertParsedToAIWall(parsed, wallName, job?.aiExtract);
+
+    // Update job with new aiExtract data
+    const updatedJob: KitchenAssessment = {
+      ...job,
+      aiExtract: newExtract,
+    };
+    onUpdateJob?.(updatedJob);
+
+    setPendingParsedData(null);
+    setShowWallSelectionDialog(false);
+    alert(`✅ Added to "${wallName}" in AI Extract! Review and edit it on the 🤖 AI Extract tab.`);
+  }
+
+  function handleWallSelection(wallName: string, _isNewWall: boolean) {
+    if (!pendingParsedData) {
+      alert('Error: No parsed data available');
+      return;
+    }
+    applyToAIWall(wallName, pendingParsedData);
+  }
 
   return (
     <div className="assess-tab">
+      {/* ── Voice Dictation ── */}
+      <div ref={dictationSectionRef} style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <VoiceDictationButton
+          onTranscribed={handleDictationTranscribed}
+          label="Dictate Notes"
+        />
+      </div>
+
+      <DictationTranscriptsPanel
+        transcripts={dictations}
+        onAddTranscript={handleDictationTranscribed}
+        onDeleteTranscript={handleDeleteDictation}
+        onEditTranscript={handleEditDictation}
+        onUpdateTranscript={handleUpdateTranscript}
+        onApplyParsedData={handleApplyParsedData}
+        jobType="Kitchen"
+      />
+
       {/* ── Room Globals ── */}
       <CollapseSection title="🌐 Room Globals" accent defaultOpen={!startClosed}>
         <MeasInput label="Overall Ceiling Height" value={data.ceilingHeight} onChange={v => u('ceilingHeight', v)} />
@@ -365,6 +477,17 @@ export default function KitchenMeasurements({ data, onUpdate, onWallPhotoCapture
             });
           }}
           onClose={() => setShowIslandCamera(false)}
+        />
+      )}
+
+      {showWallSelectionDialog && (
+        <AIWallSelectionDialog
+          existingWalls={data.walls || []}
+          onSelect={handleWallSelection}
+          onCancel={() => {
+            setShowWallSelectionDialog(false);
+            setPendingParsedData(null);
+          }}
         />
       )}
 

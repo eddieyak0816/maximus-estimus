@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { savePhoto, deletePhoto } from '../utils/photoStorage';
+import { savePhoto, deletePhoto, getPhotoUrl } from '../utils/photoStorage';
 import PhotoItem from './PhotoItem';
 import CameraModal from './CameraModal';
+import ImageModal from './ImageModal';
 import type { CustomPhoto } from '../types';
 
 interface Props {
@@ -18,6 +19,10 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [burstMode, setBurstMode] = useState(false);
+  const [bulkUploadProgress, setBulkUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [viewingPhotoIndex, setViewingPhotoIndex] = useState<number | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const burstPhotosRef = useRef<CustomPhoto[]>(photos);
 
   // Extract wall names from measurements
@@ -43,35 +48,37 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
   // Combine wall names + defaults, remove duplicates
   const allCategories = [...new Set([...wallNames, ...defaultCategories])].sort();
 
-  async function handleBurstCapture(blob: Blob) {
+  async function handleBurstCapture(blob: Blob, type: 'photo' | 'video') {
     try {
-      const photoNumber = burstPhotosRef.current.length + 1;
-      const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      const mediaNumber = burstPhotosRef.current.length + 1;
+      const mediaType = type === 'video' ? 'video' : 'photo';
+      const photoId = await savePhoto(assessmentId, jobId, `${mediaType}-${uuidv4()}`, blob);
       const newPhoto: CustomPhoto = {
         id: uuidv4(),
-        label: `Photo ${photoNumber}`,
+        label: `${type === 'video' ? 'Video' : 'Photo'} ${mediaNumber}`,
         photoId,
+        type,
       };
       burstPhotosRef.current = [...burstPhotosRef.current, newPhoto];
       onUpdate(burstPhotosRef.current);
     } catch (err) {
-      console.error('Failed to save burst photo:', err);
+      console.error('Failed to save burst media:', err);
     }
   }
 
-  async function handlePhotoCapture(blob: Blob) {
+  async function handlePhotoCapture(blob: Blob, type: 'photo' | 'video') {
     if (!selectedCategory) {
       alert('Please select a category');
       return;
     }
 
     try {
-      const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+      const photoId = await savePhoto(assessmentId, jobId, `${type}-${uuidv4()}`, blob);
       if (activePhotoId && activePhotoId !== 'new') {
         const existingPhoto = photos.find(p => p.id === activePhotoId);
         if (existingPhoto) {
           deletePhoto(existingPhoto.photoId).catch(err => console.error('Failed to delete replaced photo:', err));
-          onUpdate(photos.map(p => p.id === activePhotoId ? { ...p, label: selectedCategory, photoId } : p));
+          onUpdate(photos.map(p => p.id === activePhotoId ? { ...p, label: selectedCategory, photoId, type } : p));
           resetForm();
           return;
         }
@@ -81,12 +88,13 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
         id: uuidv4(),
         label: selectedCategory,
         photoId,
+        type,
       };
       onUpdate([...photos, newPhoto]);
       resetForm();
     } catch (err) {
-      console.error('Failed to save photo:', err);
-      alert('Failed to save photo');
+      console.error('Failed to save media:', err);
+      alert(`Failed to save ${type}`);
     }
   }
 
@@ -130,10 +138,86 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
     }
   }
 
+  async function handleBulkUpload(files: FileList) {
+    if (!selectedCategory) {
+      alert('Please select a category');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    if (validFiles.length === 0) {
+      alert('No image files selected');
+      return;
+    }
+
+    const newPhotos: CustomPhoto[] = [];
+    setBulkUploadProgress({ current: 0, total: validFiles.length });
+
+    try {
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+        const photoId = await savePhoto(assessmentId, jobId, `photo-${uuidv4()}`, blob);
+        newPhotos.push({
+          id: uuidv4(),
+          label: selectedCategory,
+          photoId,
+        });
+        setBulkUploadProgress({ current: i + 1, total: validFiles.length });
+      }
+
+      // Update all at once
+      onUpdate([...photos, ...newPhotos]);
+      resetForm();
+      setBulkUploadProgress(null);
+    } catch (err) {
+      console.error('Failed to bulk upload photos:', err);
+      alert(`Failed to upload ${validFiles.length - newPhotos.length} photos`);
+      setBulkUploadProgress(null);
+    }
+  }
+
   function resetForm() {
     setSelectedCategory('');
     setShowAddForm(false);
     setActivePhotoId(null);
+  }
+
+  async function handleOpenPhoto(index: number) {
+    const urls = await Promise.all(
+      photos.map(p => getPhotoUrl(p.photoId))
+    );
+    const validUrls = urls.filter((url): url is string => url !== null);
+    setPhotoUrls(validUrls);
+    setViewingPhotoIndex(index);
+  }
+
+  function handleClosePhoto() {
+    setViewingPhotoIndex(null);
+    setPhotoUrls([]);
+  }
+
+  function handlePrevPhoto() {
+    if (viewingPhotoIndex !== null && viewingPhotoIndex > 0) {
+      setViewingPhotoIndex(viewingPhotoIndex - 1);
+    }
+  }
+
+  function handleNextPhoto() {
+    if (viewingPhotoIndex !== null && viewingPhotoIndex < photos.length - 1) {
+      setViewingPhotoIndex(viewingPhotoIndex + 1);
+    }
+  }
+
+  function handleRotatePhoto(newRotation: number) {
+    if (viewingPhotoIndex !== null) {
+      const updatedPhotos = photos.map((p, idx) =>
+        idx === viewingPhotoIndex ? { ...p, rotation: newRotation } : p
+      );
+      onUpdate(updatedPhotos);
+    }
   }
 
   return (
@@ -142,17 +226,68 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
         <div className="photo-progress-header">
           <span className="photo-progress-label">Photos</span>
           <span className="photo-progress-count">{photos.length}</span>
+          {photos.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+              <button
+                onClick={() => setViewMode('list')}
+                title="List view"
+                style={{
+                  background: viewMode === 'list' ? '#F5C42A' : 'rgba(255, 255, 255, 0.1)',
+                  color: viewMode === 'list' ? '#0d1628' : 'inherit',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+              >
+                ≡ List
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                title="Grid view"
+                style={{
+                  background: viewMode === 'grid' ? '#F5C42A' : 'rgba(255, 255, 255, 0.1)',
+                  color: viewMode === 'grid' ? '#0d1628' : 'inherit',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+              >
+                ⊞ Grid
+              </button>
+            </div>
+          )}
         </div>
         <div className="photo-progress-hint">Add photos to document the job</div>
       </div>
 
       {photos.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          {photos.map(photo => (
+        <div
+          style={
+            viewMode === 'grid'
+              ? {
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: '12px',
+                  marginBottom: '20px',
+                }
+              : { marginBottom: '20px' }
+          }
+        >
+          {photos.map((photo, index) => (
             <PhotoItem
               key={photo.id}
               label={photo.label}
               photoId={photo.photoId}
+              type={photo.type || 'photo'}
+              rotation={photo.rotation || 0}
               onOpenCamera={() => {
                 setSelectedCategory(photo.label);
                 setActivePhotoId(photo.id);
@@ -162,6 +297,13 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 handlePhotoUpload(file);
               }}
               onRemove={() => handlePhotoRemove(photo.id)}
+              onViewPhoto={() => handleOpenPhoto(index)}
+              onUpdateLabel={(newLabel) => {
+                const updatedPhotos = photos.map(p =>
+                  p.id === photo.id ? { ...p, label: newLabel } : p
+                );
+                onUpdate(updatedPhotos);
+              }}
             />
           ))}
         </div>
@@ -222,7 +364,7 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               className="btn btn-primary"
               style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
               onClick={() => setActivePhotoId('new')}
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || bulkUploadProgress !== null}
             >
               📷 Take
             </button>
@@ -233,13 +375,20 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
+                input.multiple = true;
                 input.onchange = () => {
-                  const file = input.files?.[0];
-                  if (file) handlePhotoUpload(file);
+                  if (input.files) {
+                    if (input.files.length === 1) {
+                      handlePhotoUpload(input.files[0]);
+                    } else if (input.files.length > 1) {
+                      handleBulkUpload(input.files);
+                    }
+                  }
                 };
                 input.click();
               }}
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || bulkUploadProgress !== null}
+              title="Upload one or more photos"
             >
               📁 Upload
             </button>
@@ -254,6 +403,24 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
               ✕
             </button>
           </div>
+
+          {bulkUploadProgress && (
+            <div style={{ marginTop: '12px', padding: '8px', backgroundColor: 'rgba(245, 196, 42, 0.1)', borderRadius: '4px' }}>
+              <div style={{ fontSize: '12px', marginBottom: '6px', color: '#F5C42A' }}>
+                Uploading {bulkUploadProgress.current} of {bulkUploadProgress.total}...
+              </div>
+              <div style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    backgroundColor: '#F5C42A',
+                    width: `${(bulkUploadProgress.current / bulkUploadProgress.total) * 100}%`,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -271,6 +438,21 @@ export default function PhotosTab({ photos = [], measurements, assessmentId, job
           onCapture={handleBurstCapture}
           onClose={() => setBurstMode(false)}
           burstMode
+        />
+      )}
+
+      {viewingPhotoIndex !== null && photoUrls.length > 0 && photoUrls[viewingPhotoIndex] && (
+        <ImageModal
+          src={photoUrls[viewingPhotoIndex]}
+          alt={photos[viewingPhotoIndex]?.label || 'Photo'}
+          onClose={handleClosePhoto}
+          photoUrls={photoUrls}
+          currentIndex={viewingPhotoIndex}
+          onPrev={handlePrevPhoto}
+          onNext={handleNextPhoto}
+          onRotate={handleRotatePhoto}
+          currentRotation={photos[viewingPhotoIndex]?.rotation || 0}
+          isVideo={photos[viewingPhotoIndex]?.type === 'video'}
         />
       )}
     </div>

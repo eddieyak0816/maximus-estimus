@@ -30,7 +30,7 @@ function formatInches(inches: number): string {
 
 // ── Window card ───────────────────────────────────────────────────────────────
 function windowHasData(win: WindowData): boolean {
-  return !!(win.width || win.height || win.leftCorner || win.rightCorner || win.sillHeight || win.trimLeft || win.trimRight || win.trimTop || win.trimBottom || win.replacing);
+  return !!(win.insideWidth || win.insideHeight || win.withTrimWidth || win.withTrimHeight || win.distanceFromLeftCorner || win.distanceFromRightCorner || win.sillHeight || win.replacing);
 }
 
 function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
@@ -40,17 +40,8 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
 }) {
   const [open, setOpen] = useState(!startClosed);
   const hasData = windowHasData(win);
-  const [syncTrim, setSyncTrim] = useState(false);
-  const u = (f: keyof WindowData, v: string) => {
-    const updated = { ...win, [f]: v };
-    if (syncTrim && ['trimLeft', 'trimRight', 'trimTop', 'trimBottom'].includes(f)) {
-      updated.trimLeft = v;
-      updated.trimRight = v;
-      updated.trimTop = v;
-      updated.trimBottom = v;
-    }
-    onUpdate(updated);
-  };
+  const u = (f: keyof WindowData, v: string) => onUpdate({ ...win, [f]: v });
+
   return (
     <div className={`sub-card ${hasData ? 'sub-card-with-data' : ''}`}>
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
@@ -61,13 +52,11 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
         </div>
       </div>
       {open && <>
-        <div className="sub-section-label">INTERIOR</div>
+        <div className="sub-section-label">INSIDE TRIM (Opening)</div>
         <div className="grid-2">
           {([
-            ['Width', 'width'],
-            ['Height', 'height'],
-            ['Distance from Left Corner', 'leftCorner'],
-            ['Distance from Right Corner', 'rightCorner'],
+            ['Width', 'insideWidth'],
+            ['Height', 'insideHeight'],
           ] as [string, keyof WindowData][]).map(([l, k]) => (
             <div key={k}>
               <div className="tiny-label">{l}</div>
@@ -75,26 +64,25 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
             </div>
           ))}
         </div>
-        <div className="tiny-label" style={{ marginTop: 8 }}>Sill Height from Countertop</div>
+
+        <div className="sub-section-label" style={{ marginTop: 10 }}>WITH TRIM (Frame)</div>
+        <div className="grid-2">
+          {([
+            ['Width', 'withTrimWidth'],
+            ['Height', 'withTrimHeight'],
+            ['Distance from Left Corner', 'distanceFromLeftCorner'],
+            ['Distance from Right Corner', 'distanceFromRightCorner'],
+          ] as [string, keyof WindowData][]).map(([l, k]) => (
+            <div key={k}>
+              <div className="tiny-label">{l}</div>
+              <input className="input input-sm" placeholder='0"' value={(win[k] as string) || ''} onChange={e => u(k, e.target.value)} />
+            </div>
+          ))}
+        </div>
+
+        <div className="tiny-label" style={{ marginTop: 10 }}>Sill Height from Countertop</div>
         <input className="input input-sm" placeholder='0"' value={win.sillHeight || ''} onChange={e => u('sillHeight', e.target.value)} />
-        <div className="sub-section-label" style={{ marginTop: 10 }}>TRIM WIDTH</div>
-        <div className="toggle-row" style={{ marginBottom: 10 }}>
-          <span className="toggle-label">Sync all trim sizes?</span>
-          <Toggle on={syncTrim} onToggle={() => setSyncTrim(o => !o)} />
-        </div>
-        <div className="grid-2">
-          {([
-            ['Left Side', 'trimLeft'],
-            ['Right Side', 'trimRight'],
-            ['Top', 'trimTop'],
-            ['Bottom (Apron)', 'trimBottom'],
-          ] as [string, keyof WindowData][]).map(([l, k]) => (
-            <div key={k}>
-              <div className="tiny-label">{l}</div>
-              <input className="input input-sm" placeholder='0"' value={(win[k] as string) || ''} onChange={e => u(k, e.target.value)} />
-            </div>
-          ))}
-        </div>
+
         <div className="toggle-row" style={{ marginTop: 12 }}>
           <span className="toggle-label">Window Being Replaced?</span>
           <Toggle on={!!win.replacing} onToggle={() => onUpdate({ ...win, replacing: !win.replacing })} />
@@ -106,7 +94,7 @@ function WindowCard({ win, index, onUpdate, onRemove, startClosed = false }: {
 
 // ── Door card ─────────────────────────────────────────────────────────────────
 function doorHasData(door: DoorData): boolean {
-  return !!(door.type !== 'Door' || door.width || door.height || door.leftCorner || door.rightCorner || door.swing || door.trimLeft || door.trimRight || door.trimTop);
+  return !!(door.type !== 'Door' || door.insideWidth || door.insideHeight || door.withTrimWidth || door.withTrimHeight || door.distanceFromLeftCorner || door.distanceFromRightCorner || door.swing);
 }
 
 function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
@@ -116,17 +104,9 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
 }) {
   const [open, setOpen] = useState(!startClosed);
   const hasData = doorHasData(door);
-  const [syncTrim, setSyncTrim] = useState(false);
-  const u = (f: keyof DoorData, v: string) => {
-    const updated = { ...door, [f]: v } as DoorData;
-    if (syncTrim && ['trimLeft', 'trimRight', 'trimTop'].includes(f)) {
-      updated.trimLeft = v;
-      updated.trimRight = v;
-      updated.trimTop = v;
-    }
-    onUpdate(updated);
-  };
+  const u = (f: keyof DoorData, v: string) => onUpdate({ ...door, [f]: v });
   const title = door.type === 'Opening' ? `Opening ${index + 1}` : `Door ${index + 1}`;
+
   return (
     <div className={`sub-card ${hasData ? 'sub-card-with-data' : ''}`}>
       <div className="sub-card-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
@@ -142,40 +122,39 @@ function DoorCard({ door, index, onUpdate, onRemove, startClosed = false }: {
             <button key={t} className={`pill${door.type === t ? ' active' : ''}`} onClick={() => u('type', t)}>{t}</button>
           ))}
         </div>
-        <div className="grid-2" style={{ marginBottom: 10 }}>
-          {([
-            ['Width', 'width'],
-            ['Height', 'height'],
-            ['Distance from Left Corner', 'leftCorner'],
-            ['Distance from Right Corner', 'rightCorner'],
-          ] as [string, keyof DoorData][]).map(([l, k]) => (
-            <div key={k}>
-              <div className="tiny-label">{l}</div>
-              <input className="input input-sm" placeholder='0"' value={(door[k] as string) || ''} onChange={e => u(k, e.target.value)} />
-            </div>
-          ))}
-        </div>
-        <div className="tiny-label">Swing Direction</div>
-        <div className="pill-group" style={{ marginTop: 6, marginBottom: 10 }}>
-          {(['Left', 'Right', 'Both', 'N/A'] as const).map(d => (
-            <button key={d} className={`pill${door.swing === d ? ' active' : ''}`} onClick={() => onUpdate({ ...door, swing: d })}>{d}</button>
-          ))}
-        </div>
-        <div className="sub-section-label">TRIM WIDTH</div>
-        <div className="toggle-row" style={{ marginBottom: 10 }}>
-          <span className="toggle-label">Sync all trim sizes?</span>
-          <Toggle on={syncTrim} onToggle={() => setSyncTrim(o => !o)} />
-        </div>
+
+        <div className="sub-section-label">INSIDE TRIM (Opening)</div>
         <div className="grid-2">
           {([
-            ['Left Side', 'trimLeft'],
-            ['Right Side', 'trimRight'],
-            ['Top', 'trimTop'],
+            ['Width', 'insideWidth'],
+            ['Height', 'insideHeight'],
           ] as [string, keyof DoorData][]).map(([l, k]) => (
             <div key={k}>
               <div className="tiny-label">{l}</div>
               <input className="input input-sm" placeholder='0"' value={(door[k] as string) || ''} onChange={e => u(k, e.target.value)} />
             </div>
+          ))}
+        </div>
+
+        <div className="sub-section-label" style={{ marginTop: 10 }}>WITH TRIM (Frame)</div>
+        <div className="grid-2">
+          {([
+            ['Width', 'withTrimWidth'],
+            ['Height', 'withTrimHeight'],
+            ['Distance from Left Corner', 'distanceFromLeftCorner'],
+            ['Distance from Right Corner', 'distanceFromRightCorner'],
+          ] as [string, keyof DoorData][]).map(([l, k]) => (
+            <div key={k}>
+              <div className="tiny-label">{l}</div>
+              <input className="input input-sm" placeholder='0"' value={(door[k] as string) || ''} onChange={e => u(k, e.target.value)} />
+            </div>
+          ))}
+        </div>
+
+        <div className="tiny-label" style={{ marginTop: 10 }}>Swing Direction</div>
+        <div className="pill-group" style={{ marginTop: 6 }}>
+          {(['Left', 'Right', 'Both', 'N/A'] as const).map(d => (
+            <button key={d} className={`pill${door.swing === d ? ' active' : ''}`} onClick={() => onUpdate({ ...door, swing: d })}>{d}</button>
           ))}
         </div>
       </>}

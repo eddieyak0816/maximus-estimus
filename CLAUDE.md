@@ -1,8 +1,8 @@
 # 🏛️ Maximus Estimus — AI Developer Handoff Guide
 
-> **Last Updated:** May 30, 2026 (Session 6)  
+> **Last Updated:** June 7, 2026 (Session 9)  
 > **Project Lead:** Eddie (eddie0816@gmail.com)  
-> **Status:** Phase 1 Complete + Phase 5 Complete + All UX Features Complete ✅ + Questions Customization (Smart) ✅ + Island Photo Capture ✅ + UI Polish & Data Indicators ✅ + Wall Placement UI ✅
+> **Status:** Phase 1 Complete ✅ + Phase 5 Complete ✅ + All UX Features Complete ✅ + Questions Customization ✅ + Voice Dictation with AI Parsing ✅ + Form Auto-Population ✅
 
 ---
 
@@ -25,8 +25,9 @@
 1. **Capture customer info** (name, address, contact, visit date, assigned team member)
 2. **Select job types** (Kitchen, Bathroom, Flooring, Other, or custom room templates)
 3. **Record measurements** (walls, appliances, fixtures, dimensions)
+   - **NEW:** Dictate measurements → AI parses data → auto-populates form fields
 4. **Answer questions** (scope, timeline, materials, preferences, special notes)
-5. **Take photos** (real device camera, stored in IndexedDB)
+5. **Take photos** or **record videos** (real device camera, stored in IndexedDB)
 6. **Generate estimates** (auto-calculated from measurements + price guide)
 7. **View summary** (consolidated report of all collected data)
 8. **Export/email** (PDF reports to customer, coming in Sprint 6)
@@ -389,12 +390,90 @@
   - Cleaner measurement tab appearance
   - Files modified: src/components/WallSection.tsx
 
+- **Voice Dictation with AI Parsing (June 5-7, 2026 - Sessions 7-9):**
+  - **Web Speech API + Native Android Keyboard:** Record measurements by speaking naturally on any device
+    - Web Speech API for browsers (Chrome, Edge, Safari)
+    - Native Android keyboard microphone for Samsung Galaxy S24 and other Android devices
+    - Pause/resume recording to take breaks between thoughts
+    - Manual keyboard input option for users without working microphone
+  - **AI Transcript Parsing (OpenRouter Free Models):**
+    - Uses OpenRouter free tier with multi-model fallback: GPT-OSS 120B, Nemotron 3 Super 120B, Gemma 4 31B
+    - Automatically extracts: wall measurements, window/door counts, appliance locations, ceiling heights, questions answers
+    - Returns structured data with confidence level (high/medium/low)
+    - Handles multiple measurement formats: "15 feet", "15'", "15 feet 3 inches", "15' 3"", etc.
+  - **Persistent Dictation Storage:**
+    - Dictations saved to assessment as permanent records (not temporary state)
+    - Each dictation gets a unique ID and timestamp
+    - Parsed results stored with dictation (not lost on tab switch or page reload)
+    - Full dictation history persists to Supabase
+  - **Edit & Delete Capability:**
+    - Click ✏️ button on any dictation to edit raw text
+    - Fix transcription errors before parsing
+    - Click ✕ to delete unwanted dictations
+    - All changes save immediately to assessment
+  - **Apply Parsed Data to Form:**
+    - Click ✓ Apply to Form to populate measurement fields
+    - Maps parsed field names to wall measurements intelligently:
+      - "wall_a_length" → Wall A length field
+      - "window_count" → Wall windows array
+      - Handles all wall indices (A, B, C, D, E, F, etc.)
+    - Form fields visibly update with parsed values
+    - Data automatically saved to Supabase
+    - User can review and edit applied values before final save
+  - **Complete Workflow:**
+    1. Click 🎤 Dictate Notes in Measure tab
+    2. Speak naturally or use keyboard input
+    3. Click Save to record dictation
+    4. Click 🤖 Parse to extract data with AI
+    5. See parsed results in green box with confidence level
+    6. Switch tabs freely — parsed results persist
+    7. Click ✓ Apply to Form to populate fields
+    8. Review values and adjust as needed
+    9. Entire job saves to Supabase
+  - **Files Created:** 
+    - src/utils/parseTranscriptWithOpenRouter.ts (AI parsing with free models)
+    - src/utils/applyParsedDataToJob.ts (intelligent field mapping)
+    - src/components/DictationTranscriptsPanel.tsx (UI for managing dictations)
+  - **Files Modified:**
+    - src/types/index.ts (added DictationTranscript, ParsedResult types)
+    - src/components/VoiceDictationButton.tsx (enhanced with keyboard input option)
+    - src/pages/kitchen/KitchenMeasurements.tsx (dictation persistence and apply handlers)
+    - src/pages/AssessmentDetail.tsx (pass job data for dictations)
+
 **Next Phase (In Progress):**
 - Compass-style direction selector for wall angles (8 directions: N, NE, E, SE, S, SW, W, NW at 45° increments)
 - Wall attachment logic: show which end of previous wall to attach new wall to
 - Simplify wall placement flow: consolidate into one dialog with compass selector
+- (After wall placement complete) Extend voice dictation to other job types (Bathroom, Flooring, Painting, etc.)
 
 ### 🔲 Next Up (Priority Order)
+
+#### ✅ Voice Dictation with AI Parsing (COMPLETE — June 5-7, 2026)
+**Goal:** Allow field workers to speak measurements and have AI automatically populate form fields.
+
+**Completed:**
+- [x] Web Speech API integration with pause/resume and native Android keyboard fallback
+- [x] OpenRouter free tier with multi-model fallback (GPT-OSS, Nemotron, Gemma)
+- [x] Intelligent transcript parsing (wall length, windows, doors, appliances, questions)
+- [x] Persistent dictation storage (saved to assessment, survives tab switches and reloads)
+- [x] Edit/delete capability for dictations
+- [x] Apply to Form functionality that populates measurement fields with parsed data
+- [x] Parsed results stay with each dictation permanently (not temporary state)
+
+**How It Works:**
+1. Click 🎤 Dictate Notes in Measure tab
+2. Speak naturally (or type with keyboard) to record measurements
+3. Parsed results appear in green box with confidence level
+4. Switch tabs freely — parsed results persist across session
+5. Click ✓ Apply to Form to auto-populate measurement fields
+6. Form fields visibly update, data saves to Supabase
+
+**Files:**
+- src/utils/parseTranscriptWithOpenRouter.ts — AI parsing with free models
+- src/utils/applyParsedDataToJob.ts — intelligent field mapping to form
+- src/components/DictationTranscriptsPanel.tsx — dictation list management
+- src/types/index.ts — DictationTranscript and ParsedResult types
+- src/pages/kitchen/KitchenMeasurements.tsx — dictation persistence and apply handlers
 
 #### ✅ Configurable Dropdown Lists (COMPLETE — May 15, 2026 Evening)
 **Goal:** Allow admins to create and manage dropdown options for labels throughout the app instead of free-text inputs.
@@ -457,6 +536,29 @@
 - ✓ Estimates generate correctly for all walls
 - ✓ Persist to Supabase
 - ✓ Works on Kitchen, Bathroom (and any other wall-based pages)
+
+#### 🔲 Feature 3: Voice Dictation for All Job Types — FUTURE
+**Goal:** Extend voice dictation + AI parsing to Bathroom, Flooring, Painting, and room templates.
+
+**Current State:**
+- Voice dictation fully implemented in Kitchen measurements
+- AI parsing works for all job types (parsing function is job-type aware)
+- Apply to Form logic handles Kitchen measurements
+
+**Scope (Per Job Type):**
+- **Bathroom:** Dictate tub/shower/vanity measurements, toilet location, plumbing details
+- **Flooring:** Dictate room dimensions, floor type, trim measurements, transition locations
+- **Painting:** Dictate room dimensions, paint types, special instructions
+- **Living Room/Bedroom/Deck:** Dictate room-specific measurements
+
+**Implementation:**
+- Extend applyParsedDataToJob() to handle Bathroom, Flooring, etc. (already supports generically)
+- Add DictationTranscriptsPanel to BathroomMeasurements, FlooringMeasurements, etc.
+- Wire up handleApplyParsedData handlers in each measurement component
+- Update parsing prompt to recognize job-type-specific measurement terms
+- Test end-to-end for each job type
+
+**Status:** Ready to implement when voice dictation usage in Kitchen validates the pattern
 
 #### Sprint 4: Admin Panel
 **Goal:** Give owner full control over job types, pricing, team, cabinet gallery.
@@ -549,8 +651,10 @@
 | Forms | Plain controlled components | ✅ In use (React Hook Form/Zod deferred) |
 | Styling | Custom CSS (dark mode, brand tokens) | ✅ In use |
 | Backend (Phase 5) | Supabase (PostgreSQL + Auth + Storage) | ✅ In use |
-| Auth (Phase 5) | Supabase email/password | ✅ In use |
+| Auth (Phase 5) | Supabase PIN-based (4-12 digit) | ✅ In use |
 | Photos (Phase 5) | Supabase Storage + IndexedDB cache | ✅ In use |
+| Voice Recognition | Web Speech API + Native Android Keyboard | ✅ In use |
+| AI Parsing | OpenRouter API (Free tier, multi-model fallback) | ✅ In use |
 | PDF Export | react-pdf or jsPDF | 🔲 TBD (Sprint 6) |
 | Mobile | React Native or PWA | 🔲 TBD (Sprint 7) |
 
@@ -565,11 +669,15 @@ src/
 │   ├── calculations.ts         # formatDate, sq ft calc, etc.
 │   ├── estimateEngine.ts       # Auto-generate line items from measurements
 │   ├── defaultPriceGuide.ts    # Seed data for 7 price categories
-│   └── photoStorage.ts         # IndexedDB photo save/load/delete
+│   ├── photoStorage.ts         # IndexedDB photo save/load/delete
+│   ├── parseTranscriptWithOpenRouter.ts # AI transcript parsing with OpenRouter free models
+│   └── applyParsedDataToJob.ts # Intelligent mapping of parsed data to form fields
 ├── components/                 # Reusable UI components
 │   ├── PhotosTab.tsx           # Unified photo interface (dropdown-based, all job types)
 │   ├── PhotoItem.tsx           # Individual photo with take/upload/delete options
-│   ├── CameraModal.tsx         # Device camera capture + preview
+│   ├── CameraModal.tsx         # Device camera capture + video recording + upload
+│   ├── VoiceDictationButton.tsx # Record measurements with Web Speech API or keyboard
+│   ├── DictationTranscriptsPanel.tsx # Manage dictations, parse, apply to form
 │   ├── CustomPhotosSection.tsx # Legacy custom photos (deprecated, use PhotosTab)
 │   └── ...                     # Toggle, MeasInput, WallSection, etc.
 ├── pages/
