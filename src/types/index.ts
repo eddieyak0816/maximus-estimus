@@ -148,6 +148,7 @@ export interface WallLengthPiece {
 
 export interface WallData {
   name?: string;
+  notes?: string;
   length?: string;
   direction?: 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
   lengthPieces?: WallLengthPiece[];

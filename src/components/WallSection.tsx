@@ -400,13 +400,24 @@ export default function WallSection({ wall, data, onUpdate, globalHasSoffit, sof
               Length: {data.length}
               <button className="icon-btn" title="Edit length" style={{ fontSize: '12px', padding: '4px' }} onClick={e => { e.stopPropagation(); setEditingLength(true); setLengthDraft(data.length || ''); }}>✎</button>
             </span>}
-            {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}
+            {(data.windows || []).length} win · {(data.doors || []).length} door · {(data.outlets || []).length} outlet · {appCount} appl{data.hasSink ? ' · sink' : ''}{(data.hasUpperCabs || data.hasBaseCabs || data.hasTallCab) ? ' · cabs' : ''}{data.notes ? ' · 📝' : ''}
           </div>
         </div>
       </div>
 
       {open && (
         <div className="wall-body">
+          <div style={{ marginBottom: 14 }}>
+            <div className="tiny-label" style={{ marginBottom: 6 }}>Wall Notes</div>
+            <textarea
+              className="input"
+              rows={2}
+              placeholder="Any notes about this wall…"
+              value={data.notes || ''}
+              onChange={e => u('notes', e.target.value)}
+              style={{ width: '100%', resize: 'vertical', minHeight: 60 }}
+            />
+          </div>
           <MeasInput label="Wall Length" value={data.length} onChange={v => u('length', v)} />
 
           <div className="wall-sub-section">
