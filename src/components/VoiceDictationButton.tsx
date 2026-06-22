@@ -113,12 +113,25 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     };
   }, []);
 
-  function startListening() {
+  function openModal() {
     setTranscript('');
     interimTranscriptRef.current = '';
     setErrorMessage('');
     setShowModal(true);
     setUseKeyboardInput(false);
+  }
+
+  function beginRecording() {
+    if (recognitionRef.current && !isListening) {
+      setTranscript('');
+      interimTranscriptRef.current = '';
+      setErrorMessage('');
+      recognitionRef.current.start();
+    }
+  }
+
+  function startListening() {
+    openModal();
   }
 
   function stopListening() {
@@ -301,7 +314,7 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
                 {!isListening && !isPaused ? (
                   <button
                     className="btn btn-primary"
-                    onClick={startListening}
+                    onClick={beginRecording}
                     style={{ flex: '1 1 calc(50% - 4px)', minWidth: '100px' }}
                   >
                     🎤 Start Recording
