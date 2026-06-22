@@ -104,6 +104,25 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
+        {/* Message Templates */}
+        <Link to="/admin/messages" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="section-card" style={{ cursor: 'pointer', transition: 'transform 0.15s', height: '100%' }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div className="section-card-header">
+              <div>
+                <div className="section-card-title">📋 Message Templates</div>
+                <div className="section-card-subtitle">Prefill Communication Log</div>
+              </div>
+              <span style={{ fontSize: 24 }}>→</span>
+            </div>
+            <div className="section-card-body" style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+              Create and manage premade messages for team members to use in customer communication logs.
+            </div>
+          </div>
+        </Link>
+
         {/* Job Statuses */}
         <Link to="/admin/statuses" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="section-card" style={{ cursor: 'pointer', transition: 'transform 0.15s', height: '100%' }}

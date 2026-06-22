@@ -14,6 +14,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminDropdownsPage from './pages/AdminDropdownsPage';
 import AdminStatusesPage from './pages/AdminStatusesPage';
+import AdminMessagesPage from './pages/AdminMessagesPage';
 import { useAssessmentStore } from './store/assessmentStore';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FontScaleProvider } from './contexts/FontScaleContext';
@@ -166,6 +167,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AdminStatusesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/messages"
+          element={
+            <ProtectedRoute>
+              <AdminMessagesPage />
             </ProtectedRoute>
           }
         />
