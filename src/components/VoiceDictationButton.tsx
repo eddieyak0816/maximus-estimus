@@ -5,7 +5,6 @@ interface Props {
   label?: string;
 }
 
-type RecognitionState = 'idle' | 'listening' | 'processing' | 'error';
 
 declare global {
   interface Window {
@@ -18,7 +17,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
   const [isListening, setIsListening] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [state, setState] = useState<RecognitionState>('idle');
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [useKeyboardInput, setUseKeyboardInput] = useState(false);
@@ -48,7 +46,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
 
     recognition.onstart = () => {
       setIsListening(true);
-      setState('listening');
       setTranscript('');
       interimTranscriptRef.current = '';
       setErrorMessage('');
@@ -106,7 +103,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
 
     recognition.onend = () => {
       setIsListening(false);
-      setState('idle');
     };
 
     recognitionRef.current = recognition;
