@@ -177,6 +177,7 @@ interface Store {
   addStatus: (status: StatusConfig) => void;
   updateStatus: (value: string, patch: Partial<Pick<StatusConfig, 'label' | 'color'>>) => void;
   deleteStatus: (value: string) => void;
+  updateStatusOrder: (orderedStatuses: StatusConfig[]) => void;
   createAssessment: (userId?: string) => string;
   updateAssessment: (id: string, patch: Partial<Assessment>) => void;
   deleteAssessment: (id: string) => void;
@@ -232,6 +233,13 @@ export const useAssessmentStore = create<Store>((set, get) => ({
       const next = s.statuses.filter(st => st.value !== value);
       save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, next);
       return { statuses: next };
+    });
+  },
+
+  updateStatusOrder: (orderedStatuses: StatusConfig[]) => {
+    set(s => {
+      save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, orderedStatuses);
+      return { statuses: orderedStatuses };
     });
   },
 
