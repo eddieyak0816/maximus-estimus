@@ -29,7 +29,6 @@ export default function VoiceDictationButton({ onTranscribed, label = 'Dictate' 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setState('error');
       return;
     }
 
