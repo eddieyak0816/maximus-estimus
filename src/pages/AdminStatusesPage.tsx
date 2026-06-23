@@ -55,7 +55,13 @@ export default function AdminStatusesPage() {
     if (!editingValue) return;
     const label = editLabel.trim();
     if (!label) { setError('Label is required'); return; }
-    updateStatus(editingValue, { label, color: editColor });
+    const newValue = slugify(label);
+    if (!newValue) { setError('Label must contain letters or numbers'); return; }
+    if (newValue !== editingValue && statuses.find(s => s.value === newValue)) {
+      setError('A status with that slug already exists');
+      return;
+    }
+    updateStatus(editingValue, { value: newValue, label, color: editColor });
     setEditingValue(null);
     setError('');
   }
@@ -109,14 +115,21 @@ export default function AdminStatusesPage() {
                   onChange={e => setEditColor(e.target.value)}
                   style={{ width: 40, height: 40, border: 'none', background: 'none', cursor: 'pointer', padding: 0, borderRadius: 6 }}
                 />
-                <input
-                  className="input"
-                  style={{ flex: 1, minWidth: 120 }}
-                  value={editLabel}
-                  onChange={e => setEditLabel(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
-                  autoFocus
-                />
+                <div style={{ flex: 1, minWidth: 120 }}>
+                  <input
+                    className="input"
+                    style={{ width: '100%' }}
+                    value={editLabel}
+                    onChange={e => { setEditLabel(e.target.value); setError(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
+                    autoFocus
+                  />
+                  {editLabel.trim() && slugify(editLabel) !== editingValue && (
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
+                      slug will change to: {slugify(editLabel)}
+                    </div>
+                  )}
+                </div>
                 <button className="btn btn-primary" onClick={handleSaveEdit}>Save</button>
                 <button className="btn btn-ghost" onClick={() => setEditingValue(null)}>Cancel</button>
               </div>

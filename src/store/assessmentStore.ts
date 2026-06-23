@@ -175,7 +175,7 @@ interface Store {
   markupSettings: MarkupSettings;
   statuses: StatusConfig[];
   addStatus: (status: StatusConfig) => void;
-  updateStatus: (value: string, patch: Partial<Pick<StatusConfig, 'label' | 'color'>>) => void;
+  updateStatus: (value: string, patch: Partial<StatusConfig>) => void;
   deleteStatus: (value: string) => void;
   createAssessment: (userId?: string) => string;
   updateAssessment: (id: string, patch: Partial<Assessment>) => void;
@@ -221,9 +221,13 @@ export const useAssessmentStore = create<Store>((set, get) => ({
 
   updateStatus: (value, patch) => {
     set(s => {
-      const next = s.statuses.map(st => st.value === value ? { ...st, ...patch } : st);
-      save(s.assessments, s.teamMembers, s.priceGuide, s.markupSettings, next);
-      return { statuses: next };
+      const newValue = patch.value ?? value;
+      const nextStatuses = s.statuses.map(st => st.value === value ? { ...st, ...patch } : st);
+      const nextAssessments = newValue !== value
+        ? s.assessments.map(a => a.status === value ? { ...a, status: newValue } : a)
+        : s.assessments;
+      save(nextAssessments, s.teamMembers, s.priceGuide, s.markupSettings, nextStatuses);
+      return { statuses: nextStatuses, assessments: nextAssessments };
     });
   },
 
