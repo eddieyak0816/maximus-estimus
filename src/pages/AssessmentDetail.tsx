@@ -28,12 +28,13 @@ import OtherTabs from './other/OtherTabs';
 import LayoutTab from '../components/LayoutTab';
 import WallMeasurementDialog from '../components/WallMeasurementDialog';
 import AIExtractTab from '../components/AIExtractTab';
+import CommunicationsLogTab from '../components/CommunicationsLogTab';
 import { formatDate } from '../utils/calculations';
 import { hasQuestionsContent } from '../utils/hasQuestionsContent';
 import type {
   KitchenAssessment, BathroomAssessment,
   FlooringAssessment, LivingRoomAssessment, BedroomAssessment, DeckAssessment, OtherAssessment,
-  LayoutData, WallData, WallDirection,
+  LayoutData, WallData, WallDirection, LogEntry, MessageTemplate,
 } from '../types';
 
 
@@ -42,6 +43,7 @@ const TABS = [
   { id: 'extract',      label: '🤖 AI Extract' },
   { id: 'questions',    label: '📋 Questions' },
   { id: 'photos',       label: '📷 Photos' },
+  { id: 'communications', label: '💬 Log' },
   { id: 'layout',       label: '📐 Layout' },
 ] as const;
 
@@ -63,20 +65,56 @@ export default function AssessmentDetail() {
   const [users, setUsers] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
   const [showReassignDropdown, setShowReassignDropdown] = useState(false);
   const [wallDialog, setWallDialog] = useState<{ show: boolean; wallIndex: number; direction: WallDirection; step: 'select' | 'enter-data'; startX?: number; startY?: number }>({ show: false, wallIndex: 0, direction: null, step: 'select' });
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
 
-  // Load users for reassignment (admin only)
+  // Load users for reassignment (admin only) and build creator map
   useEffect(() => {
-    if (!user?.isAdmin) return;
     async function loadUsers() {
       const { data, error } = await supabase
         .from('pin_users')
         .select('id,first_name,last_name');
       if (!error && data) {
-        setUsers(data.map(u => ({ id: u.id, firstName: u.first_name, lastName: u.last_name })));
+        const userList = data.map(u => ({ id: u.id, firstName: u.first_name, lastName: u.last_name }));
+        if (user?.isAdmin) {
+          setUsers(userList);
+        }
+        // Build creator map for all users (not just for admins)
+        const map: Record<string, string> = {};
+        userList.forEach(u => {
+          map[u.id] = `${u.firstName} ${u.lastName}`.trim();
+        });
+        setCreatorMap(map);
       }
     }
     loadUsers();
   }, [user?.isAdmin]);
+
+  // Load message templates
+  useEffect(() => {
+    async function loadTemplates() {
+      try {
+        const { data, error } = await supabase
+          .from('message_templates')
+          .select('id,name,content,created_by,created_at,updated_at')
+          .order('updated_at', { ascending: false });
+        if (!error && data) {
+          const mapped: MessageTemplate[] = data.map(t => ({
+            id: t.id,
+            name: t.name,
+            content: t.content,
+            createdBy: t.created_by,
+            createdAt: t.created_at,
+            updatedAt: t.updated_at,
+          }));
+          setTemplates(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load templates:', err);
+      }
+    }
+    loadTemplates();
+  }, []);
 
   if (!assessment) {
     return (
@@ -277,8 +315,52 @@ export default function AssessmentDetail() {
     setActiveTab('measurements');
   };
 
+  const handleAddLogEntry = (entry: LogEntry) => {
+    if (!assessment) return;
+    const updatedLog = [...(assessment.communicationLog || []), entry];
+    updateAssessment(assessment.id, { communicationLog: updatedLog });
+  };
+
+  const handleEditLogEntry = (entryId: string, newContent: string) => {
+    if (!assessment) return;
+    const updatedLog = (assessment.communicationLog || []).map(entry => {
+      if (entry.id !== entryId) return entry;
+
+      const updatedEntry: LogEntry = {
+        ...entry,
+        content: newContent,
+        editHistory: [
+          ...(entry.editHistory || []),
+          {
+            previousContent: entry.content,
+            newContent: newContent,
+            editedAt: new Date().toISOString(),
+            editedBy: user?.id || 'unknown',
+          }
+        ]
+      };
+      return updatedEntry;
+    });
+    updateAssessment(assessment.id, { communicationLog: updatedLog });
+  };
+
   const renderTabContent = () => {
     if (!activeJob) return null;
+
+    // Communications tab is assessment-wide, not job-specific
+    if (activeTab === 'communications') {
+      return (
+        <CommunicationsLogTab
+          log={assessment?.communicationLog}
+          assignedTeamMemberIds={assessment?.assignedTeamMemberIds}
+          creatorId={assessment?.creatorId}
+          onAddEntry={handleAddLogEntry}
+          onEditEntry={handleEditLogEntry}
+          creatorMap={creatorMap}
+          templates={templates}
+        />
+      );
+    }
 
     const measurementsKey = activeTab === 'measurements' ? 'measurements-tab' : undefined;
     const startClosed = activeTab === 'measurements';

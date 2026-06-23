@@ -22,12 +22,13 @@ type SortBy = 'date-newest' | 'date-oldest' | 'name-asc' | 'name-desc';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { assessments, deleteAssessment, statuses } = useAssessmentStore();
+  const { assessments, deleteAssessment, setStatus, statuses } = useAssessmentStore();
   const [creatorMap, setCreatorMap] = useState<Record<string, string>>({});
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>('date-newest');
   const [searchName, setSearchName] = useState('');
   const [selectedJobTypes, setSelectedJobTypes] = useState<JobType[]>([]);
+  const [statusDropdownId, setStatusDropdownId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCreators() {
@@ -121,6 +122,11 @@ export default function Dashboard() {
         ? prev.filter(t => t !== jobType)
         : [...prev, jobType]
     );
+  };
+
+  const handleStatusChange = (assessmentId: string, newStatus: string) => {
+    setStatus(assessmentId, newStatus);
+    setStatusDropdownId(null);
   };
 
   return (
@@ -274,10 +280,83 @@ export default function Dashboard() {
                 </div>
 
                 <div className="assessment-card-right">
-                  <span className="status-label"
-                    style={{ color: statuses.find(s => s.value === a.status)?.color ?? '#6b7280' }}>
-                    {statuses.find(s => s.value === a.status)?.label ?? a.status}
-                  </span>
+                  <div style={{ position: 'relative' }}>
+                    <button
+                      className="status-label"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setStatusDropdownId(statusDropdownId === a.id ? null : a.id);
+                      }}
+                      style={{
+                        color: statuses.find(s => s.value === a.status)?.color ?? '#6b7280',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      {statuses.find(s => s.value === a.status)?.label ?? a.status} ▼
+                    </button>
+
+                    {statusDropdownId === a.id && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          marginTop: '4px',
+                          background: 'rgba(13, 18, 45, 0.95)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          borderRadius: '6px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                          zIndex: 1000,
+                          minWidth: '150px',
+                          backdropFilter: 'blur(10px)',
+                        }}
+                      >
+                        {statuses.map(st => (
+                          <button
+                            key={st.value}
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleStatusChange(a.id, st.value);
+                            }}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '10px 12px',
+                              textAlign: 'left',
+                              border: 'none',
+                              background: a.status === st.value ? `rgba(${parseInt(st.color.slice(1, 3), 16)}, ${parseInt(st.color.slice(3, 5), 16)}, ${parseInt(st.color.slice(5, 7), 16)}, 0.2)` : 'transparent',
+                              color: a.status === st.value ? st.color : 'rgba(255, 255, 255, 0.8)',
+                              cursor: 'pointer',
+                              fontSize: '0.875rem',
+                              fontWeight: a.status === st.value ? '600' : '400',
+                              transition: 'all 0.15s',
+                              borderLeft: a.status === st.value ? `3px solid ${st.color}` : '3px solid transparent',
+                            }}
+                            onMouseEnter={e => {
+                              if (a.status !== st.value) {
+                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                              }
+                            }}
+                            onMouseLeave={e => {
+                              if (a.status !== st.value) {
+                                e.currentTarget.style.background = 'transparent';
+                              }
+                            }}
+                          >
+                            {a.status === st.value ? '✓ ' : ''}{st.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     className="btn btn-ghost btn-sm btn-danger"
                     onClick={e => { e.stopPropagation(); handleDelete(a.id, name); }}

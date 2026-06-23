@@ -54,6 +54,31 @@ export interface DictationTranscript {
   parsed?: ParsedResult; // Store parsed results
 }
 
+// ── Message Templates & Communication Log ─────────────────────────────────────
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  content: string;
+  createdBy: string; // userId
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
+}
+
+export interface LogEntryEdit {
+  previousContent: string;
+  newContent: string;
+  editedAt: string; // ISO timestamp (EST)
+  editedBy: string; // userId
+}
+
+export interface LogEntry {
+  id: string;
+  timestamp: string; // ISO timestamp (EST)
+  userId: string; // who created this entry
+  content: string;
+  editHistory?: LogEntryEdit[]; // tracks all edits
+}
+
 // ── AI Extract Data (Flexible, Wall-Based) ────────────────────────────────────
 export interface AIExtractAppliance {
   id: string;
@@ -694,10 +719,12 @@ export interface Assessment {
   createdAt: string;
   updatedAt: string;
   creatorId: string;
-  assignedToUserId?: string;
+  assignedToUserId?: string; // deprecated, use assignedTeamMemberIds
+  assignedTeamMemberIds?: string[]; // multiple team members with access
   client: ClientInfo;
   jobs: JobInstance[];
   costs: CostEstimate;
   estimate?: EstimateData;
   generalNotes: string;
+  communicationLog?: LogEntry[]; // customer-level communication history
 }

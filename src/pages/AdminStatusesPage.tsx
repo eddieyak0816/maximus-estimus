@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAssessmentStore } from '../store/assessmentStore';
+import type { StatusConfig } from '../types';
 
 function slugify(label: string): string {
   return label.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -9,7 +10,7 @@ function slugify(label: string): string {
 
 export default function AdminStatusesPage() {
   const { user } = useAuth();
-  const { statuses, assessments, addStatus, updateStatus, deleteStatus } = useAssessmentStore();
+  const { statuses, assessments, addStatus, updateStatus, deleteStatus, updateStatusOrder } = useAssessmentStore();
 
   const [newLabel, setNewLabel] = useState('');
   const [newColor, setNewColor] = useState('#6b7280');
@@ -17,6 +18,9 @@ export default function AdminStatusesPage() {
   const [editLabel, setEditLabel] = useState('');
   const [editColor, setEditColor] = useState('');
   const [error, setError] = useState('');
+  const [orderedStatuses, setOrderedStatuses] = useState<StatusConfig[]>(statuses);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   if (!user?.isAdmin) {
     return (
@@ -78,6 +82,38 @@ export default function AdminStatusesPage() {
     }
   }
 
+  const handleDragStart = (index: number) => {
+    setDraggingIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggingIndex === null || draggingIndex === index) return;
+
+    const newStatuses = [...orderedStatuses];
+    const draggedStatus = newStatuses[draggingIndex];
+    newStatuses.splice(draggingIndex, 1);
+    newStatuses.splice(index, 0, draggedStatus);
+    setOrderedStatuses(newStatuses);
+    setDraggingIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null);
+  };
+
+  const handleSaveOrder = () => {
+    updateStatusOrder(orderedStatuses);
+    setIsReordering(false);
+    alert('Status order saved!');
+  };
+
+  const handleCancelReorder = () => {
+    setOrderedStatuses(statuses);
+    setIsReordering(false);
+    setDraggingIndex(null);
+  };
+
   return (
     <div className="page">
       <div className="page-header">
@@ -91,6 +127,75 @@ export default function AdminStatusesPage() {
           <p className="page-subtitle">Create and manage the status options shown on assessments</p>
         </div>
       </div>
+
+      {/* Reordering Section */}
+      {!isReordering && statuses.length > 1 && (
+        <div style={{ marginBottom: 20 }}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => setIsReordering(true)}
+            style={{ fontSize: 13 }}
+          >
+            ↕️ Reorder Statuses
+          </button>
+        </div>
+      )}
+
+      {isReordering && (
+        <div style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '18px 20px',
+          marginBottom: 28,
+        }}>
+          <div className="tiny-label" style={{ marginBottom: 12 }}>📊 Drag to Reorder Statuses</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+            {orderedStatuses.map((st, index) => (
+              <div
+                key={st.value}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={e => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                style={{
+                  background: draggingIndex === index ? 'rgba(59, 130, 246, 0.15)' : 'var(--bg-elevated)',
+                  border: `1px solid ${draggingIndex === index ? 'rgba(59, 130, 246, 0.5)' : 'var(--border-subtle)'}`,
+                  borderRadius: 'var(--radius)',
+                  padding: '10px 12px',
+                  cursor: 'grab',
+                  transition: 'all 0.2s',
+                  opacity: draggingIndex === index ? 0.7 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                <span style={{ fontSize: 18, color: 'var(--text-muted)', userSelect: 'none' }}>⋮⋮</span>
+                <div
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 4,
+                    background: st.color,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontWeight: 600, fontSize: 14 }}>{st.label}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 'auto' }}>({st.value})</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-primary" onClick={handleSaveOrder}>
+              💾 Save Order
+            </button>
+            <button className="btn btn-ghost" onClick={handleCancelReorder}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Existing Statuses */}
       <div style={{ marginBottom: 28 }}>
